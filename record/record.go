@@ -2,6 +2,7 @@ package record
 
 import (
 	"fmt"
+	"github.com/skysparq/grib2-go/templates"
 	"io"
 )
 
@@ -15,14 +16,51 @@ type Record struct {
 	Data              Section6
 }
 
-func ParseRecord(r io.Reader) (record Record, err error) {
+func ParseRecord(r io.Reader, template templates.Template) (record Record, err error) {
 	record.Indicator, err = ParseSection0(r)
 	if err != nil {
 		return record, fmt.Errorf("error parsing record: %w", err)
 	}
-	record.Identification, err = ParseSection1(r)
-	if err != nil {
-		return record, fmt.Errorf("error parsing record: %w", err)
+
+	totalLength := record.Indicator.GribLength
+	readLength := 16
+	var data SectionData
+	for {
+		data, err = readVariableLengthSection(r)
+		if err != nil {
+			return record, fmt.Errorf("error parsing record: %w", err)
+		}
+		readLength += data.Length
+		switch data.SectionNumber {
+		case 1:
+			record.Identification, err = ParseSection1(data)
+		case 2:
+			record.LocalUse, err = ParseSection2(data)
+		case 3:
+			record.GridDefinition, err = ParseSection3(data, template)
+		case 4:
+			record.ProductDefinition, err = ParseSection4(data, template)
+		default:
+			err = nil
+		}
+		if readLength > totalLength-4 {
+			return record, fmt.Errorf("error parsing record: the GRIB record appears to be malformed")
+		}
+		if readLength == totalLength-4 {
+			var section8 []byte
+			section8, err = readFixedLengthSection(r, 4)
+			if err != nil {
+				return record, fmt.Errorf("error parsing record: %w", err)
+			}
+			if string(section8) != "7777" {
+				return record, fmt.Errorf("error parsing record: the GRIB record does not end with 7777")
+			}
+			break
+		}
+		if err != nil {
+			return record, fmt.Errorf("error parsing record: %w", err)
+		}
 	}
+
 	return record, nil
 }

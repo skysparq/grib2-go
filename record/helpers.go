@@ -7,13 +7,14 @@ import (
 )
 
 type SectionData struct {
-	Length int
-	Data   []byte
+	Length        int
+	SectionNumber int
+	Bytes         []byte
 }
 
 func readVariableLengthSection(r io.Reader) (data SectionData, err error) {
 	lengthBytes := make([]byte, 4)
-	totalRead, err := r.Read(lengthBytes)
+	totalRead, err := io.ReadFull(r, lengthBytes)
 	if err != nil {
 		return data, err
 	}
@@ -25,19 +26,21 @@ func readVariableLengthSection(r io.Reader) (data SectionData, err error) {
 
 	remainderLength := length - 4
 	remainderBytes := make([]byte, remainderLength)
-	totalRead, err = r.Read(remainderBytes)
+	totalRead, err = io.ReadFull(r, remainderBytes)
 	if err != nil {
 		return data, err
 	}
 	if totalRead != remainderLength {
 		return data, fmt.Errorf(`expected %d bytes read for rest of record, got %d`, remainderLength, totalRead)
 	}
+	data.SectionNumber = int(remainderBytes[0])
+	data.Bytes = append(lengthBytes, remainderBytes...)
 	return data, nil
 }
 
 func readFixedLengthSection(r io.Reader, length int) ([]byte, error) {
 	sectionBytes := make([]byte, length)
-	totalRead, err := r.Read(sectionBytes)
+	totalRead, err := io.ReadFull(r, sectionBytes)
 	if err != nil {
 		return sectionBytes, err
 	}

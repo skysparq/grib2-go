@@ -1,8 +1,8 @@
 package record
 
 import (
+	"encoding/binary"
 	"fmt"
-	"io"
 )
 
 type Section1 struct {
@@ -23,12 +23,25 @@ type Section1 struct {
 	Reserved                  []byte
 }
 
-func ParseSection1(r io.Reader) (section1 Section1, err error) {
-	data, err := readVariableLengthSection(r)
-	if err != nil {
-		return section1, fmt.Errorf(`error parsing section 1: %w`, err)
+func ParseSection1(data SectionData) (section Section1, err error) {
+	section.Length = data.Length
+	if data.SectionNumber != 1 {
+		return section, fmt.Errorf(`error parsing section 1: expected section number 1, got %d`, data.SectionNumber)
 	}
-	section1.Length = data.Length
+	section.OriginatingCenter = int(binary.BigEndian.Uint16(data.Bytes[5:7]))
+	section.OriginatingSubCenter = int(binary.BigEndian.Uint16(data.Bytes[7:9]))
+	section.MasterTableVersion = int(data.Bytes[9])
+	section.LocalTableVersion = int(data.Bytes[10])
+	section.ReferenceTimeSignificance = int(data.Bytes[11])
+	section.Year = int(binary.BigEndian.Uint16(data.Bytes[12:14]))
+	section.Month = int(data.Bytes[14])
+	section.Day = int(data.Bytes[15])
+	section.Hour = int(data.Bytes[16])
+	section.Minute = int(data.Bytes[17])
+	section.Second = int(data.Bytes[18])
+	section.ProductionStatus = int(data.Bytes[19])
+	section.DataType = int(data.Bytes[20])
+	section.Reserved = data.Bytes[21:]
 
-	return section1, nil
+	return section, nil
 }
