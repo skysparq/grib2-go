@@ -40,6 +40,18 @@ func TestParseGfsRecordPointInTime(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	err = checkSection5(rec.DataRepresentation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = checkSection6(rec.BitMap)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = checkSection7(rec.Data)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func checkSection0(section record.Section0) error {
@@ -151,6 +163,45 @@ func checkSection4(section record.Section4) error {
 	}
 	if expected := 0; len(section.CoordinateValuesData) != expected {
 		return fmt.Errorf(`expected coordinate values data length %d, got %d`, expected, len(section.CoordinateValuesData))
+	}
+	return nil
+}
+
+func checkSection5(section record.Section5) error {
+	if expected := 49; section.Length != expected {
+		return fmt.Errorf(`expected length %d, got %d`, expected, section.Length)
+	}
+	if expected := 1_038_240; section.TotalDataPoints != expected {
+		return fmt.Errorf(`expected coordinate values after template %d, got %d`, expected, section.TotalDataPoints)
+	}
+	if expected := 3; section.DataRepresentationTemplateNumber != expected {
+		return fmt.Errorf(`expected data representation template %d, got %d`, expected, section.DataRepresentationTemplateNumber)
+	}
+	if expected := 38; len(section.DataRepresentationTemplateData) != expected {
+		return fmt.Errorf(`expected data representation length %d, got %d`, expected, len(section.DataRepresentationTemplateData))
+	}
+	return nil
+}
+
+func checkSection6(section record.Section6) error {
+	if expected := 6; section.Length != expected {
+		return fmt.Errorf(`expected length %d, got %d`, expected, section.Length)
+	}
+	if expected := 255; section.BitmapIndicator != expected {
+		return fmt.Errorf(`expected bitmap indicator %d, got %d`, expected, section.BitmapIndicator)
+	}
+	if expected := 0; len(section.BitmapData) != expected {
+		return fmt.Errorf(`expected data representation length %d, got %d`, expected, len(section.BitmapData))
+	}
+	return nil
+}
+
+func checkSection7(section record.Section7) error {
+	if expected := 1_000_712; section.Length != expected {
+		return fmt.Errorf(`expected length %d, got %d`, expected, section.Length)
+	}
+	if expected := 1_000_707; len(section.Data) != expected {
+		return fmt.Errorf(`expected data representation length %d, got %d`, expected, len(section.Data))
 	}
 	return nil
 }

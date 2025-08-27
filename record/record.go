@@ -7,13 +7,14 @@ import (
 )
 
 type Record struct {
-	Indicator         Section0
-	Identification    Section1
-	LocalUse          Section2
-	GridDefinition    Section3
-	ProductDefinition Section4
-	BitMap            Section5
-	Data              Section6
+	Indicator          Section0
+	Identification     Section1
+	LocalUse           Section2
+	GridDefinition     Section3
+	ProductDefinition  Section4
+	DataRepresentation Section5
+	BitMap             Section6
+	Data               Section7
 }
 
 func ParseRecord(r io.Reader, template templates.Template) (record Record, err error) {
@@ -40,6 +41,12 @@ func ParseRecord(r io.Reader, template templates.Template) (record Record, err e
 			record.GridDefinition, err = ParseSection3(data, template)
 		case 4:
 			record.ProductDefinition, err = ParseSection4(data, template)
+		case 5:
+			record.DataRepresentation, err = ParseSection5(data)
+		case 6:
+			record.BitMap, err = ParseSection6(data)
+		case 7:
+			record.Data, err = ParseSection7(data)
 		default:
 			err = nil
 		}
