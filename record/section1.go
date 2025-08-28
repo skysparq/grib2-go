@@ -2,6 +2,7 @@ package record
 
 import (
 	"fmt"
+	"time"
 
 	u "github.com/skysparq/grib2/utility"
 )
@@ -45,4 +46,8 @@ func ParseSection1(data SectionData) (section Section1, err error) {
 	section.Reserved = data.Bytes[21:]
 
 	return section, nil
+}
+
+func (s Section1) Time() time.Time {
+	return time.Date(s.Year, time.Month(s.Month), s.Day, s.Hour, s.Minute, s.Second, 0, time.UTC)
 }

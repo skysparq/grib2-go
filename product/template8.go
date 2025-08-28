@@ -2,6 +2,7 @@ package product
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/skysparq/grib2/record"
 	u "github.com/skysparq/grib2/utility"
@@ -87,4 +88,8 @@ func (t Template8) Parse(section record.Section4) (Definition, error) {
 		})
 	}
 	return t, nil
+}
+
+func (t Template8) EndTime() time.Time {
+	return time.Date(t.EndYear, time.Month(t.EndMonth), t.EndDay, t.EndHour, t.EndMinute, t.EndSecond, 0, time.UTC)
 }

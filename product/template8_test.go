@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/skysparq/grib2/product"
 	"github.com/skysparq/grib2/record"
@@ -61,8 +62,12 @@ func TestTemplate8(t *testing.T) {
 			},
 		},
 	}
-	if typed := template.(product.Template8); !reflect.DeepEqual(expected, typed) {
+	typed := template.(product.Template8)
+	if !reflect.DeepEqual(expected, typed) {
 		t.Fatalf("expected\n%+v\nbut got\n%+v", expected, typed)
+	}
+	if date := time.Date(2025, 3, 7, 6, 0, 0, 0, time.UTC); date != typed.EndTime() {
+		t.Fatalf(`expected end time %v, got %v`, date, typed.EndTime())
 	}
 	encoded, err := json.Marshal(template)
 	if err != nil {
