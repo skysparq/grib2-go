@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
+	"github.com/skysparq/grib2/data_representation"
 	"github.com/skysparq/grib2/file"
 	"github.com/skysparq/grib2/grid"
 	"github.com/skysparq/grib2/product"
@@ -27,6 +28,7 @@ func main() {
 
 		emitProduct(rec.ProductDefinition)
 		emitGrid(rec.GridDefinition)
+		emitDataRepresentation(rec.DataRepresentation)
 	}
 	println("\nNo errors")
 }
@@ -47,6 +49,16 @@ func emitGrid(def record.Section3) {
 		panic(recErr.Error())
 	}
 	emitJson(prod)
+}
+
+func emitDataRepresentation(def record.Section5) {
+	parser := &data_representation.Parser{}
+	prod, recErr := parser.ParseDefinition(def)
+	if recErr != nil {
+		panic(recErr.Error())
+	}
+	emitJson(prod)
+
 }
 
 func emitJson(obj any) {

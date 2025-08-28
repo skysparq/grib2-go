@@ -14,6 +14,7 @@ type Definition interface {
 func StandardTemplates() map[int]Definition {
 	return map[int]Definition{
 		0: &Template0{},
+		3: &Template3{},
 	}
 }
 
