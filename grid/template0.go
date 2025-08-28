@@ -43,11 +43,11 @@ func (t *Template0) Parse(section record.Section3) error {
 	t.PointsAlongMeridian = u.Int32(section.GridDefinitionTemplateData[20:24])
 	t.BasicAngle = u.Int32(section.GridDefinitionTemplateData[24:28])
 	t.Subdivisions = u.Int32(section.GridDefinitionTemplateData[28:32])
-	t.FirstLatitude = u.OverflowInt32(section.GridDefinitionTemplateData[32:36])
-	t.FirstLongitude = u.OverflowInt32(section.GridDefinitionTemplateData[36:40])
+	t.FirstLatitude = u.SignAndMagnitudeInt32(section.GridDefinitionTemplateData[32:36])
+	t.FirstLongitude = u.SignAndMagnitudeInt32(section.GridDefinitionTemplateData[36:40])
 	t.ResolutionAndComponentFlags = section.GridDefinitionTemplateData[40]
-	t.LastLatitude = u.OverflowInt32(section.GridDefinitionTemplateData[41:45])
-	t.LastLongitude = u.OverflowInt32(section.GridDefinitionTemplateData[45:49])
+	t.LastLatitude = u.SignAndMagnitudeInt32(section.GridDefinitionTemplateData[41:45])
+	t.LastLongitude = u.SignAndMagnitudeInt32(section.GridDefinitionTemplateData[45:49])
 	t.ParallelIncrement = u.Int32(section.GridDefinitionTemplateData[49:53])
 	t.MeridianIncrement = u.Int32(section.GridDefinitionTemplateData[53:57])
 	t.ScanningMode = section.GridDefinitionTemplateData[57]

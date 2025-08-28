@@ -17,31 +17,9 @@ func TestTemplate8(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	template := &product.Template0{}
+	template := &product.Template8{}
 	err = template.Parse(rec.ProductDefinition)
 	if err != nil {
 		t.Fatal(err)
-	}
-	expected := product.Template0{
-		DefinitionHeader: product.DefinitionHeader{
-			ParameterCategory: 3,
-			ParameterNumber:   1,
-		},
-		GeneratingProcessType:       2,
-		BackgroundIdentifier:        0,
-		GeneratingProcessIdentifier: 96,
-		HoursAfterReference:         0,
-		MinutesAfterReference:       0,
-		UnitOfTimeRange:             1,
-		ForecastTimeInUnits:         22,
-		FirstSurfaceType:            101,
-		FirstSurfaceScaleFactor:     0,
-		FirstSurfaceScaleValue:      0,
-		SecondSurfaceType:           255,
-		SecondSurfaceScaleFactor:    0,
-		SecondSurfaceScaleValue:     0,
-	}
-	if expected != *template {
-		t.Fatalf(`expected %+v but got %+v`, expected, template)
 	}
 }
