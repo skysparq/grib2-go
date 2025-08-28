@@ -1,10 +1,11 @@
-package grib2_go
+package file
 
 import (
 	"errors"
-	"github.com/skysparq/grib2-go/record"
-	"github.com/skysparq/grib2-go/templates"
 	"io"
+
+	"github.com/skysparq/grib2/record"
+	"github.com/skysparq/grib2/templates"
 )
 
 type GribFile interface {

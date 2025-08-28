@@ -2,7 +2,8 @@ package record
 
 import (
 	"fmt"
-	u "github.com/skysparq/grib2-go/utility"
+
+	u "github.com/skysparq/grib2/utility"
 )
 
 type Section1 struct {

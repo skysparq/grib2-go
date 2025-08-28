@@ -1,11 +1,14 @@
 package product_test
 
 import (
-	"github.com/skysparq/grib2-go/product"
-	"github.com/skysparq/grib2-go/record"
-	"github.com/skysparq/grib2-go/templates"
+	"encoding/json"
 	"os"
+	"reflect"
 	"testing"
+
+	"github.com/skysparq/grib2/product"
+	"github.com/skysparq/grib2/record"
+	"github.com/skysparq/grib2/templates"
 )
 
 func TestTemplate0(t *testing.T) {
@@ -17,8 +20,7 @@ func TestTemplate0(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	template := &product.Template0{}
-	err = template.Parse(rec.ProductDefinition)
+	template, err := (&product.Template0{}).Parse(rec.ProductDefinition)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +43,12 @@ func TestTemplate0(t *testing.T) {
 		SecondSurfaceScaleFactor:    0,
 		SecondSurfaceScaleValue:     0,
 	}
-	if expected != *template {
-		t.Fatalf(`expected %+v but got %+v`, expected, template)
+	if typed := *template.(*product.Template0); !reflect.DeepEqual(expected, typed) {
+		t.Fatalf("expected\n%+v\nbut got\n%+v", expected, typed)
 	}
+	encoded, err := json.Marshal(template)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf(`%s`, encoded)
 }

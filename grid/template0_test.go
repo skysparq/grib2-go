@@ -1,11 +1,13 @@
 package grid_test
 
 import (
-	"github.com/skysparq/grib2-go/grid"
-	"github.com/skysparq/grib2-go/record"
-	"github.com/skysparq/grib2-go/templates"
 	"os"
+	"reflect"
 	"testing"
+
+	"github.com/skysparq/grib2/grid"
+	"github.com/skysparq/grib2/record"
+	"github.com/skysparq/grib2/templates"
 )
 
 func TestTemplate0(t *testing.T) {
@@ -17,8 +19,7 @@ func TestTemplate0(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	template := &grid.Template0{}
-	err = template.Parse(rec.GridDefinition)
+	template, err := (&grid.Template0{}).Parse(rec.GridDefinition)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +44,7 @@ func TestTemplate0(t *testing.T) {
 		MeridianIncrement:           250000,
 		ScanningMode:                0,
 	}
-	if expected != *template {
-		t.Fatalf("expected\n%+v\nbut got\n%+v", expected, *template)
+	if typed := *template.(*grid.Template0); !reflect.DeepEqual(expected, typed) {
+		t.Fatalf("expected\n%+v\nbut got\n%+v", expected, typed)
 	}
 }

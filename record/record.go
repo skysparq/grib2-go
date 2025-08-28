@@ -2,8 +2,9 @@ package record
 
 import (
 	"fmt"
-	"github.com/skysparq/grib2-go/templates"
 	"io"
+
+	"github.com/skysparq/grib2/templates"
 )
 
 type Record struct {

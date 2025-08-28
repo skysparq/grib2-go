@@ -1,16 +1,17 @@
-package grib2_go_test
+package file_test
 
 import (
-	grib2_go "github.com/skysparq/grib2-go"
-	"github.com/skysparq/grib2-go/templates"
 	"os"
 	"runtime"
 	"testing"
 	"time"
+
+	"github.com/skysparq/grib2/file"
+	"github.com/skysparq/grib2/templates"
 )
 
 func TestLoadGribFile(t *testing.T) {
-	r, err := os.Open(`./.large_test_files/full_gfs_file.grb2`)
+	r, err := os.Open(`../.large_test_files/full_gfs_file.grb2`)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,7 +35,7 @@ func TestLoadGribFile(t *testing.T) {
 		}
 	}()
 
-	grib := grib2_go.NewGribFile(r, templates.Revision20120111())
+	grib := file.NewGribFile(r, templates.Revision20120111())
 	gridDefs := make(map[int]int)
 	prodDefs := make(map[int]int)
 	totalLength := 0

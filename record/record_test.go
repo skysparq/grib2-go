@@ -2,10 +2,11 @@ package record_test
 
 import (
 	"fmt"
-	"github.com/skysparq/grib2-go/record"
-	"github.com/skysparq/grib2-go/templates"
 	"os"
 	"testing"
+
+	"github.com/skysparq/grib2/record"
+	"github.com/skysparq/grib2/templates"
 )
 
 func TestParseGfsRecordPointInTime(t *testing.T) {
