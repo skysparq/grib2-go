@@ -1,9 +1,9 @@
 package record
 
 import (
-	"encoding/binary"
 	"fmt"
 	"github.com/skysparq/grib2-go/templates"
+	u "github.com/skysparq/grib2-go/utility"
 )
 
 type Section3 struct {
@@ -23,10 +23,10 @@ func ParseSection3(data SectionData, template templates.Template) (section Secti
 		return section, fmt.Errorf(`error parsing section 3: expected section number 3, got %d`, data.SectionNumber)
 	}
 	section.GridSourceDefinition = int(data.Bytes[5])
-	section.TotalPoints = int(binary.BigEndian.Uint32(data.Bytes[6:10]))
+	section.TotalPoints = u.Uint32(data.Bytes[6:10])
 	section.OctetsForOptionalPointList = int(data.Bytes[10])
 	section.InterpretationOfPointList = int(data.Bytes[11])
-	section.GridDefinitionTemplateNumber = int(binary.BigEndian.Uint16(data.Bytes[12:14]))
+	section.GridDefinitionTemplateNumber = u.Uint16(data.Bytes[12:14])
 	templateEnd, ok := template.GridDefinitionEnd(section.GridDefinitionTemplateNumber, data.Bytes)
 	if !ok {
 		return section, fmt.Errorf(`error parsing section 3: unsupported Grid Definition Template %d`, section.GridDefinitionTemplateNumber)

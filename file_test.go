@@ -35,11 +35,15 @@ func TestLoadGribFile(t *testing.T) {
 	}()
 
 	grib := grib2_go.NewGribFile(r, templates.Revision20120111())
+	gridDefs := make(map[int]int)
+	prodDefs := make(map[int]int)
 	totalLength := 0
 	for rec, recErr := range grib.Records {
 		if recErr != nil {
 			t.Fatal(recErr)
 		}
+		gridDefs[rec.GridDefinition.GridDefinitionTemplateNumber]++
+		prodDefs[rec.ProductDefinition.ProductDefinitionTemplateNumber]++
 		totalLength += rec.Indicator.GribLength
 	}
 
@@ -48,4 +52,5 @@ func TestLoadGribFile(t *testing.T) {
 	}
 	close(done)
 	t.Logf("Peak memory usage (Alloc): %d bytes (%.2f MB)", peak, float64(peak)/1024/1024)
+	t.Logf(`grid definition templates: %v, product definition templates: %v`, gridDefs, prodDefs)
 }

@@ -1,8 +1,8 @@
 package record
 
 import (
-	"encoding/binary"
 	"fmt"
+	u "github.com/skysparq/grib2-go/utility"
 	"io"
 )
 
@@ -22,6 +22,6 @@ func ParseSection0(r io.Reader) (section0 Section0, err error) {
 	}
 	section0.Discipline = int(sectionBytes[6])
 	section0.Edition = int(sectionBytes[7])
-	section0.GribLength = int(binary.BigEndian.Uint64(sectionBytes[8:16]))
+	section0.GribLength = u.Int64(sectionBytes[8:16])
 	return section0, nil
 }

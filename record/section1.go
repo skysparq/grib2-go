@@ -1,8 +1,8 @@
 package record
 
 import (
-	"encoding/binary"
 	"fmt"
+	u "github.com/skysparq/grib2-go/utility"
 )
 
 type Section1 struct {
@@ -28,12 +28,12 @@ func ParseSection1(data SectionData) (section Section1, err error) {
 	if data.SectionNumber != 1 {
 		return section, fmt.Errorf(`error parsing section 1: expected section number 1, got %d`, data.SectionNumber)
 	}
-	section.OriginatingCenter = int(binary.BigEndian.Uint16(data.Bytes[5:7]))
-	section.OriginatingSubCenter = int(binary.BigEndian.Uint16(data.Bytes[7:9]))
+	section.OriginatingCenter = u.Uint16(data.Bytes[5:7])
+	section.OriginatingSubCenter = u.Uint16(data.Bytes[7:9])
 	section.MasterTableVersion = int(data.Bytes[9])
 	section.LocalTableVersion = int(data.Bytes[10])
 	section.ReferenceTimeSignificance = int(data.Bytes[11])
-	section.Year = int(binary.BigEndian.Uint16(data.Bytes[12:14]))
+	section.Year = u.Uint16(data.Bytes[12:14])
 	section.Month = int(data.Bytes[14])
 	section.Day = int(data.Bytes[15])
 	section.Hour = int(data.Bytes[16])

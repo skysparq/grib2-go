@@ -1,9 +1,9 @@
 package record
 
 import (
-	"encoding/binary"
 	"fmt"
 	"github.com/skysparq/grib2-go/templates"
+	u "github.com/skysparq/grib2-go/utility"
 )
 
 type Section4 struct {
@@ -19,8 +19,8 @@ func ParseSection4(data SectionData, template templates.Template) (section Secti
 	if data.SectionNumber != 4 {
 		return section, fmt.Errorf(`error parsing section 4: expected section number 4, got %d`, data.SectionNumber)
 	}
-	section.CoordinateValuesAfterTemplate = int(binary.BigEndian.Uint16(data.Bytes[5:7]))
-	section.ProductDefinitionTemplateNumber = int(binary.BigEndian.Uint16(data.Bytes[7:9]))
+	section.CoordinateValuesAfterTemplate = u.Uint16(data.Bytes[5:7])
+	section.ProductDefinitionTemplateNumber = u.Uint16(data.Bytes[7:9])
 
 	templateEnd, ok := template.ProductDefinitionEnd(section.ProductDefinitionTemplateNumber, data.Bytes)
 	if !ok {
