@@ -3,8 +3,8 @@ package grid
 import (
 	"fmt"
 
-	"github.com/skysparq/grib2/record"
-	u "github.com/skysparq/grib2/utility"
+	"github.com/skysparq/grib2-go/record"
+	u "github.com/skysparq/grib2-go/utility"
 )
 
 type Template0 struct {

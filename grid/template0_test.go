@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/skysparq/grib2/grid"
-	"github.com/skysparq/grib2/record"
-	"github.com/skysparq/grib2/templates"
+	"github.com/skysparq/grib2-go/grid"
+	"github.com/skysparq/grib2-go/record"
+	"github.com/skysparq/grib2-go/templates"
 )
 
 func TestTemplate0(t *testing.T) {

@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/skysparq/grib2/record"
-	"github.com/skysparq/grib2/templates"
+	"github.com/skysparq/grib2-go/record"
+	"github.com/skysparq/grib2-go/templates"
 )
 
 func TestParseGfsRecordPointInTime(t *testing.T) {

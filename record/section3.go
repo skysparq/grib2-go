@@ -3,8 +3,8 @@ package record
 import (
 	"fmt"
 
-	"github.com/skysparq/grib2/templates"
-	u "github.com/skysparq/grib2/utility"
+	"github.com/skysparq/grib2-go/templates"
+	u "github.com/skysparq/grib2-go/utility"
 )
 
 type Section3 struct {

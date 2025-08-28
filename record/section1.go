@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	u "github.com/skysparq/grib2/utility"
+	u "github.com/skysparq/grib2-go/utility"
 )
 
 type Section1 struct {

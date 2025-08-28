@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/skysparq/grib2/record"
-	u "github.com/skysparq/grib2/utility"
+	"github.com/skysparq/grib2-go/record"
+	u "github.com/skysparq/grib2-go/utility"
 )
 
 type TimeIncrement struct {

@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/skysparq/grib2/file"
-	"github.com/skysparq/grib2/templates"
+	"github.com/skysparq/grib2-go/file"
+	"github.com/skysparq/grib2-go/templates"
 )
 
 func TestLoadGribFile(t *testing.T) {

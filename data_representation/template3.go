@@ -1,7 +1,7 @@
 package data_representation
 
 import (
-	"github.com/skysparq/grib2/record"
+	"github.com/skysparq/grib2-go/record"
 )
 
 type Template3 struct {

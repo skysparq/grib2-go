@@ -3,7 +3,7 @@ package data_representation
 import (
 	"fmt"
 
-	"github.com/skysparq/grib2/record"
+	"github.com/skysparq/grib2-go/record"
 )
 
 type Definition interface {

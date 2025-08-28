@@ -4,10 +4,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/skysparq/grib2/file"
-	"github.com/skysparq/grib2/product"
-	"github.com/skysparq/grib2/record"
-	"github.com/skysparq/grib2/templates"
+	"github.com/skysparq/grib2-go/file"
+	"github.com/skysparq/grib2-go/product"
+	"github.com/skysparq/grib2-go/record"
+	"github.com/skysparq/grib2-go/templates"
 )
 
 func TestParseDefinitionOnGfsGrib(t *testing.T) {

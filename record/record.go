@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/skysparq/grib2/templates"
+	"github.com/skysparq/grib2-go/templates"
 )
 
 type Record struct {

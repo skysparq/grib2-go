@@ -4,8 +4,8 @@ import (
 	"errors"
 	"io"
 
-	"github.com/skysparq/grib2/record"
-	"github.com/skysparq/grib2/templates"
+	"github.com/skysparq/grib2-go/record"
+	"github.com/skysparq/grib2-go/templates"
 )
 
 type GribFile interface {
