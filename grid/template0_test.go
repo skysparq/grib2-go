@@ -44,7 +44,7 @@ func TestTemplate0(t *testing.T) {
 		MeridianIncrement:           250000,
 		ScanningMode:                0,
 	}
-	if typed := *template.(*grid.Template0); !reflect.DeepEqual(expected, typed) {
+	if typed := template.(grid.Template0); !reflect.DeepEqual(expected, typed) {
 		t.Fatalf("expected\n%+v\nbut got\n%+v", expected, typed)
 	}
 }

@@ -16,13 +16,26 @@ type DefinitionHeader struct {
 	ParameterNumber   int
 }
 
-func ParseDefinition(section record.Section4) (Definition, error) {
-	switch section.ProductDefinitionTemplateNumber {
-	case 0:
-		return (&Template0{}).Parse(section)
-	case 8:
-		return (&Template8{}).Parse(section)
-	default:
+func StandardTemplates() map[int]Definition {
+	return map[int]Definition{
+		0: &Template0{},
+		8: &Template8{},
+	}
+}
+
+type Parser struct {
+	Templates map[int]Definition
+}
+
+func (p *Parser) ParseDefinition(section record.Section4) (Definition, error) {
+	if p.Templates == nil {
+		p.Templates = StandardTemplates()
+	}
+
+	templateNum := section.ProductDefinitionTemplateNumber
+	parser, ok := p.Templates[templateNum]
+	if !ok {
 		return nil, fmt.Errorf(`error parsing product definition: unsupported template number %d`, section.ProductDefinitionTemplateNumber)
 	}
+	return parser.Parse(section)
 }

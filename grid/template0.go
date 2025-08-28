@@ -29,7 +29,7 @@ type Template0 struct {
 	ScanningMode                byte
 }
 
-func (t *Template0) Parse(section record.Section3) (Definition, error) {
+func (t Template0) Parse(section record.Section3) (Definition, error) {
 	if section.GridDefinitionTemplateNumber != 0 {
 		return t, fmt.Errorf(`error parsing grid definition template 0: section 3 template number is %d rather than 0`, section.GridDefinitionTemplateNumber)
 	}

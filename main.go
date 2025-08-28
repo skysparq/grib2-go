@@ -32,7 +32,8 @@ func main() {
 }
 
 func emitProduct(def record.Section4) {
-	prod, recErr := product.ParseDefinition(def)
+	parser := &product.Parser{}
+	prod, recErr := parser.ParseDefinition(def)
 	if recErr != nil {
 		panic(recErr.Error())
 	}
@@ -40,7 +41,8 @@ func emitProduct(def record.Section4) {
 }
 
 func emitGrid(def record.Section3) {
-	prod, recErr := grid.ParseDefinition(def)
+	parser := &grid.Parser{}
+	prod, recErr := parser.ParseDefinition(def)
 	if recErr != nil {
 		panic(recErr.Error())
 	}

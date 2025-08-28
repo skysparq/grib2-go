@@ -43,7 +43,7 @@ func TestTemplate0(t *testing.T) {
 		SecondSurfaceScaleFactor:    0,
 		SecondSurfaceScaleValue:     0,
 	}
-	if typed := *template.(*product.Template0); !reflect.DeepEqual(expected, typed) {
+	if typed := template.(product.Template0); !reflect.DeepEqual(expected, typed) {
 		t.Fatalf("expected\n%+v\nbut got\n%+v", expected, typed)
 	}
 	encoded, err := json.Marshal(template)

@@ -42,11 +42,11 @@ type Template8 struct {
 	TimeRanges                  []TimeIncrement
 }
 
-func (t *Template8) Header() DefinitionHeader {
+func (t Template8) Header() DefinitionHeader {
 	return t.DefinitionHeader
 }
 
-func (t *Template8) Parse(section record.Section4) (Definition, error) {
+func (t Template8) Parse(section record.Section4) (Definition, error) {
 	if section.ProductDefinitionTemplateNumber != 8 {
 		return t, fmt.Errorf(`error parsing product definition template 8: section 4 template number is %d rather than 8`, section.ProductDefinitionTemplateNumber)
 	}

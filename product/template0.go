@@ -24,11 +24,11 @@ type Template0 struct {
 	SecondSurfaceScaleValue     int
 }
 
-func (t *Template0) Header() DefinitionHeader {
+func (t Template0) Header() DefinitionHeader {
 	return t.DefinitionHeader
 }
 
-func (t *Template0) Parse(section record.Section4) (Definition, error) {
+func (t Template0) Parse(section record.Section4) (Definition, error) {
 	if section.ProductDefinitionTemplateNumber != 0 {
 		return t, fmt.Errorf(`error parsing product definition template 0: section 4 template number is %d rather than 0`, section.ProductDefinitionTemplateNumber)
 	}

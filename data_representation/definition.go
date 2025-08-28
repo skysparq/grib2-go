@@ -1,4 +1,4 @@
-package grid
+package data_representation
 
 import (
 	"fmt"
@@ -7,7 +7,8 @@ import (
 )
 
 type Definition interface {
-	Parse(section record.Section3) (Definition, error)
+	Parse(section record.Section5) (Definition, error)
+	GetValues(rec record.Record) ([]float32, error)
 }
 
 func StandardTemplates() map[int]Definition {
@@ -20,15 +21,15 @@ type Parser struct {
 	Templates map[int]Definition
 }
 
-func (p *Parser) ParseDefinition(section record.Section3) (Definition, error) {
+func (p *Parser) ParseDefinition(section record.Section5) (Definition, error) {
 	if p.Templates == nil {
 		p.Templates = StandardTemplates()
 	}
 
-	templateNum := section.GridDefinitionTemplateNumber
+	templateNum := section.DataRepresentationTemplateNumber
 	parser, ok := p.Templates[templateNum]
 	if !ok {
-		return nil, fmt.Errorf(`error parsing grid definition: unsupported template number %d`, templateNum)
+		return nil, fmt.Errorf(`error parsing data representation: unsupported template number %d`, templateNum)
 	}
 
 	return parser.Parse(section)

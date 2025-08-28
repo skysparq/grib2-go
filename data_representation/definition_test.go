@@ -1,4 +1,4 @@
-package grid_test
+package data_representation_test
 
 import (
 	"os"
