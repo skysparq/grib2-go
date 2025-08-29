@@ -1,6 +1,6 @@
 ## Overview
 
-grib2-go is a pure Go library for parsing GRIB2 files. It is currently in development and is missing many features. The goal of this library is to provide a complete solution to read any file created using version 33 of the GRIB2 standard.
+grib2-go is a pure Go library for parsing GRIB2 files. It is currently in development and is missing many features. The goal of this library is to provide a complete solution to read any file compatible with version 33 of the GRIB2 standard.
 
 At the same time, the API is designed to allow users to provide their own implementations of Grid, Product Definition, and Data Representation templates. Thus, if the current version of the library is missing an implementation for a particular template, the user can provide their own while still utilizing the peformant readers provided by this library
 
@@ -43,5 +43,6 @@ NOTE: Currently, none of the implemented data representation templates can decod
 - [x] Read metadata of GFS GRIB2 records
 - [x] Implement iterator to parse multi-record GRIB2 files
 - [ ] Read values from GFS GRIB2 records
-- [ ] Read metadata for all templates defined in the version 33 standard
-- [ ] Read values for all templates defined in the version 33 standard
+- [ ] Read metadata for all templates compatible with the version 33 standard
+- [ ] Read values for all templates compatible with the version 33 standard
+- [ ] Implement current versions of the GRIB2 standard
