@@ -13,6 +13,10 @@ import (
 	"github.com/skysparq/grib2-go/test_files"
 )
 
+var gridParser = &grid.Parser{}
+var prodParser = &product.Parser{}
+var drParser = &data_representation.Parser{}
+
 func main() {
 	_, r, err := test_files.Load(test_files.FullGfsFile)
 	if err != nil {
@@ -35,31 +39,28 @@ func main() {
 }
 
 func emitProduct(def record.Section4) {
-	parser := &product.Parser{}
-	prod, recErr := parser.ParseDefinition(def)
+	prodDef, recErr := prodParser.ParseDefinition(def)
 	if recErr != nil {
 		panic(recErr.Error())
 	}
-	emitJson(prod)
+	emitJson(prodDef)
 }
 
 func emitGrid(def record.Section3) {
-	parser := &grid.Parser{}
-	prod, recErr := parser.ParseDefinition(def)
+	gridDef, recErr := gridParser.ParseDefinition(def)
 	if recErr != nil {
 		panic(recErr.Error())
 	}
-	emitJson(prod)
+	emitJson(gridDef)
 }
 
 func emitDataRepresentation(def record.Section5, rec record.Record) {
-	parser := &data_representation.Parser{}
-	prod, err := parser.ParseDefinition(def)
+	drDef, err := drParser.ParseDefinition(def)
 	if err != nil {
 		panic(err.Error())
 	}
-	emitJson(prod)
-	data, err := prod.GetValues(rec)
+	emitJson(drDef)
+	data, err := drDef.GetValues(rec)
 	if err != nil {
 		panic(err.Error())
 	}
