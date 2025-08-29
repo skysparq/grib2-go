@@ -5,7 +5,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
-type Template0 struct {
+type Template1 struct {
 	DefinitionHeader
 	GeneratingProcessType       int
 	BackgroundIdentifier        int
@@ -20,14 +20,17 @@ type Template0 struct {
 	SecondSurfaceType           int
 	SecondSurfaceScaleFactor    int
 	SecondSurfaceScaleValue     int
+	EnsembleForecastType        int
+	PerturbationNumber          int
+	TotalForecastsInEnsemble    int
 }
 
-func (t Template0) Header() DefinitionHeader {
+func (t Template1) Header() DefinitionHeader {
 	return t.DefinitionHeader
 }
 
-func (t Template0) Parse(section record.Section4) (Definition, error) {
-	err := checkSectionNum(section, 0)
+func (t Template1) Parse(section record.Section4) (Definition, error) {
+	err := checkSectionNum(section, 1)
 	if err != nil {
 		return t, err
 	}
@@ -48,5 +51,8 @@ func (t Template0) Parse(section record.Section4) (Definition, error) {
 	t.SecondSurfaceType = int(data[19])
 	t.SecondSurfaceScaleFactor = int(data[20])
 	t.SecondSurfaceScaleValue = u.Int32(data[21:25])
+	t.EnsembleForecastType = int(data[25])
+	t.PerturbationNumber = int(data[26])
+	t.TotalForecastsInEnsemble = int(data[27])
 	return t, nil
 }

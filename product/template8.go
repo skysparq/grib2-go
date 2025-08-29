@@ -1,7 +1,6 @@
 package product
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/skysparq/grib2-go/record"
@@ -48,9 +47,11 @@ func (t Template8) Header() DefinitionHeader {
 }
 
 func (t Template8) Parse(section record.Section4) (Definition, error) {
-	if section.ProductDefinitionTemplateNumber != 8 {
-		return t, fmt.Errorf(`error parsing product definition template 8: section 4 template number is %d rather than 8`, section.ProductDefinitionTemplateNumber)
+	err := checkSectionNum(section, 8)
+	if err != nil {
+		return t, err
 	}
+
 	var data = section.ProductDefinitionTemplateData
 	t.ParameterCategory = int(data[0])
 	t.ParameterNumber = int(data[1])

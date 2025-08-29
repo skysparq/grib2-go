@@ -26,6 +26,11 @@ type Template3 struct {
 }
 
 func (t *Template3) Parse(section record.Section5) (Definition, error) {
+	err := checkSectionNum(section, 3)
+	if err != nil {
+		return t, err
+	}
+
 	return t, nil
 }
 

@@ -19,9 +19,11 @@ type Template0 struct {
 }
 
 func (t *Template0) Parse(section record.Section5) (Definition, error) {
-	if section.DataRepresentationTemplateNumber != 0 {
-		return t, fmt.Errorf(`error parsing data representation template 0: section 5 template number is %d rather than 0`, section.DataRepresentationTemplateNumber)
+	err := checkSectionNum(section, 0)
+	if err != nil {
+		return t, err
 	}
+
 	data := section.DataRepresentationTemplateData
 	t.ReferenceValue = u.Float32(data[0:4])
 	t.BinaryScaleFactor = u.Uint16(data[4:6])

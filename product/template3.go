@@ -5,7 +5,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
-type Template0 struct {
+type Template3 struct {
 	DefinitionHeader
 	GeneratingProcessType       int
 	BackgroundIdentifier        int
@@ -22,12 +22,12 @@ type Template0 struct {
 	SecondSurfaceScaleValue     int
 }
 
-func (t Template0) Header() DefinitionHeader {
+func (t Template3) Header() DefinitionHeader {
 	return t.DefinitionHeader
 }
 
-func (t Template0) Parse(section record.Section4) (Definition, error) {
-	err := checkSectionNum(section, 0)
+func (t Template3) Parse(section record.Section4) (Definition, error) {
+	err := checkSectionNum(section, 3)
 	if err != nil {
 		return t, err
 	}

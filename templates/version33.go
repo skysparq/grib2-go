@@ -43,6 +43,16 @@ func Version33() Template {
 			0: constantEnd(34),
 			1: constantEnd(37),
 			2: constantEnd(36),
+			3: func(bytes []byte) int {
+				forecasts := int(bytes[57])
+				end := 58 + forecasts
+				return end
+			},
+			4: func(bytes []byte) int {
+				forecasts := int(bytes[53])
+				end := 64 + forecasts
+				return end
+			},
 			5: constantEnd(47),
 			6: constantEnd(35),
 			7: constantEnd(34),

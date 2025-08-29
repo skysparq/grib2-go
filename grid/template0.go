@@ -1,8 +1,6 @@
 package grid
 
 import (
-	"fmt"
-
 	"github.com/skysparq/grib2-go/record"
 	u "github.com/skysparq/grib2-go/utility"
 )
@@ -30,9 +28,11 @@ type Template0 struct {
 }
 
 func (t Template0) Parse(section record.Section3) (Definition, error) {
-	if section.GridDefinitionTemplateNumber != 0 {
-		return t, fmt.Errorf(`error parsing grid definition template 0: section 3 template number is %d rather than 0`, section.GridDefinitionTemplateNumber)
+	err := checkSectionNum(section, 0)
+	if err != nil {
+		return t, err
 	}
+
 	data := section.GridDefinitionTemplateData
 	t.EarthShape = int(data[0])
 	t.RadiusScaleFactor = int(data[1])
