@@ -23,11 +23,11 @@ func (t *Template0) Parse(section record.Section5) (Definition, error) {
 		return t, fmt.Errorf(`error parsing data representation template 0: section 5 template number is %d rather than 0`, section.DataRepresentationTemplateNumber)
 	}
 	data := section.DataRepresentationTemplateData
-	t.ReferenceValue = u.Float32(data[0:5])
-	t.BinaryScaleFactor = u.Uint16(data[5:7])
-	t.DecimalScaleFactor = u.Uint16(data[7:9])
-	t.BitsPerValue = int(data[9])
-	t.OriginalFieldType = int(data[10])
+	t.ReferenceValue = u.Float32(data[0:4])
+	t.BinaryScaleFactor = u.Uint16(data[4:6])
+	t.DecimalScaleFactor = u.Uint16(data[6:8])
+	t.BitsPerValue = int(data[8])
+	t.OriginalFieldType = int(data[9])
 	return t, nil
 }
 

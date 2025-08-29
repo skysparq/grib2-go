@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"os"
+	"fmt"
 
 	"github.com/skysparq/grib2-go/data_representation"
 	"github.com/skysparq/grib2-go/file"
@@ -10,10 +10,11 @@ import (
 	"github.com/skysparq/grib2-go/product"
 	"github.com/skysparq/grib2-go/record"
 	"github.com/skysparq/grib2-go/templates"
+	"github.com/skysparq/grib2-go/test_files"
 )
 
 func main() {
-	r, err := os.Open(`./.large_test_files/full_gfs_file.grb2`)
+	_, r, err := test_files.Load(test_files.FullGfsFile)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -28,7 +29,7 @@ func main() {
 
 		emitProduct(rec.ProductDefinition)
 		emitGrid(rec.GridDefinition)
-		emitDataRepresentation(rec.DataRepresentation)
+		emitDataRepresentation(rec.DataRepresentation, rec)
 	}
 	println("\nNo errors")
 }
@@ -51,14 +52,18 @@ func emitGrid(def record.Section3) {
 	emitJson(prod)
 }
 
-func emitDataRepresentation(def record.Section5) {
+func emitDataRepresentation(def record.Section5, rec record.Record) {
 	parser := &data_representation.Parser{}
-	prod, recErr := parser.ParseDefinition(def)
-	if recErr != nil {
-		panic(recErr.Error())
+	prod, err := parser.ParseDefinition(def)
+	if err != nil {
+		panic(err.Error())
 	}
 	emitJson(prod)
-
+	data, err := prod.GetValues(rec)
+	if err != nil {
+		panic(err.Error())
+	}
+	println(fmt.Sprintf(`data length=%d`, len(data)))
 }
 
 func emitJson(obj any) {
