@@ -18,7 +18,7 @@ func TestParseDefinitionOnGfsGrib(t *testing.T) {
 	defer func() { _ = r.Close() }()
 
 	parser := &product.Parser{}
-	grib := file.NewGribFile(r, templates.Revision20120111())
+	grib := file.NewGribFile(r, templates.Version33())
 	var rec record.Record
 	for rec, err = range grib.Records {
 		if err != nil {

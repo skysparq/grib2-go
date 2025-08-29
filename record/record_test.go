@@ -12,7 +12,7 @@ import (
 )
 
 func TestParseGfsRecordPointInTime(t *testing.T) {
-	template := templates.Revision20120111()
+	template := templates.Version33()
 	r, err := os.Open(`../test_files/single-grib2-record.grb2`)
 	if err != nil {
 		t.Fatal(err)
@@ -181,7 +181,7 @@ func checkSection7(section record.Section7) error {
 }
 
 func TestParseGfsRecordAccumulatedOverTime(t *testing.T) {
-	template := templates.Revision20120111()
+	template := templates.Version33()
 	r, err := os.Open(`../test_files/single-grib2-record-prod-def-8.grb2`)
 	if err != nil {
 		t.Fatal(err)

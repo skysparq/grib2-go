@@ -1,6 +1,6 @@
 package templates
 
-func Revision20120111() Template {
+func Version33() Template {
 	return &template{
 		gridDefinition: map[int]RetrieveEndOctet{
 			0:     constantEnd(72),

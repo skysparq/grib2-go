@@ -16,7 +16,7 @@ func TestTemplate0(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	rec, err := record.ParseRecord(f, templates.Revision20120111())
+	rec, err := record.ParseRecord(f, templates.Version33())
 	if err != nil {
 		t.Fatal(err)
 	}

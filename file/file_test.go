@@ -41,7 +41,7 @@ func TestLoadGribFile(t *testing.T) {
 		}
 	}()
 
-	grib := file.NewGribFile(r, templates.Revision20120111())
+	grib := file.NewGribFile(r, templates.Version33())
 	gridDefs := make(map[int]int)
 	prodDefs := make(map[int]int)
 	dataRepDefs := make(map[int]int)
