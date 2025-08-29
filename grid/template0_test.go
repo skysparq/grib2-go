@@ -1,21 +1,23 @@
 package grid_test
 
 import (
-	"os"
 	"reflect"
 	"testing"
 
 	"github.com/skysparq/grib2-go/grid"
 	"github.com/skysparq/grib2-go/record"
 	"github.com/skysparq/grib2-go/templates"
+	"github.com/skysparq/grib2-go/test_files"
 )
 
 func TestTemplate0(t *testing.T) {
-	f, err := os.Open("../test_files/single-grib2-record.grb2")
+	_, r, err := test_files.Load(test_files.SingleRecordProdDef0)
 	if err != nil {
 		t.Fatal(err)
 	}
-	rec, err := record.ParseRecord(f, templates.Version33())
+	defer func() { _ = r.Close() }()
+
+	rec, err := record.ParseRecord(r, templates.Version33())
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,23 +1,17 @@
 package file_test
 
 import (
-	"os"
 	"runtime"
 	"testing"
 	"time"
 
 	"github.com/skysparq/grib2-go/file"
 	"github.com/skysparq/grib2-go/templates"
+	"github.com/skysparq/grib2-go/test_files"
 )
 
 func TestLoadGribFile(t *testing.T) {
-	path := `../.large_test_files/full_gfs_file.grb2`
-	stat, err := os.Stat(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	r, err := os.Open(path)
+	size, r, err := test_files.Load(test_files.FullGfsFile)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,8 +50,8 @@ func TestLoadGribFile(t *testing.T) {
 		totalLength += rec.Indicator.GribLength
 	}
 
-	if expected := int(stat.Size()); totalLength != expected {
-		t.Fatalf(`expected file size %d but got %d`, expected, totalLength)
+	if totalLength != size {
+		t.Fatalf(`expected file size %d but got %d`, size, totalLength)
 	}
 	close(done)
 	t.Logf("Peak memory usage (Alloc): %d bytes (%.2f MB)", peak, float64(peak)/1024/1024)

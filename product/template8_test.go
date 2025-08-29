@@ -2,7 +2,6 @@ package product_test
 
 import (
 	"encoding/json"
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -10,14 +9,17 @@ import (
 	"github.com/skysparq/grib2-go/product"
 	"github.com/skysparq/grib2-go/record"
 	"github.com/skysparq/grib2-go/templates"
+	"github.com/skysparq/grib2-go/test_files"
 )
 
 func TestTemplate8(t *testing.T) {
-	f, err := os.Open("../test_files/single-grib2-record-prod-def-8.grb2")
+	_, r, err := test_files.Load(test_files.SingleRecordProdDef8)
 	if err != nil {
 		t.Fatal(err)
 	}
-	rec, err := record.ParseRecord(f, templates.Version33())
+	defer func() { _ = r.Close() }()
+
+	rec, err := record.ParseRecord(r, templates.Version33())
 	if err != nil {
 		t.Fatal(err)
 	}

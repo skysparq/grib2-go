@@ -2,22 +2,22 @@ package record_test
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
 	"time"
 
 	"github.com/skysparq/grib2-go/record"
 	"github.com/skysparq/grib2-go/templates"
+	"github.com/skysparq/grib2-go/test_files"
 )
 
 func TestParseGfsRecordPointInTime(t *testing.T) {
-	template := templates.Version33()
-	r, err := os.Open(`../test_files/single-grib2-record.grb2`)
+	_, r, err := test_files.Load(test_files.SingleRecordProdDef0)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer func() { _ = r.Close() }()
+	template := templates.Version33()
 
 	rec, err := record.ParseRecord(r, template)
 	if err != nil {
@@ -182,7 +182,7 @@ func checkSection7(section record.Section7) error {
 
 func TestParseGfsRecordAccumulatedOverTime(t *testing.T) {
 	template := templates.Version33()
-	r, err := os.Open(`../test_files/single-grib2-record-prod-def-8.grb2`)
+	_, r, err := test_files.Load(test_files.SingleRecordProdDef0)
 	if err != nil {
 		t.Fatal(err)
 	}

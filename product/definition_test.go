@@ -1,17 +1,17 @@
 package product_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/skysparq/grib2-go/file"
 	"github.com/skysparq/grib2-go/product"
 	"github.com/skysparq/grib2-go/record"
 	"github.com/skysparq/grib2-go/templates"
+	"github.com/skysparq/grib2-go/test_files"
 )
 
 func TestParseDefinitionOnGfsGrib(t *testing.T) {
-	r, err := os.Open(`../.large_test_files/full_gfs_file.grb2`)
+	_, r, err := test_files.Load(test_files.FullGfsFile)
 	if err != nil {
 		t.Fatal(err)
 	}
