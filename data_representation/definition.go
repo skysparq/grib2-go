@@ -6,8 +6,14 @@ import (
 	"github.com/skysparq/grib2-go/record"
 )
 
+type ValueGetter func(rec record.Record) ([]float32, error)
+
 type Definition interface {
 	Parse(section record.Section5) (Definition, error)
+	DataReader
+}
+
+type DataReader interface {
 	GetValues(rec record.Record) ([]float32, error)
 }
 

@@ -1,7 +1,13 @@
 package data_representation
 
 import (
+	"bytes"
+	"fmt"
+	"math"
+
+	"github.com/icza/bitio"
 	"github.com/skysparq/grib2-go/record"
+	u "github.com/skysparq/grib2-go/utility"
 )
 
 type Template0 struct {
@@ -13,9 +19,54 @@ type Template0 struct {
 }
 
 func (t *Template0) Parse(section record.Section5) (Definition, error) {
+	if section.DataRepresentationTemplateNumber != 0 {
+		return t, fmt.Errorf(`error parsing data representation template 0: section 5 template number is %d rather than 0`, section.DataRepresentationTemplateNumber)
+	}
+	data := section.DataRepresentationTemplateData
+	t.ReferenceValue = u.Float32(data[0:5])
+	t.BinaryScaleFactor = u.Uint16(data[5:7])
+	t.DecimalScaleFactor = u.Uint16(data[7:9])
+	t.BitsPerValue = int(data[9])
+	t.OriginalFieldType = int(data[10])
 	return t, nil
 }
 
+// GetValues in this template uses simple unpacking to retrieve values from the record
 func (t *Template0) GetValues(rec record.Record) ([]float32, error) {
-	return nil, nil
+	getValues := t.getValueReader()
+	return getValues(rec.Data.Data, rec.GridDefinition.TotalPoints)
+}
+
+func (t *Template0) getValueReader() func(data []byte, totalPoints int) ([]float32, error) {
+	if t.BitsPerValue == 0 {
+		return t.unpackConst
+	}
+	return t.unpackSimple
+}
+
+func (t *Template0) unpackConst(_ []byte, totalPoints int) ([]float32, error) {
+	ref := getDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
+	values := make([]float32, totalPoints)
+	for i := range values {
+		values[i] = float32(ref)
+	}
+	return values, nil
+}
+
+func (t *Template0) unpackSimple(data []byte, totalPoints int) ([]float32, error) {
+	values := make([]float32, totalPoints)
+	ref := getDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
+	scale := getScale(t.DecimalScaleFactor, t.BinaryScaleFactor)
+	reader := bitio.NewReader(bytes.NewBuffer(data))
+	for i := range values {
+		packed, err := reader.ReadBits(uint8(t.BitsPerValue))
+		if err != nil {
+			return nil, fmt.Errorf(`error performing simple unpack with bitmap for value %d: %w`, i, err)
+		}
+		value := float64(math.Float32frombits(uint32(packed)))
+		value = value * scale
+		value += ref
+		values[i] = float32(value)
+	}
+	return values, nil
 }
