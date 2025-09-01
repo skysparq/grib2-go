@@ -19,6 +19,13 @@ type DefinitionHeader struct {
 func StandardTemplates() map[int]Definition {
 	return map[int]Definition{
 		0: Template0{},
+		1: Template1{},
+		2: Template2{},
+		3: Template3{},
+		4: Template4{},
+		5: Template5{},
+		6: Template6{},
+		7: Template7{},
 		8: Template8{},
 	}
 }
