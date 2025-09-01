@@ -5,7 +5,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
-type Template3 struct {
+type Template4 struct {
 	DefinitionHeader
 	GeneratingProcessType        int
 	BackgroundIdentifier         int
@@ -27,10 +27,9 @@ type Template3 struct {
 	LowResolutionControlCluster  int
 	TotalClusters                int
 	ClusteringMethod             int
-	NorthernLat                  int
-	SouthernLat                  int
-	EasternLng                   int
-	WesternLng                   int
+	CentralPointLatitude         int
+	CentralPointLongitude        int
+	ClusterRadius                int
 	TotalForecastsInCluster      int
 	ScaledFactorStdDev           int
 	ScaledValueStdDev            int
@@ -39,12 +38,12 @@ type Template3 struct {
 	EnsembleForecastNumbers      []int
 }
 
-func (t Template3) Header() DefinitionHeader {
+func (t Template4) Header() DefinitionHeader {
 	return t.DefinitionHeader
 }
 
-func (t Template3) Parse(section record.Section4) (Definition, error) {
-	err := checkSectionNum(section, 3)
+func (t Template4) Parse(section record.Section4) (Definition, error) {
+	err := checkSectionNum(section, 4)
 	if err != nil {
 		return t, err
 	}
@@ -72,18 +71,17 @@ func (t Template3) Parse(section record.Section4) (Definition, error) {
 	t.LowResolutionControlCluster = int(data[29])
 	t.TotalClusters = int(data[30])
 	t.ClusteringMethod = int(data[31])
-	t.NorthernLat = u.Int32(data[32:36])
-	t.SouthernLat = u.Int32(data[36:40])
-	t.EasternLng = u.Int32(data[40:44])
-	t.WesternLng = u.Int32(data[44:48])
-	t.TotalForecastsInCluster = int(data[48])
-	t.ScaledFactorStdDev = int(data[49])
-	t.ScaledValueStdDev = u.Int32(data[50:54])
-	t.ScaledFactorMean = int(data[54])
-	t.ScaledValueMean = u.Int32(data[55:59])
-	forecastNums := make([]int, len(data)-59)
+	t.CentralPointLatitude = u.Int32(data[32:36])
+	t.CentralPointLongitude = u.Int32(data[36:40])
+	t.ClusterRadius = u.Int32(data[40:44])
+	t.TotalForecastsInCluster = int(data[44])
+	t.ScaledFactorStdDev = int(data[45])
+	t.ScaledValueStdDev = u.Int32(data[46:50])
+	t.ScaledFactorMean = int(data[50])
+	t.ScaledValueMean = u.Int32(data[51:55])
+	forecastNums := make([]int, len(data)-55)
 	for i := range forecastNums {
-		forecastNums[i] = int(data[i+59])
+		forecastNums[i] = int(data[i+55])
 	}
 	t.EnsembleForecastNumbers = forecastNums
 	return t, nil

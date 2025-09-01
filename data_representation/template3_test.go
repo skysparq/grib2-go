@@ -55,3 +55,36 @@ func TestTemplate3(t *testing.T) {
 	}
 	t.Logf(`%s`, encoded)
 }
+
+func TestUnpackTemplate3(t *testing.T) {
+	_, r, err := test_files.Load(test_files.SingleRecordProdDef0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = r.Close() }()
+
+	rec, err := record.ParseRecord(r, templates.Version33())
+	if err != nil {
+		t.Fatal(err)
+	}
+	template, err := data_representation.Template3{}.Parse(rec.DataRepresentation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := template.GetValues(rec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if expected := 1_038_240; len(data) != expected {
+		t.Fatalf(`expected %v values but got %v`, expected, len(data))
+	}
+	if expected := float32(102744.8); data[0] != expected {
+		t.Fatalf(`expected %v but got %v`, expected, data[0])
+	}
+	if expected := float32(102751.4); data[2444] != expected {
+		t.Fatalf(`expected %v but got %v`, expected, data[2444])
+	}
+	if expected := float32(98455.0); data[928935] != expected {
+		t.Fatalf(`expected %v but got %v`, expected, data[928935])
+	}
+}

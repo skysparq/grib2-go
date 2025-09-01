@@ -34,8 +34,8 @@ func (t Template3) Parse(section record.Section5) (Definition, error) {
 
 	data := section.DataRepresentationTemplateData
 	t.ReferenceValue = u.Float32(data[0:4])
-	t.BinaryScaleFactor = u.Uint16(data[4:6])
-	t.DecimalScaleFactor = u.Uint16(data[6:8])
+	t.BinaryScaleFactor = u.SignAndMagnitudeInt16(data[4:6])
+	t.DecimalScaleFactor = u.SignAndMagnitudeInt16(data[6:8])
 	t.BitsPerGroup = int(data[8])
 	t.OriginalFieldType = int(data[9])
 	t.GroupSplittingMethod = int(data[10])

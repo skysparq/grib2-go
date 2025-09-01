@@ -26,8 +26,8 @@ func (t Template0) Parse(section record.Section5) (Definition, error) {
 
 	data := section.DataRepresentationTemplateData
 	t.ReferenceValue = u.Float32(data[0:4])
-	t.BinaryScaleFactor = u.Uint16(data[4:6])
-	t.DecimalScaleFactor = u.Uint16(data[6:8])
+	t.BinaryScaleFactor = u.SignAndMagnitudeInt16(data[4:6])
+	t.DecimalScaleFactor = u.SignAndMagnitudeInt16(data[6:8])
 	t.BitsPerValue = int(data[8])
 	t.OriginalFieldType = int(data[9])
 	return t, nil
@@ -65,6 +65,7 @@ func (t Template0) unpackSimple(data []byte, totalPoints int) ([]float32, error)
 		if err != nil {
 			return nil, fmt.Errorf(`error performing simple unpack with bitmap for value %d: %w`, i, err)
 		}
+
 		value := float64(math.Float32frombits(uint32(packed)))
 		value = value * scale
 		value += ref

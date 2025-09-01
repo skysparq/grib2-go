@@ -1,0 +1,66 @@
+package product
+
+import (
+	"github.com/skysparq/grib2-go/record"
+	u "github.com/skysparq/grib2-go/utility"
+)
+
+type Template5 struct {
+	DefinitionHeader
+	GeneratingProcessType       int
+	BackgroundIdentifier        int
+	GeneratingProcessIdentifier int
+	HoursAfterReference         int
+	MinutesAfterReference       int
+	UnitOfTimeRange             int
+	ForecastTimeInUnits         int
+	FirstSurfaceType            int
+	FirstSurfaceScaleFactor     int
+	FirstSurfaceScaleValue      int
+	SecondSurfaceType           int
+	SecondSurfaceScaleFactor    int
+	SecondSurfaceScaleValue     int
+	ForecastProbabilityNumber   int
+	TotalForecastProbabilities  int
+	ProbabilityType             int
+	LowerLimitScaledFactor      int
+	LowerLimitScaledValue       int
+	UpperLimitScaledFactor      int
+	UpperLimitScaledValue       int
+}
+
+func (t Template5) Header() DefinitionHeader {
+	return t.DefinitionHeader
+}
+
+func (t Template5) Parse(section record.Section4) (Definition, error) {
+	err := checkSectionNum(section, 5)
+	if err != nil {
+		return t, err
+	}
+
+	data := section.ProductDefinitionTemplateData
+	t.ParameterCategory = int(data[0])
+	t.ParameterNumber = int(data[1])
+	t.GeneratingProcessType = int(data[2])
+	t.BackgroundIdentifier = int(data[3])
+	t.GeneratingProcessIdentifier = int(data[4])
+	t.HoursAfterReference = u.Uint16(data[5:7])
+	t.MinutesAfterReference = int(data[7])
+	t.UnitOfTimeRange = int(data[8])
+	t.ForecastTimeInUnits = u.Uint32(data[9:13])
+	t.FirstSurfaceType = int(data[13])
+	t.FirstSurfaceScaleFactor = int(data[14])
+	t.FirstSurfaceScaleValue = u.Int32(data[15:19])
+	t.SecondSurfaceType = int(data[19])
+	t.SecondSurfaceScaleFactor = int(data[20])
+	t.SecondSurfaceScaleValue = u.Int32(data[21:25])
+	t.ForecastProbabilityNumber = int(data[25])
+	t.TotalForecastProbabilities = int(data[26])
+	t.ProbabilityType = int(data[27])
+	t.LowerLimitScaledFactor = int(data[28])
+	t.LowerLimitScaledValue = u.Int32(data[29:33])
+	t.UpperLimitScaledFactor = int(data[33])
+	t.UpperLimitScaledValue = u.Int32(data[34:38])
+	return t, nil
+}
