@@ -7,19 +7,35 @@ import (
 
 type Template3 struct {
 	DefinitionHeader
-	GeneratingProcessType       int
-	BackgroundIdentifier        int
-	GeneratingProcessIdentifier int
-	HoursAfterReference         int
-	MinutesAfterReference       int
-	UnitOfTimeRange             int
-	ForecastTimeInUnits         int
-	FirstSurfaceType            int
-	FirstSurfaceScaleFactor     int
-	FirstSurfaceScaleValue      int
-	SecondSurfaceType           int
-	SecondSurfaceScaleFactor    int
-	SecondSurfaceScaleValue     int
+	GeneratingProcessType        int
+	BackgroundIdentifier         int
+	GeneratingProcessIdentifier  int
+	HoursAfterReference          int
+	MinutesAfterReference        int
+	UnitOfTimeRange              int
+	ForecastTimeInUnits          int
+	FirstSurfaceType             int
+	FirstSurfaceScaleFactor      int
+	FirstSurfaceScaleValue       int
+	SecondSurfaceType            int
+	SecondSurfaceScaleFactor     int
+	SecondSurfaceScaleValue      int
+	DerivedForecast              int
+	TotalForecastsInEnsemble     int
+	ClusterId                    int
+	HighResolutionControlCluster int
+	LowResolutionControlCluster  int
+	TotalClusters                int
+	ClusteringMethod             int
+	NorthernLat                  int
+	SouthernLat                  int
+	EasternLng                   int
+	WesternLng                   int
+	TotalForecastsInCluster      int
+	ScaledFactorStdDev           int
+	ScaledValueStdDev            int
+	DistanceFromEnsembleMean     int
+	EnsembleForecastNumbers      []int
 }
 
 func (t Template3) Header() DefinitionHeader {

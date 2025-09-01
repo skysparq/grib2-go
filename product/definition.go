@@ -18,8 +18,8 @@ type DefinitionHeader struct {
 
 func StandardTemplates() map[int]Definition {
 	return map[int]Definition{
-		0: &Template0{},
-		8: &Template8{},
+		0: Template0{},
+		8: Template8{},
 	}
 }
 

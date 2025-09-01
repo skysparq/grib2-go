@@ -18,7 +18,7 @@ type Template0 struct {
 	OriginalFieldType  int
 }
 
-func (t *Template0) Parse(section record.Section5) (Definition, error) {
+func (t Template0) Parse(section record.Section5) (Definition, error) {
 	err := checkSectionNum(section, 0)
 	if err != nil {
 		return t, err
@@ -34,19 +34,19 @@ func (t *Template0) Parse(section record.Section5) (Definition, error) {
 }
 
 // GetValues in this template uses simple unpacking to retrieve values from the record
-func (t *Template0) GetValues(rec record.Record) ([]float32, error) {
+func (t Template0) GetValues(rec record.Record) ([]float32, error) {
 	getValues := t.getValueReader()
 	return getValues(rec.Data.Data, rec.GridDefinition.TotalPoints)
 }
 
-func (t *Template0) getValueReader() func(data []byte, totalPoints int) ([]float32, error) {
+func (t Template0) getValueReader() func(data []byte, totalPoints int) ([]float32, error) {
 	if t.BitsPerValue == 0 {
 		return t.unpackConst
 	}
 	return t.unpackSimple
 }
 
-func (t *Template0) unpackConst(_ []byte, totalPoints int) ([]float32, error) {
+func (t Template0) unpackConst(_ []byte, totalPoints int) ([]float32, error) {
 	ref := getDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
 	values := make([]float32, totalPoints)
 	for i := range values {
@@ -55,7 +55,7 @@ func (t *Template0) unpackConst(_ []byte, totalPoints int) ([]float32, error) {
 	return values, nil
 }
 
-func (t *Template0) unpackSimple(data []byte, totalPoints int) ([]float32, error) {
+func (t Template0) unpackSimple(data []byte, totalPoints int) ([]float32, error) {
 	values := make([]float32, totalPoints)
 	ref := getDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
 	scale := getScale(t.DecimalScaleFactor, t.BinaryScaleFactor)
