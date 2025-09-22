@@ -19,8 +19,9 @@ type DataReader interface {
 
 func StandardTemplates() map[int]Definition {
 	return map[int]Definition{
-		0: Template0{},
-		3: Template3{},
+		0:  Template0{},
+		3:  Template3{},
+		40: Template40{},
 	}
 }
 
