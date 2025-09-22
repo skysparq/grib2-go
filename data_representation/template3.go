@@ -1,6 +1,8 @@
 package data_representation
 
 import (
+	"math"
+
 	"github.com/skysparq/grib2-go/record"
 	u "github.com/skysparq/grib2-go/utility"
 )
@@ -56,4 +58,15 @@ func (t Template3) Parse(section record.Section5) (Definition, error) {
 
 func (t Template3) GetValues(rec record.Record) ([]float32, error) {
 	return nil, nil
+}
+
+func (t Template3) missingValue() float32 {
+	switch t.MissingValueManagement {
+	case 1:
+		return float32(t.PrimaryMissingValue)
+	case 2:
+		return float32(t.SecondaryMissingValue)
+	default:
+		return float32(math.NaN())
+	}
 }
