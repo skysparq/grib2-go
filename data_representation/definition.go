@@ -22,6 +22,7 @@ func StandardTemplates() map[int]Definition {
 		0:  Template0{},
 		3:  Template3{},
 		40: Template40{},
+		41: Template41{},
 	}
 }
 
