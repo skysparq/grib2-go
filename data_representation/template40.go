@@ -15,7 +15,7 @@ type Template40 struct {
 	TargetCompressionRatio int
 }
 
-func (t Template40) Parse(section record.Section5) (Definition, error) {
+func (t Template40) Parse(section record.Section5) (record.DataRepresentationDefinition, error) {
 	err := checkSectionNum(section, 40)
 	if err != nil {
 		return t, err

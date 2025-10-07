@@ -11,13 +11,14 @@ import (
 	"github.com/skysparq/grib2-go/test_files"
 )
 
+var template = templates.Version33()
+
 func TestParseGfsRecordPointInTime(t *testing.T) {
 	_, r, err := test_files.Load(test_files.SingleRecordProdDef0)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer func() { _ = r.Close() }()
-	template := templates.Version33()
 
 	rec, err := record.ParseRecord(r, template)
 	if err != nil {
@@ -114,6 +115,7 @@ func checkSection3(section record.Section3) error {
 		GridDefinitionTemplateNumber: 0,
 		GridDefinitionTemplateData:   section.GridDefinitionTemplateData,
 		OptionalPointListData:        []byte{},
+		Templates:                    template,
 	}
 	if !reflect.DeepEqual(expected, section) {
 		return fmt.Errorf("expected\n%+v\nbut got\n%+v", expected, section)
@@ -131,6 +133,7 @@ func checkSection4(section record.Section4) error {
 		ProductDefinitionTemplateNumber: 0,
 		ProductDefinitionTemplateData:   section.ProductDefinitionTemplateData,
 		CoordinateValuesData:            []byte{},
+		Templates:                       template,
 	}
 	if !reflect.DeepEqual(expected, section) {
 		return fmt.Errorf("expected\n%+v\nbut got\n%+v", expected, section)
@@ -147,6 +150,7 @@ func checkSection5(section record.Section5) error {
 		TotalDataPoints:                  1_038_240,
 		DataRepresentationTemplateNumber: 3,
 		DataRepresentationTemplateData:   section.DataRepresentationTemplateData,
+		Templates:                        template,
 	}
 	if !reflect.DeepEqual(expected, section) {
 		return fmt.Errorf("expected\n%+v\nbut got\n%+v", expected, section)

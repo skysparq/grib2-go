@@ -27,7 +27,7 @@ type Template0 struct {
 	ScanningMode                byte
 }
 
-func (t Template0) Parse(section record.Section3) (Definition, error) {
+func (t Template0) Parse(section record.Section3) (record.GridDefinition, error) {
 	err := checkSectionNum(section, 0)
 	if err != nil {
 		return t, err

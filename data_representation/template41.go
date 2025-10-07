@@ -13,7 +13,7 @@ type Template41 struct {
 	OriginalFieldType  int
 }
 
-func (t Template41) Parse(section record.Section5) (Definition, error) {
+func (t Template41) Parse(section record.Section5) (record.DataRepresentationDefinition, error) {
 	err := checkSectionNum(section, 41)
 	if err != nil {
 		return t, err

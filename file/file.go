@@ -5,19 +5,18 @@ import (
 	"io"
 
 	"github.com/skysparq/grib2-go/record"
-	"github.com/skysparq/grib2-go/templates"
 )
 
 type GribFile interface {
 	Records(yield func(record.Record, error) bool)
 }
 
-func NewGribFile(r io.Reader, template templates.Template) GribFile {
+func NewGribFile(r io.Reader, template record.Templates) GribFile {
 	return &gribFile{r: r, template: template}
 }
 
 type gribFile struct {
-	template templates.Template
+	template record.Templates
 	r        io.Reader
 }
 

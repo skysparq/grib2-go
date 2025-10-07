@@ -27,7 +27,7 @@ func TestTemplate0(t *testing.T) {
 		t.Fatal(err)
 	}
 	expected := product.Template0{
-		DefinitionHeader: product.DefinitionHeader{
+		ProductDefinitionHeader: record.ProductDefinitionHeader{
 			ParameterCategory: 3,
 			ParameterNumber:   1,
 		},

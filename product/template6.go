@@ -6,7 +6,7 @@ import (
 )
 
 type Template6 struct {
-	DefinitionHeader
+	record.ProductDefinitionHeader
 	GeneratingProcessType       int
 	BackgroundIdentifier        int
 	GeneratingProcessIdentifier int
@@ -23,11 +23,11 @@ type Template6 struct {
 	PercentileValue             int
 }
 
-func (t Template6) Header() DefinitionHeader {
-	return t.DefinitionHeader
+func (t Template6) Header() record.ProductDefinitionHeader {
+	return t.ProductDefinitionHeader
 }
 
-func (t Template6) Parse(section record.Section4) (Definition, error) {
+func (t Template6) Parse(section record.Section4) (record.ProductDefinition, error) {
 	err := checkSectionNum(section, 6)
 	if err != nil {
 		return t, err

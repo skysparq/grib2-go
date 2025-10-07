@@ -17,7 +17,7 @@ type TimeIncrement struct {
 }
 
 type Template8 struct {
-	DefinitionHeader
+	record.ProductDefinitionHeader
 	GeneratingProcessType       int
 	BackgroundIdentifier        int
 	GeneratingProcessIdentifier int
@@ -42,11 +42,11 @@ type Template8 struct {
 	TimeRanges                  []TimeIncrement
 }
 
-func (t Template8) Header() DefinitionHeader {
-	return t.DefinitionHeader
+func (t Template8) Header() record.ProductDefinitionHeader {
+	return t.ProductDefinitionHeader
 }
 
-func (t Template8) Parse(section record.Section4) (Definition, error) {
+func (t Template8) Parse(section record.Section4) (record.ProductDefinition, error) {
 	err := checkSectionNum(section, 8)
 	if err != nil {
 		return t, err

@@ -1,8 +1,15 @@
 package templates
 
-func Version33() Template {
-	return &template{
-		gridDefinition: map[int]RetrieveEndOctet{
+import (
+	"github.com/skysparq/grib2-go/data_representation"
+	"github.com/skysparq/grib2-go/grid"
+	"github.com/skysparq/grib2-go/product"
+	"github.com/skysparq/grib2-go/record"
+)
+
+func Version33() record.Templates {
+	return &templates{
+		gridDefinitionEndingOctet: map[int]RetrieveEndOctet{
 			0:     constantEnd(72),
 			1:     constantEnd(84),
 			2:     constantEnd(84),
@@ -39,7 +46,7 @@ func Version33() Template {
 			32768: constantEnd(72),
 			32769: constantEnd(80),
 		},
-		productDefinition: map[int]RetrieveEndOctet{
+		productDefinitionEndingOctet: map[int]RetrieveEndOctet{
 			0: constantEnd(34),
 			1: constantEnd(37),
 			2: constantEnd(36),
@@ -67,5 +74,32 @@ func Version33() Template {
 				return end
 			},
 		},
+		gridDefinitionTemplates: map[int]record.GridDefinition{
+			0:  grid.Template0{},
+			40: grid.Template40{},
+		},
+		productDefinitionTemplates: map[int]record.ProductDefinition{
+			0: product.Template0{},
+			1: product.Template1{},
+			2: product.Template2{},
+			3: product.Template3{},
+			4: product.Template4{},
+			5: product.Template5{},
+			6: product.Template6{},
+			7: product.Template7{},
+			8: product.Template8{},
+		},
+		dataRepresentationTemplates: map[int]record.DataRepresentationDefinition{
+			0:  data_representation.Template0{},
+			3:  data_representation.Template3{},
+			40: data_representation.Template40{},
+			41: data_representation.Template41{},
+		},
+	}
+}
+
+func constantEnd(end int) RetrieveEndOctet {
+	return func(bytes []byte) int {
+		return end
 	}
 }

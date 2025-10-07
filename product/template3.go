@@ -6,7 +6,7 @@ import (
 )
 
 type Template3 struct {
-	DefinitionHeader
+	record.ProductDefinitionHeader
 	GeneratingProcessType        int
 	BackgroundIdentifier         int
 	GeneratingProcessIdentifier  int
@@ -39,11 +39,11 @@ type Template3 struct {
 	EnsembleForecastNumbers      []int
 }
 
-func (t Template3) Header() DefinitionHeader {
-	return t.DefinitionHeader
+func (t Template3) Header() record.ProductDefinitionHeader {
+	return t.ProductDefinitionHeader
 }
 
-func (t Template3) Parse(section record.Section4) (Definition, error) {
+func (t Template3) Parse(section record.Section4) (record.ProductDefinition, error) {
 	err := checkSectionNum(section, 3)
 	if err != nil {
 		return t, err

@@ -3,8 +3,6 @@ package record
 import (
 	"fmt"
 	"io"
-
-	"github.com/skysparq/grib2-go/templates"
 )
 
 type Record struct {
@@ -18,7 +16,7 @@ type Record struct {
 	Data               Section7
 }
 
-func ParseRecord(r io.Reader, template templates.Template) (record Record, err error) {
+func ParseRecord(r io.Reader, templates Templates) (record Record, err error) {
 	record.Indicator, err = ParseSection0(r)
 	if err != nil {
 		return record, fmt.Errorf("error parsing record: %w", err)
@@ -39,11 +37,11 @@ func ParseRecord(r io.Reader, template templates.Template) (record Record, err e
 		case 2:
 			record.LocalUse, err = ParseSection2(data)
 		case 3:
-			record.GridDefinition, err = ParseSection3(data, template)
+			record.GridDefinition, err = ParseSection3(data, templates)
 		case 4:
-			record.ProductDefinition, err = ParseSection4(data, template)
+			record.ProductDefinition, err = ParseSection4(data, templates)
 		case 5:
-			record.DataRepresentation, err = ParseSection5(data)
+			record.DataRepresentation, err = ParseSection5(data, templates)
 		case 6:
 			record.BitMap, err = ParseSection6(data)
 		case 7:

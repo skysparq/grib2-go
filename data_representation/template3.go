@@ -28,7 +28,7 @@ type Template3 struct {
 	TotalSpatialDifferencingOctets int
 }
 
-func (t Template3) Parse(section record.Section5) (Definition, error) {
+func (t Template3) Parse(section record.Section5) (record.DataRepresentationDefinition, error) {
 	err := checkSectionNum(section, 3)
 	if err != nil {
 		return t, err

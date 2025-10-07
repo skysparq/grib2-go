@@ -6,7 +6,7 @@ import (
 )
 
 type Template0 struct {
-	DefinitionHeader
+	record.ProductDefinitionHeader
 	GeneratingProcessType       int
 	BackgroundIdentifier        int
 	GeneratingProcessIdentifier int
@@ -22,11 +22,11 @@ type Template0 struct {
 	SecondSurfaceScaleValue     int
 }
 
-func (t Template0) Header() DefinitionHeader {
-	return t.DefinitionHeader
+func (t Template0) Header() record.ProductDefinitionHeader {
+	return t.ProductDefinitionHeader
 }
 
-func (t Template0) Parse(section record.Section4) (Definition, error) {
+func (t Template0) Parse(section record.Section4) (record.ProductDefinition, error) {
 	err := checkSectionNum(section, 0)
 	if err != nil {
 		return t, err

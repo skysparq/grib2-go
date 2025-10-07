@@ -1,6 +1,7 @@
 package utility
 
 import (
+	"encoding/base64"
 	"encoding/binary"
 	"math"
 )
@@ -49,4 +50,12 @@ func Uint32(data []byte) int {
 
 func Float32(data []byte) float32 {
 	return math.Float32frombits(binary.BigEndian.Uint32(data))
+}
+
+func MustDecodeB64(raw string) []byte {
+	b, err := base64.StdEncoding.DecodeString(raw)
+	if err != nil {
+		panic(err)
+	}
+	return b
 }

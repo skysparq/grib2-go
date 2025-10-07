@@ -6,7 +6,7 @@ import (
 )
 
 type Template5 struct {
-	DefinitionHeader
+	record.ProductDefinitionHeader
 	GeneratingProcessType       int
 	BackgroundIdentifier        int
 	GeneratingProcessIdentifier int
@@ -29,11 +29,11 @@ type Template5 struct {
 	UpperLimitScaledValue       int
 }
 
-func (t Template5) Header() DefinitionHeader {
-	return t.DefinitionHeader
+func (t Template5) Header() record.ProductDefinitionHeader {
+	return t.ProductDefinitionHeader
 }
 
-func (t Template5) Parse(section record.Section4) (Definition, error) {
+func (t Template5) Parse(section record.Section4) (record.ProductDefinition, error) {
 	err := checkSectionNum(section, 5)
 	if err != nil {
 		return t, err
