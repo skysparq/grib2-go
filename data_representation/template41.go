@@ -28,6 +28,6 @@ func (t Template41) Parse(section record.Section5) (record.DataRepresentationDef
 	return t, nil
 }
 
-func (t Template41) GetValues(rec record.Record) ([]float32, error) {
+func (t Template41) GetValues(_ record.Record) ([]float32, error) {
 	return nil, nil
 }
