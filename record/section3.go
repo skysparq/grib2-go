@@ -42,6 +42,6 @@ func ParseSection3(data SectionData, templates Templates) (section Section3, err
 	return section, nil
 }
 
-func (s Section3) GridDefinition() (GridDefinition, error) {
+func (s Section3) Definition() (GridDefinition, error) {
 	return s.Templates.GridDefinition(s)
 }

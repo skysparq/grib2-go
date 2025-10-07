@@ -31,17 +31,17 @@ func TestAllFiles(t *testing.T) {
 				_ = f.Close()
 				t.Fatalf(`error on message %v reading %v: %v`, index, path, err)
 			}
-			_, err = rec.GridDefinition.GridDefinition()
+			_, err = rec.Grid.Definition()
 			if err != nil {
 				_ = f.Close()
 				t.Fatalf(`error parsing grid definition on message %v reading %v: %v`, index, path, err)
 			}
-			_, err = rec.ProductDefinition.ProductDefinition()
+			_, err = rec.Product.Definition()
 			if err != nil {
 				_ = f.Close()
 				t.Fatalf(`error parsing product definition on message %v reading %v: %v`, index, path, err)
 			}
-			_, err = rec.DataRepresentation.DataRepresentationDefinition()
+			_, err = rec.DataRepresentation.Definition()
 			if err != nil {
 				_ = f.Close()
 				t.Fatalf(`error parsing data representation definition on message %v reading %v: %v`, index, path, err)

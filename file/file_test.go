@@ -44,8 +44,8 @@ func TestLoadGribFile(t *testing.T) {
 		if recErr != nil {
 			t.Fatal(recErr)
 		}
-		gridDefs[rec.GridDefinition.GridDefinitionTemplateNumber]++
-		prodDefs[rec.ProductDefinition.ProductDefinitionTemplateNumber]++
+		gridDefs[rec.Grid.GridDefinitionTemplateNumber]++
+		prodDefs[rec.Product.ProductDefinitionTemplateNumber]++
 		dataRepDefs[rec.DataRepresentation.DataRepresentationTemplateNumber]++
 		totalLength += rec.Indicator.GribLength
 	}

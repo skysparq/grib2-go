@@ -36,11 +36,11 @@ func TestParseGfsRecordPointInTime(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = checkSection3(rec.GridDefinition)
+	err = checkSection3(rec.Grid)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = checkSection4(rec.ProductDefinition)
+	err = checkSection4(rec.Product)
 	if err != nil {
 		t.Fatal(err)
 	}

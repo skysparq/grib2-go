@@ -26,6 +26,6 @@ func ParseSection5(data SectionData, templates Templates) (section Section5, err
 	return section, nil
 }
 
-func (s Section5) DataRepresentationDefinition() (DataRepresentationDefinition, error) {
+func (s Section5) Definition() (DataRepresentationDefinition, error) {
 	return s.Templates.DataRepresentation(s)
 }

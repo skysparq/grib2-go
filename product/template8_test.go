@@ -23,7 +23,7 @@ func TestTemplate8(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	template, err := product.Template8{}.Parse(rec.ProductDefinition)
+	template, err := product.Template8{}.Parse(rec.Product)
 	if err != nil {
 		t.Fatal(err)
 	}

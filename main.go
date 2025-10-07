@@ -24,15 +24,15 @@ func main() {
 			panic(err.Error())
 		}
 
-		emitProduct(rec.ProductDefinition)
-		emitGrid(rec.GridDefinition)
+		emitProduct(rec.Product)
+		emitGrid(rec.Grid)
 		emitDataRepresentation(rec.DataRepresentation, rec)
 	}
 	println("\nNo errors")
 }
 
 func emitProduct(def record.Section4) {
-	prodDef, recErr := def.ProductDefinition()
+	prodDef, recErr := def.Definition()
 	if recErr != nil {
 		panic(recErr.Error())
 	}
@@ -40,7 +40,7 @@ func emitProduct(def record.Section4) {
 }
 
 func emitGrid(def record.Section3) {
-	gridDef, recErr := def.GridDefinition()
+	gridDef, recErr := def.Definition()
 	if recErr != nil {
 		panic(recErr.Error())
 	}
@@ -48,7 +48,7 @@ func emitGrid(def record.Section3) {
 }
 
 func emitDataRepresentation(def record.Section5, rec record.Record) {
-	drDef, err := def.DataRepresentationDefinition()
+	drDef, err := def.Definition()
 	if err != nil {
 		panic(err.Error())
 	}

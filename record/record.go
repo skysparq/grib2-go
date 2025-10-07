@@ -9,8 +9,8 @@ type Record struct {
 	Indicator          Section0
 	Identification     Section1
 	LocalUse           Section2
-	GridDefinition     Section3
-	ProductDefinition  Section4
+	Grid               Section3
+	Product            Section4
 	DataRepresentation Section5
 	BitMap             Section6
 	Data               Section7
@@ -37,9 +37,9 @@ func ParseRecord(r io.Reader, templates Templates) (record Record, err error) {
 		case 2:
 			record.LocalUse, err = ParseSection2(data)
 		case 3:
-			record.GridDefinition, err = ParseSection3(data, templates)
+			record.Grid, err = ParseSection3(data, templates)
 		case 4:
-			record.ProductDefinition, err = ParseSection4(data, templates)
+			record.Product, err = ParseSection4(data, templates)
 		case 5:
 			record.DataRepresentation, err = ParseSection5(data, templates)
 		case 6:

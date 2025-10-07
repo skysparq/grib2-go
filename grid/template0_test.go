@@ -21,7 +21,7 @@ func TestTemplate0(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	template, err := grid.Template0{}.Parse(rec.GridDefinition)
+	template, err := grid.Template0{}.Parse(rec.Grid)
 	if err != nil {
 		t.Fatal(err)
 	}

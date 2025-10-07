@@ -37,6 +37,6 @@ func ParseSection4(data SectionData, templates Templates) (section Section4, err
 	return section, nil
 }
 
-func (s Section4) ProductDefinition() (ProductDefinition, error) {
+func (s Section4) Definition() (ProductDefinition, error) {
 	return s.Templates.ProductDefinition(s)
 }

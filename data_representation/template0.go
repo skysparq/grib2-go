@@ -36,7 +36,7 @@ func (t Template0) Parse(section record.Section5) (record.DataRepresentationDefi
 // GetValues in this template uses simple unpacking to retrieve values from the record
 func (t Template0) GetValues(rec record.Record) ([]float32, error) {
 	getValues := t.getValueReader()
-	return getValues(rec.Data.Data, rec.GridDefinition.TotalPoints)
+	return getValues(rec.Data.Data, rec.Grid.TotalPoints)
 }
 
 func (t Template0) getValueReader() func(data []byte, totalPoints int) ([]float32, error) {

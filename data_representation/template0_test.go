@@ -19,7 +19,7 @@ func TestUnpackConst(t *testing.T) {
 		OriginalFieldType:  0,
 	}
 	rec := record.Record{
-		GridDefinition: record.Section3{
+		Grid: record.Section3{
 			TotalPoints: 5,
 		},
 		Data: record.Section7{
@@ -52,7 +52,7 @@ func TestUnpackSimple(t *testing.T) {
 	binary.BigEndian.PutUint32(packed[16:20], math.Float32bits(float32(5)))
 
 	rec := record.Record{
-		GridDefinition: record.Section3{
+		Grid: record.Section3{
 			TotalPoints: 5,
 		},
 		Data: record.Section7{
