@@ -3,6 +3,7 @@ package templates_test
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/skysparq/grib2-go/file"
@@ -16,7 +17,7 @@ func TestAllFiles(t *testing.T) {
 	}
 	template := templates.Version33()
 	for _, fEntry := range dir {
-		if filepath.Ext(fEntry.Name()) != `.grb2` {
+		if !slices.Contains([]string{`.grb2`, `.grib2`}, filepath.Ext(fEntry.Name())) {
 			continue
 		}
 		path := filepath.Join(`../.test_files`, fEntry.Name())

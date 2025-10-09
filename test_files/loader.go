@@ -14,6 +14,7 @@ const (
 	FullGfsFile           TestFile = `.test_files/full-gfs-file.grb2`
 	SingleRecordDataDef40 TestFile = `.test_files/single-grib2-record-data-def-40.grb2`
 	SingleRecordDataDef41 TestFile = `.test_files/single-grib2-record-data-def-41.grb2`
+	SingleRecordGridDef30 TestFile = `.test_files/single-grib2-record-grid-def-30.grb2`
 	SingleRecordGridDef40 TestFile = `.test_files/single-grib2-record-grid-def-40.grb2`
 )
 
