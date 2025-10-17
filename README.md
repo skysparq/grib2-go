@@ -6,6 +6,8 @@ At the same time, the API is designed to allow users to provide their own implem
 
 Details about the GRIB2 file format can be found at [NCEP](https://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_doc/).
 
+NOTE: This package is not yet version 1. The API is subject to change until the v1 release.
+
 ## How to use
 
 Install in your project by running `go get github.com/skysparq/grib2-go@latest`
