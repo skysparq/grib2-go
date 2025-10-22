@@ -50,3 +50,15 @@ func Uint32(data []byte) int {
 func Float32(data []byte) float32 {
 	return math.Float32frombits(binary.BigEndian.Uint32(data))
 }
+
+func GetDecimalScaledRef(decimalScaleFactor int, ref float32) float64 {
+	return math.Pow(10, -float64(decimalScaleFactor)) * float64(ref)
+}
+
+func GetScale(decimalScaleFactor int, binaryScaleFactor int) float64 {
+	return math.Pow(10, -float64(decimalScaleFactor)) * math.Pow(2, float64(binaryScaleFactor))
+}
+
+func GetDecimalScaledValue(decimalScaleFactor int, value float64) float64 {
+	return math.Pow(10, -float64(decimalScaleFactor)) * value
+}

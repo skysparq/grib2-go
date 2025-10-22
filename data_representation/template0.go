@@ -47,7 +47,7 @@ func (t Template0) getValueReader() func(data []byte, totalPoints int) ([]float3
 }
 
 func (t Template0) unpackConst(_ []byte, totalPoints int) ([]float32, error) {
-	ref := getDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
+	ref := u.GetDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
 	values := make([]float32, totalPoints)
 	for i := range values {
 		values[i] = float32(ref)
@@ -57,8 +57,8 @@ func (t Template0) unpackConst(_ []byte, totalPoints int) ([]float32, error) {
 
 func (t Template0) unpackSimple(data []byte, totalPoints int) ([]float32, error) {
 	values := make([]float32, totalPoints)
-	ref := getDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
-	scale := getScale(t.DecimalScaleFactor, t.BinaryScaleFactor)
+	ref := u.GetDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
+	scale := u.GetScale(t.DecimalScaleFactor, t.BinaryScaleFactor)
 	reader := bitio.NewReader(bytes.NewBuffer(data))
 	for i := range values {
 		packed, err := reader.ReadBits(uint8(t.BitsPerValue))

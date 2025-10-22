@@ -27,6 +27,11 @@ type Template40 struct {
 	ScanningMode                   byte
 }
 
+func (t Template40) Points() (record.GridPoints, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (t Template40) Parse(section record.Section3) (record.GridDefinition, error) {
 	err := checkSectionNum(section, 40)
 	if err != nil {

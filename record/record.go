@@ -70,3 +70,24 @@ func ParseRecord(r io.Reader, templates Templates) (record Record, err error) {
 
 	return record, nil
 }
+
+func (r Record) GetGriddedValues() (GriddedValues, error) {
+	var values GriddedValues
+	grid, err := r.Grid.Definition()
+	if err != nil {
+		return values, fmt.Errorf("error getting gridded values: %w", err)
+	}
+	values.GridPoints, err = grid.Points()
+	if err != nil {
+		return values, fmt.Errorf("error getting gridded values: %w", err)
+	}
+	dataRep, err := r.DataRepresentation.Definition()
+	if err != nil {
+		return values, fmt.Errorf("error getting gridded values: %w", err)
+	}
+	values.Values, err = dataRep.GetValues(r)
+	if err != nil {
+		return values, fmt.Errorf("error getting gridded values: %w", err)
+	}
+	return values, nil
+}

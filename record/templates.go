@@ -24,6 +24,17 @@ type ProductDefinition interface {
 
 type GridDefinition interface {
 	Parse(section Section3) (GridDefinition, error)
+	Points() (GridPoints, error)
+}
+
+type GridPoints struct {
+	Lats []float32
+	Lngs []float32
+}
+
+type GriddedValues struct {
+	GridPoints
+	Values []float32
 }
 
 type ProductDefinitionHeader struct {
