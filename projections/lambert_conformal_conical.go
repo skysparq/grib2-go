@@ -1,8 +1,8 @@
 package projections
 
-import (
-	"math"
-)
+import "math"
+
+// derived from https://pubs.usgs.gov/pp/1395/report.pdf
 
 type LambertConformalConicalParams struct {
 	Radius                 float64
@@ -15,12 +15,13 @@ type LambertConformalConicalParams struct {
 	Dj                     float64 // must be in meters
 	Ni                     int
 	Nj                     int
+	StartLatitude          float64
+	StartLongitude         float64
 }
 
 func ExtractLambertConformalConicalGrid(params LambertConformalConicalParams) (lats []float32, lngs []float32) {
-	originI := 0.0
-	originJ := 0.0
 	totalPoints := params.Ni * params.Nj
+	lats, lngs = make([]float32, 0, totalPoints), make([]float32, 0, totalPoints)
 	p := newLambertConformalConic(
 		params.Radius,
 		params.Eccentricity,
@@ -28,10 +29,10 @@ func ExtractLambertConformalConicalGrid(params LambertConformalConicalParams) (l
 		params.OriginLongitude,
 		params.FirstStandardParallel,
 		params.SecondStandardParallel,
-		0.0,
-		0.0,
+		0,
+		0,
 	)
-	lats, lngs = make([]float32, 0, totalPoints), make([]float32, 0, totalPoints)
+	originI, originJ := p.Forward(params.StartLatitude, params.StartLongitude)
 
 	for j := 0; j < params.Nj; j++ {
 		y := originJ + float64(j)*params.Dj
@@ -45,8 +46,8 @@ func ExtractLambertConformalConicalGrid(params LambertConformalConicalParams) (l
 	return lats, lngs
 }
 
-// lambertConformalConic holds the projection parameters
-type lambertConformalConic struct {
+// LambertConformalConic holds the projection parameters
+type LambertConformalConic struct {
 	// Ellipsoid parameters
 	a  float64 // Semi-major axis (equatorial radius)
 	e  float64 // Eccentricity
@@ -69,11 +70,11 @@ type lambertConformalConic struct {
 }
 
 // NewLambertConformalConic creates a new Lambert Conformal Conic projection
-func newLambertConformalConic(radius, eccentricity, lat0Deg, lon0Deg, lat1Deg, lat2Deg, falseEasting, falseNorthing float64) *lambertConformalConic {
-	lcc := &lambertConformalConic{
-		a:  radius,                      // meters
-		e:  eccentricity,                // eccentricity
-		e2: eccentricity * eccentricity, // eccentricity squared
+func newLambertConformalConic(radius, eccentricity, lat0Deg, lon0Deg, lat1Deg, lat2Deg, falseEasting, falseNorthing float64) *LambertConformalConic {
+	lcc := &LambertConformalConic{
+		a:  radius,
+		e:  eccentricity,
+		e2: math.Pow(eccentricity, 2),
 
 		lat0: degToRad(lat0Deg),
 		lon0: degToRad(lon0Deg),
@@ -91,7 +92,7 @@ func newLambertConformalConic(radius, eccentricity, lat0Deg, lon0Deg, lat1Deg, l
 }
 
 // computeConstants calculates the projection constants n, F, and rho0
-func (lcc *lambertConformalConic) computeConstants() {
+func (lcc *LambertConformalConic) computeConstants() {
 	// Calculate m values for the standard parallels
 	m1 := lcc.computeM(lcc.lat1)
 	m2 := lcc.computeM(lcc.lat2)
@@ -104,7 +105,7 @@ func (lcc *lambertConformalConic) computeConstants() {
 	// Cone constant (n)
 	if math.Abs(lcc.lat1-lcc.lat2) < 1e-10 {
 		// Single standard parallel case
-		lcc.n = math.Sin(lcc.lat1)
+		lcc.n = math.Sin(lcc.lat0)
 	} else {
 		// Two standard parallels
 		lcc.n = (math.Log(m1) - math.Log(m2)) / (math.Log(t1) - math.Log(t2))
@@ -119,14 +120,14 @@ func (lcc *lambertConformalConic) computeConstants() {
 
 // computeM calculates the m value for a given latitude
 // m = cos(lat) / sqrt(1 - e^2 * sin^2(lat))
-func (lcc *lambertConformalConic) computeM(lat float64) float64 {
+func (lcc *LambertConformalConic) computeM(lat float64) float64 {
 	sinLat := math.Sin(lat)
 	return math.Cos(lat) / math.Sqrt(1-lcc.e2*sinLat*sinLat)
 }
 
 // computeT calculates the t value for a given latitude
 // t = tan(π/4 - lat/2) / [(1 - e*sin(lat)) / (1 + e*sin(lat))]^(e/2)
-func (lcc *lambertConformalConic) computeT(lat float64) float64 {
+func (lcc *LambertConformalConic) computeT(lat float64) float64 {
 	sinLat := math.Sin(lat)
 	esinLat := lcc.e * sinLat
 
@@ -136,17 +137,49 @@ func (lcc *lambertConformalConic) computeT(lat float64) float64 {
 	return tanPart / conformalPart
 }
 
+// Forward converts geographic coordinates (latitude, longitude) to projected coordinates (X, Y)
+// Latitude and longitude should be in degrees
+// Returns X and Y in meters
+func (lcc *LambertConformalConic) Forward(latDeg, lonDeg float64) (x, y float64) {
+	// Convert to radians
+	lat := degToRad(latDeg)
+	lon := degToRad(lonDeg)
+
+	// Calculate t for the given latitude
+	t := lcc.computeT(lat)
+
+	// Calculate rho (radius from cone apex to the point)
+	// rho = a * F * t^n
+	rho := lcc.a * lcc.F * math.Pow(t, lcc.n)
+
+	// Calculate theta (angle from central meridian)
+	// theta = n * (lon - lon0)
+	theta := lcc.n * (lon - lcc.lon0)
+
+	// Calculate projected coordinates
+	// x = rho * sin(theta)
+	// y = rho0 - rho * cos(theta)
+	x = rho * math.Sin(theta)
+	y = lcc.rho0 - rho*math.Cos(theta)
+
+	// Add false easting and northing
+	x += lcc.falseEasting
+	y += lcc.falseNorthing
+
+	return x, y
+}
+
 // Inverse converts projected coordinates (X, Y) to geographic coordinates (latitude, longitude)
 // X and Y should be in meters
 // Returns latitude and longitude in degrees
-func (lcc *lambertConformalConic) Inverse(x, y float64) (latDeg, lonDeg float64) {
+func (lcc *LambertConformalConic) Inverse(x, y float64) (latDeg, lonDeg float64) {
 	// Remove false easting and northing
 	x -= lcc.falseEasting
 	y -= lcc.falseNorthing
 
 	// Calculate rho' (radius from cone apex)
 	// rho' = ±sqrt((x)^2 + (rho0 - y)^2), taking the sign of n
-	rhoPrime := math.Sqrt(math.Pow(x, 2) + math.Pow(lcc.rho0-y, 2))
+	rhoPrime := math.Sqrt(x*x + (lcc.rho0-y)*(lcc.rho0-y))
 	if lcc.n < 0 {
 		rhoPrime = -rhoPrime
 	}
@@ -176,7 +209,7 @@ func (lcc *lambertConformalConic) Inverse(x, y float64) (latDeg, lonDeg float64)
 
 // computeLatFromT calculates latitude from t using iterative method
 // lat = π/2 - 2*arctan(t * [(1 - e*sin(lat)) / (1 + e*sin(lat))]^(e/2))
-func (lcc *lambertConformalConic) computeLatFromT(t float64) float64 {
+func (lcc *LambertConformalConic) computeLatFromT(t float64) float64 {
 	// Initial estimate
 	lat := math.Pi/2 - 2*math.Atan(t)
 
