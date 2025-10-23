@@ -36,36 +36,53 @@ func (t Template0) Parse(section record.Section5) (record.DataRepresentationDefi
 // GetValues in this template uses simple unpacking to retrieve values from the record
 func (t Template0) GetValues(rec record.Record) ([]float32, error) {
 	getValues := t.getValueReader()
-	return getValues(rec.Data.Data, rec.Grid.TotalPoints)
+	return getValues(rec, rec.Grid.TotalPoints)
 }
 
-func (t Template0) getValueReader() func(data []byte, totalPoints int) ([]float32, error) {
+func (t Template0) getValueReader() func(rec record.Record, totalPoints int) ([]float32, error) {
 	if t.BitsPerValue == 0 {
 		return t.unpackConst
 	}
 	return t.unpackSimple
 }
 
-func (t Template0) unpackConst(_ []byte, totalPoints int) ([]float32, error) {
+func (t Template0) unpackConst(rec record.Record, totalPoints int) ([]float32, error) {
 	ref := u.GetDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
 	values := make([]float32, totalPoints)
+	bmpR, err := NewBitmapReader(rec)
+	if err != nil {
+		return nil, fmt.Errorf("error unpacking const values: %w", err)
+	}
 	for i := range values {
-		values[i] = float32(ref)
+		if bmpR.IsSet(i) {
+			values[i] = float32(math.NaN())
+		} else {
+			values[i] = float32(ref)
+		}
 	}
 	return values, nil
 }
 
-func (t Template0) unpackSimple(data []byte, totalPoints int) ([]float32, error) {
+func (t Template0) unpackSimple(rec record.Record, totalPoints int) ([]float32, error) {
 	values := make([]float32, totalPoints)
 	ref := u.GetDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
 	scale := u.GetScale(t.DecimalScaleFactor, t.BinaryScaleFactor)
-	reader := bitio.NewReader(bytes.NewBuffer(data))
+	reader := bitio.NewReader(bytes.NewBuffer(rec.Data.Data))
+	bmpR, err := NewBitmapReader(rec)
+	if err != nil {
+		return nil, fmt.Errorf("error unpacking simple values: %w", err)
+	}
+
 	for i := range values {
 		packed, err := reader.ReadBits(uint8(t.BitsPerValue))
 		if err != nil {
 			return nil, fmt.Errorf(`error performing simple unpack with bitmap for value %d: %w`, i, err)
 		}
 
+		if bmpR.IsSet(i) {
+			values[i] = float32(math.NaN())
+			continue
+		}
 		value := float64(math.Float32frombits(uint32(packed)))
 		value = value * scale
 		value += ref

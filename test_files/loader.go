@@ -16,6 +16,7 @@ const (
 	SingleRecordDataDef41 TestFile = `.test_files/single-grib2-record-data-def-41.grb2`
 	SingleRecordGridDef30 TestFile = `.test_files/single-grib2-record-grid-def-30.grb2`
 	SingleRecordGridDef40 TestFile = `.test_files/single-grib2-record-grid-def-40.grb2`
+	MrmsCompositeRefl     TestFile = `.test_files/MRMS_MergedReflectivityQCComposite_00.50_20251005-081241.grb2`
 )
 
 func Load(file TestFile) (int, *os.File, error) {

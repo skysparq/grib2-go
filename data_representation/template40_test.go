@@ -2,6 +2,7 @@ package data_representation_test
 
 import (
 	"encoding/json"
+	"os"
 	"reflect"
 	"testing"
 
@@ -43,4 +44,6 @@ func TestTemplate40(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf(`%s`, encoded)
+
+	_ = os.WriteFile(`../.test_files/single-grib2-record-data-def-40.jp2`, rec.Data.Data, os.ModePerm)
 }

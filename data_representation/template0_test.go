@@ -22,6 +22,11 @@ func TestUnpackConst(t *testing.T) {
 		Grid: record.Section3{
 			TotalPoints: 5,
 		},
+		BitMap: record.Section6{
+			Length:          6,
+			BitmapIndicator: 255,
+			BitmapData:      nil,
+		},
 		Data: record.Section7{
 			Data: []byte{},
 		},
@@ -54,6 +59,11 @@ func TestUnpackSimple(t *testing.T) {
 	rec := record.Record{
 		Grid: record.Section3{
 			TotalPoints: 5,
+		},
+		BitMap: record.Section6{
+			Length:          6,
+			BitmapIndicator: 255,
+			BitmapData:      nil,
 		},
 		Data: record.Section7{
 			Data: packed,
