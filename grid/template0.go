@@ -3,6 +3,7 @@ package grid
 import (
 	"errors"
 
+	"github.com/skysparq/grib2-go/projections"
 	"github.com/skysparq/grib2-go/record"
 	u "github.com/skysparq/grib2-go/utility"
 )
@@ -30,33 +31,23 @@ type Template0 struct {
 }
 
 func (t Template0) Points() (record.GridPoints, error) {
-	result := record.GridPoints{
-		Lats: make([]float32, 0, t.PointsAlongParallel*t.PointsAlongMeridian),
-		Lngs: make([]float32, 0, t.PointsAlongParallel*t.PointsAlongMeridian),
-	}
+	var result record.GridPoints
 	if t.MajorAxisScaleValue != 0 {
 		return result, errors.New("error getting points: non-standard lat/lon scaling not implemented")
 	}
 
-	if t.FirstLatitude > t.LastLatitude {
-		for lat := t.FirstLatitude; lat >= t.LastLatitude; lat -= t.MeridianIncrement {
-			latF := float32(u.GetDecimalScaledValue(6, float64(lat)))
-			for lng := t.FirstLongitude; lng <= t.LastLongitude; lng += t.ParallelIncrement {
-				lngF := float32(u.GetDecimalScaledValue(6, float64(lng-180000000)))
-				result.Lats = append(result.Lats, latF)
-				result.Lngs = append(result.Lngs, lngF)
-			}
-		}
-	} else {
-		for lat := t.FirstLatitude; lat <= t.LastLatitude; lat += t.PointsAlongParallel {
-			latF := float32(u.GetDecimalScaledValue(6, float64(lat)))
-			for lng := t.FirstLongitude; lng <= t.LastLongitude; lng += t.PointsAlongMeridian {
-				lngF := float32(u.GetDecimalScaledValue(6, float64(lng-180000000)))
-				result.Lats = append(result.Lats, latF)
-				result.Lngs = append(result.Lngs, lngF)
-			}
-		}
+	params := projections.EquidistantCylindricalParams{
+		RightToLeft: (t.ScanningMode>>7)&1 == 1,
+		TopToBottom: (t.ScanningMode>>6)&1 == 0,
+		OverFirst:   (t.ScanningMode>>5)&1 == 0,
+		Ni:          t.PointsAlongParallel,
+		Nj:          t.PointsAlongMeridian,
+		Di:          t.ParallelIncrement,
+		Dj:          t.MeridianIncrement,
+		I0:          t.FirstLongitude,
+		J0:          t.FirstLatitude,
 	}
+	result.Lats, result.Lngs = projections.ExtractEquidistantCylindricalGrid(params)
 
 	return result, nil
 }

@@ -88,14 +88,14 @@ func TestTemplate0Points(t *testing.T) {
 	}
 
 	if value := points.Lats[1038239]; value != -90.0 {
-		t.Fatalf("expected first latitude to be -90 but got %v", value)
+		t.Fatalf("expected last latitude to be -90 but got %v", value)
 	}
 
-	if value := points.Lngs[0]; value != -180.0 {
-		t.Fatalf("expected first latitude to be -180 but got %v", value)
+	if value := points.Lngs[0]; value != 0 {
+		t.Fatalf("expected first longitude to be 0 but got %v", value)
 	}
 
-	if value := points.Lngs[1038239]; value != 179.75 {
-		t.Fatalf("expected first latitude to be 179.75 but got %v", value)
+	if value := points.Lngs[1038239]; value != -0.25 {
+		t.Fatalf("expected last longitude to be -0.25 but got %v", value)
 	}
 }
