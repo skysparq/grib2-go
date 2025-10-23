@@ -46,7 +46,7 @@ func (t Template41) GetValues(rec record.Record) ([]float32, error) {
 	case *image.Gray16:
 		getValue = t.gray16Getter(img)
 	case *image.RGBA:
-		if t.BitDepth == 8 {
+		if t.BitDepth == 24 {
 			getValue = t.rgba24BitGetter(img)
 		} else {
 			getValue = t.rgba32BitGetter(img)

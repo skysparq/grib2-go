@@ -44,8 +44,42 @@ func TestTemplate41(t *testing.T) {
 	t.Logf(`%s`, encoded)
 }
 
-func TestGetValuesTemplate41(t *testing.T) {
-	_, r, err := test_files.Load(test_files.MrmsCompositeRefl)
+type Template41Tests struct {
+	TestFile  test_files.TestFile
+	Sentinels []float32
+	Min       float32
+	Max       float32
+}
+
+func TestGetValuesTemplate41_8Bits(t *testing.T) {
+	testTemplate41Values(t, Template41Tests{
+		TestFile:  test_files.MrmsAzShear,
+		Sentinels: []float32{-999, -99},
+		Min:       -22,
+		Max:       47,
+	})
+}
+
+func TestGetValuesTemplate41_16Bits(t *testing.T) {
+	testTemplate41Values(t, Template41Tests{
+		TestFile:  test_files.MrmsCompositeRefl,
+		Sentinels: []float32{-999, -99},
+		Min:       -22,
+		Max:       61.5,
+	})
+}
+
+func TestGetValuesTemplate41_24Bits(t *testing.T) {
+	testTemplate41Values(t, Template41Tests{
+		TestFile:  test_files.MrmsLghtngProb,
+		Sentinels: []float32{},
+		Min:       -99900,
+		Max:       86,
+	})
+}
+
+func testTemplate41Values(t *testing.T, test Template41Tests) {
+	_, r, err := test_files.Load(test.TestFile)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,14 +101,14 @@ func TestGetValuesTemplate41(t *testing.T) {
 	pmin, pmax := slices.Min(values), slices.Max(values)
 	pminNoSentinel := float32(999999.9)
 	for _, v := range values {
-		if v < pminNoSentinel && v > -99 {
+		if !slices.Contains(test.Sentinels, v) && v < pminNoSentinel {
 			pminNoSentinel = v
 		}
 	}
-	if expected := float32(-22); pminNoSentinel != expected {
+	if expected := test.Min; pminNoSentinel != expected {
 		t.Fatalf(`expected %v but got %v`, expected, pminNoSentinel)
 	}
-	if expected := float32(61.5); pmax != expected {
+	if expected := test.Max; pmax != expected {
 		t.Fatalf(`expected %v but got %v`, expected, pmax)
 	}
 	t.Logf(`min: %v, min (no sentinels) %v, max: %v`, pmin, pminNoSentinel, pmax)

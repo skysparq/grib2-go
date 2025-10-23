@@ -17,6 +17,8 @@ const (
 	SingleRecordGridDef30 TestFile = `.test_files/single-grib2-record-grid-def-30.grb2`
 	SingleRecordGridDef40 TestFile = `.test_files/single-grib2-record-grid-def-40.grb2`
 	MrmsCompositeRefl     TestFile = `.test_files/MRMS_MergedReflectivityQCComposite_00.50_20251005-081241.grb2`
+	MrmsLghtngProb        TestFile = `.test_files/MRMS_LightningProbabilityNext30minGrid_scale_1_20251005-113039.grb2`
+	MrmsAzShear           TestFile = `.test_files/MRMS_MergedAzShear_0-2kmAGL_00.50_20251005-112817.grb2`
 )
 
 func Load(file TestFile) (int, *os.File, error) {
