@@ -37,15 +37,13 @@ func (t Template0) Points() (record.GridPoints, error) {
 	}
 
 	params := projections.EquidistantCylindricalParams{
-		RightToLeft: (t.ScanningMode>>7)&1 == 1,
-		TopToBottom: (t.ScanningMode>>6)&1 == 0,
-		OverFirst:   (t.ScanningMode>>5)&1 == 0,
-		Ni:          t.PointsAlongParallel,
-		Nj:          t.PointsAlongMeridian,
-		Di:          t.ParallelIncrement,
-		Dj:          t.MeridianIncrement,
-		I0:          t.FirstLongitude,
-		J0:          t.FirstLatitude,
+		ScanningMode: projections.ScanningModeFromByte(t.ScanningMode),
+		Ni:           t.PointsAlongParallel,
+		Nj:           t.PointsAlongMeridian,
+		Di:           t.ParallelIncrement,
+		Dj:           t.MeridianIncrement,
+		I0:           u.ShiftLongitude(t.FirstLongitude),
+		J0:           t.FirstLatitude,
 	}
 	result.Lats, result.Lngs = projections.ExtractEquidistantCylindricalGrid(params)
 

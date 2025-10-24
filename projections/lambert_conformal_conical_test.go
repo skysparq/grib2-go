@@ -7,6 +7,11 @@ import (
 
 func TestLambertConcormalConical(t *testing.T) {
 	params := LambertConformalConicalParams{
+		ScanningMode: ScanningMode{
+			RightToLeft: false,
+			TopToBottom: false,
+			OverFirst:   true,
+		},
 		Radius:                 6371229.0,
 		Eccentricity:           0.0,
 		OriginLatitude:         38.5,
@@ -30,6 +35,11 @@ func TestLambertConcormalConical(t *testing.T) {
 
 func TestLambertConcormalConical2(t *testing.T) {
 	params := LambertConformalConicalParams{
+		ScanningMode: ScanningMode{
+			RightToLeft: false,
+			TopToBottom: false,
+			OverFirst:   true,
+		},
 		Radius:                 6371229.0,
 		Eccentricity:           0.0,
 		OriginLatitude:         38.5,
@@ -47,6 +57,11 @@ func TestLambertConcormalConical2(t *testing.T) {
 
 func TestLambertConcormalConical3(t *testing.T) {
 	params := LambertConformalConicalParams{
+		ScanningMode: ScanningMode{
+			RightToLeft: false,
+			TopToBottom: false,
+			OverFirst:   true,
+		},
 		Radius:                 6378206.4,
 		Eccentricity:           0.0822719,
 		OriginLatitude:         23.0,

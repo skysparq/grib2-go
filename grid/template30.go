@@ -40,16 +40,17 @@ func (t Template30) Points() (record.GridPoints, error) {
 	}
 
 	params := projections.LambertConformalConicalParams{
-		OriginLatitude:         u.NormalizeStdLatitude(t.LaD),
-		OriginLongitude:        u.NormalizeStdLongitude(t.LoV),
-		FirstStandardParallel:  u.NormalizeStdLatitude(t.Latin1),
-		SecondStandardParallel: u.NormalizeStdLatitude(t.Latin2),
+		ScanningMode:           projections.ScanningModeFromByte(t.ScanningMode),
+		OriginLatitude:         u.StdLatLngToFloat(t.LaD),
+		OriginLongitude:        u.StdLatLngToFloat(u.ShiftLongitude(t.LoV)),
+		FirstStandardParallel:  u.StdLatLngToFloat(t.Latin1),
+		SecondStandardParallel: u.StdLatLngToFloat(t.Latin2),
 		Di:                     mmToMeters(t.Dx),
 		Dj:                     mmToMeters(t.Dy),
 		Ni:                     t.Nx,
 		Nj:                     t.Ny,
-		StartLatitude:          u.NormalizeStdLatitude(t.La1),
-		StartLongitude:         u.NormalizeStdLongitude(t.Lo1),
+		StartLatitude:          u.StdLatLngToFloat(t.La1),
+		StartLongitude:         u.StdLatLngToFloat(u.ShiftLongitude(t.Lo1)),
 	}
 
 	switch t.EarthShape {

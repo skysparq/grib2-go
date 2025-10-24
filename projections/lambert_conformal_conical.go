@@ -6,6 +6,7 @@ import "math"
 // initial draft of the algorithm was generated using Claude with Sonnet 4.5
 
 type LambertConformalConicalParams struct {
+	ScanningMode           ScanningMode
 	Radius                 float64
 	Eccentricity           float64
 	OriginLatitude         float64
@@ -35,15 +36,22 @@ func ExtractLambertConformalConicalGrid(params LambertConformalConicalParams) (l
 	)
 	originI, originJ := p.Forward(params.StartLatitude, params.StartLongitude)
 
-	for j := 0; j < params.Nj; j++ {
-		y := originJ + float64(j)*params.Dj
-		for i := 0; i < params.Ni; i++ {
-			x := originI + float64(i)*params.Di
-			lat, lng := p.Inverse(x, y)
-			lats = append(lats, lat)
-			lngs = append(lngs, lng)
-		}
+	s := NewScanner(ScannerParams[float64]{
+		ScanningMode: params.ScanningMode,
+		Ni:           params.Ni,
+		Nj:           params.Nj,
+		Di:           params.Di,
+		Dj:           params.Dj,
+		I0:           originI,
+		J0:           originJ,
+	})
+
+	for y, x := range s.Points {
+		lat, lng := p.Inverse(x, y)
+		lats = append(lats, lat)
+		lngs = append(lngs, lng)
 	}
+
 	return lats, lngs
 }
 
