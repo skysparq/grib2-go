@@ -1,5 +1,7 @@
 package projections
 
+import "github.com/skysparq/grib2-go/utility"
+
 type EquidistantCylindricalParams struct {
 	RightToLeft bool
 	TopToBottom bool
@@ -22,7 +24,7 @@ type equidistantCylindrical struct {
 	iDim      int // indicates which dimension is the X direction
 }
 
-func ExtractEquidistantCylindricalGrid(params EquidistantCylindricalParams) (lats []float32, lngs []float32) {
+func ExtractEquidistantCylindricalGrid(params EquidistantCylindricalParams) (lats []float64, lngs []float64) {
 	g := equidistantCylindrical{}
 	if params.RightToLeft && params.Di > 0 {
 		params.Di = -params.Di
@@ -47,19 +49,19 @@ func ExtractEquidistantCylindricalGrid(params EquidistantCylindricalParams) (lat
 		g.dim2Start = params.J0
 		g.iDim = 1
 	}
-	lats = make([]float32, 0, g.nDim1*g.nDim2)
-	lngs = make([]float32, 0, g.nDim1*g.nDim2)
+	lats = make([]float64, 0, g.nDim1*g.nDim2)
+	lngs = make([]float64, 0, g.nDim1*g.nDim2)
 
 	for dim1 := 0; dim1 < g.nDim1; dim1++ {
 		dim1Val := g.dim1Start + dim1*g.dDim1
 		for dim2 := 0; dim2 < g.nDim2; dim2++ {
 			dim2Val := g.dim2Start + dim2*g.dDim2
 			if g.iDim == 1 {
-				lngs = append(lngs, float32(normalizeLng(dim1Val))*1e-6)
-				lats = append(lats, float32(dim2Val)*1e-6)
+				lngs = append(lngs, utility.NormalizeStdLongitude(dim1Val))
+				lats = append(lats, utility.NormalizeStdLatitude(dim2Val))
 			} else {
-				lngs = append(lngs, float32(normalizeLng(dim2Val))*1e-6)
-				lats = append(lats, float32(dim1Val)*1e-6)
+				lngs = append(lngs, utility.NormalizeStdLongitude(dim2Val))
+				lats = append(lats, utility.NormalizeStdLatitude(dim1Val))
 			}
 		}
 	}

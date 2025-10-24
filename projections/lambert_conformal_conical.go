@@ -3,6 +3,7 @@ package projections
 import "math"
 
 // derived from https://pubs.usgs.gov/pp/1395/report.pdf
+// initial draft of the algorithm was generated using Claude with Sonnet 4.5
 
 type LambertConformalConicalParams struct {
 	Radius                 float64
@@ -19,9 +20,9 @@ type LambertConformalConicalParams struct {
 	StartLongitude         float64
 }
 
-func ExtractLambertConformalConicalGrid(params LambertConformalConicalParams) (lats []float32, lngs []float32) {
+func ExtractLambertConformalConicalGrid(params LambertConformalConicalParams) (lats []float64, lngs []float64) {
 	totalPoints := params.Ni * params.Nj
-	lats, lngs = make([]float32, 0, totalPoints), make([]float32, 0, totalPoints)
+	lats, lngs = make([]float64, 0, totalPoints), make([]float64, 0, totalPoints)
 	p := newLambertConformalConic(
 		params.Radius,
 		params.Eccentricity,
@@ -39,15 +40,15 @@ func ExtractLambertConformalConicalGrid(params LambertConformalConicalParams) (l
 		for i := 0; i < params.Ni; i++ {
 			x := originI + float64(i)*params.Di
 			lat, lng := p.Inverse(x, y)
-			lats = append(lats, float32(lat))
-			lngs = append(lngs, float32(lng))
+			lats = append(lats, lat)
+			lngs = append(lngs, lng)
 		}
 	}
 	return lats, lngs
 }
 
-// LambertConformalConic holds the projection parameters
-type LambertConformalConic struct {
+// lambertConformalConic holds the projection parameters
+type lambertConformalConic struct {
 	// Ellipsoid parameters
 	a  float64 // Semi-major axis (equatorial radius)
 	e  float64 // Eccentricity
@@ -70,8 +71,8 @@ type LambertConformalConic struct {
 }
 
 // NewLambertConformalConic creates a new Lambert Conformal Conic projection
-func newLambertConformalConic(radius, eccentricity, lat0Deg, lon0Deg, lat1Deg, lat2Deg, falseEasting, falseNorthing float64) *LambertConformalConic {
-	lcc := &LambertConformalConic{
+func newLambertConformalConic(radius, eccentricity, lat0Deg, lon0Deg, lat1Deg, lat2Deg, falseEasting, falseNorthing float64) *lambertConformalConic {
+	lcc := &lambertConformalConic{
 		a:  radius,
 		e:  eccentricity,
 		e2: math.Pow(eccentricity, 2),
@@ -92,7 +93,7 @@ func newLambertConformalConic(radius, eccentricity, lat0Deg, lon0Deg, lat1Deg, l
 }
 
 // computeConstants calculates the projection constants n, F, and rho0
-func (lcc *LambertConformalConic) computeConstants() {
+func (lcc *lambertConformalConic) computeConstants() {
 	// Calculate m values for the standard parallels
 	m1 := lcc.computeM(lcc.lat1)
 	m2 := lcc.computeM(lcc.lat2)
@@ -120,14 +121,14 @@ func (lcc *LambertConformalConic) computeConstants() {
 
 // computeM calculates the m value for a given latitude
 // m = cos(lat) / sqrt(1 - e^2 * sin^2(lat))
-func (lcc *LambertConformalConic) computeM(lat float64) float64 {
+func (lcc *lambertConformalConic) computeM(lat float64) float64 {
 	sinLat := math.Sin(lat)
 	return math.Cos(lat) / math.Sqrt(1-lcc.e2*sinLat*sinLat)
 }
 
 // computeT calculates the t value for a given latitude
 // t = tan(π/4 - lat/2) / [(1 - e*sin(lat)) / (1 + e*sin(lat))]^(e/2)
-func (lcc *LambertConformalConic) computeT(lat float64) float64 {
+func (lcc *lambertConformalConic) computeT(lat float64) float64 {
 	sinLat := math.Sin(lat)
 	esinLat := lcc.e * sinLat
 
@@ -140,7 +141,7 @@ func (lcc *LambertConformalConic) computeT(lat float64) float64 {
 // Forward converts geographic coordinates (latitude, longitude) to projected coordinates (X, Y)
 // Latitude and longitude should be in degrees
 // Returns X and Y in meters
-func (lcc *LambertConformalConic) Forward(latDeg, lonDeg float64) (x, y float64) {
+func (lcc *lambertConformalConic) Forward(latDeg, lonDeg float64) (x, y float64) {
 	// Convert to radians
 	lat := degToRad(latDeg)
 	lon := degToRad(lonDeg)
@@ -172,7 +173,7 @@ func (lcc *LambertConformalConic) Forward(latDeg, lonDeg float64) (x, y float64)
 // Inverse converts projected coordinates (X, Y) to geographic coordinates (latitude, longitude)
 // X and Y should be in meters
 // Returns latitude and longitude in degrees
-func (lcc *LambertConformalConic) Inverse(x, y float64) (latDeg, lonDeg float64) {
+func (lcc *lambertConformalConic) Inverse(x, y float64) (latDeg, lonDeg float64) {
 	// Remove false easting and northing
 	x -= lcc.falseEasting
 	y -= lcc.falseNorthing
@@ -209,7 +210,7 @@ func (lcc *LambertConformalConic) Inverse(x, y float64) (latDeg, lonDeg float64)
 
 // computeLatFromT calculates latitude from t using iterative method
 // lat = π/2 - 2*arctan(t * [(1 - e*sin(lat)) / (1 + e*sin(lat))]^(e/2))
-func (lcc *LambertConformalConic) computeLatFromT(t float64) float64 {
+func (lcc *lambertConformalConic) computeLatFromT(t float64) float64 {
 	// Initial estimate
 	lat := math.Pi/2 - 2*math.Atan(t)
 

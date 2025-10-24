@@ -1,6 +1,7 @@
 package grid_test
 
 import (
+	"math"
 	"reflect"
 	"testing"
 
@@ -74,5 +75,13 @@ func TestTemplate30Points(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	if expected := -122.71953; math.Abs(expected-points.Lngs[0]) > 0.001 {
+		t.Fatalf("expected first longitude to be %v but got %v", expected, points.Lngs[0])
+	}
+	if expected := 21.138123; math.Abs(expected-points.Lats[0]) > 0.001 {
+		t.Fatalf("expected first latitude to be %v but got %v", expected, points.Lats[0])
+	}
+
 	t.Logf("lngs: %+v\nlats: %+v", points.Lngs[:100], points.Lats[:100])
 }

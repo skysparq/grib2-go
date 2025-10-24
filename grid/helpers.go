@@ -12,3 +12,7 @@ func checkSectionNum(section record.Section3, expectedNum int) error {
 	}
 	return nil
 }
+
+func mmToMeters(value int) float64 {
+	return float64(value) * 1e-3
+}

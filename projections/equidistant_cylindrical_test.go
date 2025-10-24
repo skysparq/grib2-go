@@ -23,8 +23,8 @@ func TestEquidistantCylindricalTopLeftToBottomRight(t *testing.T) {
 	index := 0
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 10; j++ {
-			expectedLon := float32(-170 + (j * 1))
-			expectedLat := float32(20 - (i * 2))
+			expectedLon := float64(-170 + (j * 1))
+			expectedLat := float64(20 - (i * 2))
 			actualLon := lngs[index]
 			actualLat := lats[index]
 			if actualLat != expectedLat {
@@ -55,8 +55,8 @@ func TestEquidistantCylindricalTopRightToBottomLeft(t *testing.T) {
 	index := 0
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 10; j++ {
-			expectedLon := float32(-170 - (j * 1))
-			expectedLat := float32(20 - (i * 2))
+			expectedLon := float64(-170 - (j * 1))
+			expectedLat := float64(20 - (i * 2))
 			actualLon := lngs[index]
 			actualLat := lats[index]
 			if actualLat != expectedLat {
@@ -87,8 +87,8 @@ func TestEquidistantCylindricalBottomLeftToTopRight(t *testing.T) {
 	index := 0
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 10; j++ {
-			expectedLon := float32(-170 + (j * 1))
-			expectedLat := float32(20 + (i * 2))
+			expectedLon := float64(-170 + (j * 1))
+			expectedLat := float64(20 + (i * 2))
 			actualLon := lngs[index]
 			actualLat := lats[index]
 			if actualLat != expectedLat {
@@ -119,8 +119,8 @@ func TestEquidistantCylindricalBottomRightToTopLeft(t *testing.T) {
 	index := 0
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 10; j++ {
-			expectedLon := float32(-170 - (j * 1))
-			expectedLat := float32(20 + (i * 2))
+			expectedLon := float64(-170 - (j * 1))
+			expectedLat := float64(20 + (i * 2))
 			actualLon := lngs[index]
 			actualLat := lats[index]
 			if actualLat != expectedLat {

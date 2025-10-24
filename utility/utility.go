@@ -62,3 +62,14 @@ func GetScale(decimalScaleFactor int, binaryScaleFactor int) float64 {
 func GetDecimalScaledValue(decimalScaleFactor int, value float64) float64 {
 	return math.Pow(10, -float64(decimalScaleFactor)) * value
 }
+
+func NormalizeStdLongitude(value int) float64 {
+	if value > 180000000 {
+		value -= 360000000
+	}
+	return float64(value) * 1e-6
+}
+
+func NormalizeStdLatitude(value int) float64 {
+	return float64(value) * 1e-6
+}

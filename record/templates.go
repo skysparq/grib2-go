@@ -28,8 +28,8 @@ type GridDefinition interface {
 }
 
 type GridPoints struct {
-	Lats []float32
-	Lngs []float32
+	Lats []float64
+	Lngs []float64
 }
 
 type GriddedValues struct {
