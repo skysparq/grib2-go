@@ -72,6 +72,15 @@ func ShiftLongitude(value int) int {
 	return value
 }
 
+// The formula for recovering packed data is:
+// Y = (R + X * 2^E) / 10^D
+//
+// For complex packing:
+// E = Binary scale factor
+// D = Decimal scale factor
+// R = Reference value of the whole field
+// X = Packed value
+
 func Unpack(ref float64, value int, binaryScale int, decimalScale int) float64 {
 	return (ref + (float64(value) * math.Pow(2, float64(binaryScale)))) / math.Pow(10, float64(decimalScale))
 }

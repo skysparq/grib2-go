@@ -3,6 +3,8 @@ package data_representation
 import (
 	"fmt"
 	"math"
+
+	u "github.com/skysparq/grib2-go/utility"
 )
 
 // The formula for recovering packed data is:
@@ -87,6 +89,11 @@ func (p ComplexParams) UnpackComplex(packedData []byte) ([]float64, error) {
 		for i := 0; i < nl; i++ {
 			val := gref
 
+			if p.MissingValueManagement == 0 {
+				if nb > 0 {
+					val += int(dataStream.ReadBits(nb))
+				}
+			}
 			if p.MissingValueManagement == 1 {
 				if nb == 0 {
 					m1 := (1 << p.BitsPerGroup) - 1
@@ -147,19 +154,10 @@ func (p ComplexParams) UnpackComplex(packedData []byte) ([]float64, error) {
 				}
 			}
 
-			// The formula for recovering packed data is:
-			// Y = (R + (X1 + X2) * 2^E) / 10^D
-			//
-			// For complex packing:
-			// E = Binary scale factor
-			// D = Decimal scale factor
-			// R = Reference value of the whole field
-			// X1 = Reference value (scaled integer) of the group the data value belongs to
-			// X2 = Scaled value with the group reference value removed
 			if p.Bitmap.IsSet(pointIdx) || val == math.MaxInt64 {
 				result = append(result, math.NaN())
 			} else {
-				result = append(result, p.Ref+float64(val)*math.Pow(2, float64(p.BinaryScale))/math.Pow(10, float64(p.DecimalScale)))
+				result = append(result, u.Unpack(p.Ref, val, p.BinaryScale, p.DecimalScale))
 			}
 			pointIdx++
 		}
