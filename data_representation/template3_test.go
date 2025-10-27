@@ -40,7 +40,7 @@ func TestTemplate3(t *testing.T) {
 		GroupWidthReference:            0,
 		BitsUsedForGroupWidths:         4,
 		GroupLengthReference:           1,
-		BitsUsedForGroupLengths:        1,
+		LengthIncrementForGroupLengths: 1,
 		LastGroupLength:                41,
 		BitsUsedForScaledGroupLengths:  7,
 		SpatialDifferenceOrder:         2,
@@ -78,13 +78,13 @@ func TestUnpackTemplate3(t *testing.T) {
 	if expected := 1_038_240; len(data) != expected {
 		t.Fatalf(`expected %v values but got %v`, expected, len(data))
 	}
-	if expected := float32(102744.8); data[0] != expected {
+	if expected := 102744.8; data[0] != expected {
 		t.Fatalf(`expected %v but got %v`, expected, data[0])
 	}
-	if expected := float32(102751.4); data[2444] != expected {
+	if expected := 102751.4; data[2444] != expected {
 		t.Fatalf(`expected %v but got %v`, expected, data[2444])
 	}
-	if expected := float32(98455.0); data[928935] != expected {
+	if expected := 98455.0; data[928935] != expected {
 		t.Fatalf(`expected %v but got %v`, expected, data[928935])
 	}
 }

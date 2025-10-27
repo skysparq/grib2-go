@@ -1,14 +1,14 @@
 package data_representation
 
 import (
-	"math"
+	"fmt"
 
 	"github.com/skysparq/grib2-go/record"
 	u "github.com/skysparq/grib2-go/utility"
 )
 
 type Template3 struct {
-	ReferenceValue                 float32
+	ReferenceValue                 float64
 	BinaryScaleFactor              int
 	DecimalScaleFactor             int
 	BitsPerGroup                   int
@@ -21,7 +21,7 @@ type Template3 struct {
 	GroupWidthReference            int
 	BitsUsedForGroupWidths         int
 	GroupLengthReference           int
-	BitsUsedForGroupLengths        int
+	LengthIncrementForGroupLengths int
 	LastGroupLength                int
 	BitsUsedForScaledGroupLengths  int
 	SpatialDifferenceOrder         int
@@ -35,7 +35,7 @@ func (t Template3) Parse(section record.Section5) (record.DataRepresentationDefi
 	}
 
 	data := section.DataRepresentationTemplateData
-	t.ReferenceValue = u.Float32(data[0:4])
+	t.ReferenceValue = float64(u.Float32(data[0:4]))
 	t.BinaryScaleFactor = u.SignAndMagnitudeInt16(data[4:6])
 	t.DecimalScaleFactor = u.SignAndMagnitudeInt16(data[6:8])
 	t.BitsPerGroup = int(data[8])
@@ -47,26 +47,41 @@ func (t Template3) Parse(section record.Section5) (record.DataRepresentationDefi
 	t.TotalGroups = u.Int32(data[20:24])
 	t.GroupWidthReference = int(data[24])
 	t.BitsUsedForGroupWidths = int(data[25])
-	t.GroupLengthReference = u.Int32(data[26:30])
-	t.BitsUsedForGroupLengths = int(data[30])
-	t.LastGroupLength = u.Int32(data[31:35])
+	t.GroupLengthReference = u.Uint32(data[26:30])
+	t.LengthIncrementForGroupLengths = int(data[30])
+	t.LastGroupLength = u.Uint32(data[31:35])
 	t.BitsUsedForScaledGroupLengths = int(data[35])
 	t.SpatialDifferenceOrder = int(data[36])
 	t.TotalSpatialDifferencingOctets = int(data[37])
 	return t, nil
 }
 
-func (t Template3) GetValues(_ record.Record) ([]float32, error) {
-	return nil, nil
-}
-
-func (t Template3) missingValue() float32 {
-	switch t.MissingValueManagement {
-	case 1:
-		return float32(t.PrimaryMissingValue)
-	case 2:
-		return float32(t.SecondaryMissingValue)
-	default:
-		return float32(math.NaN())
+func (t Template3) GetValues(rec record.Record) ([]float64, error) {
+	bitmap, err := NewBitmapReader(rec)
+	if err != nil {
+		return nil, fmt.Errorf("error getting values: %w", err)
 	}
+	params := ComplexParams{
+		TotalPoints:              rec.DataRepresentation.TotalDataPoints,
+		Order:                    t.SpatialDifferenceOrder,
+		SpatialOctets:            t.TotalSpatialDifferencingOctets,
+		NG:                       t.TotalGroups,
+		BitsPerGroup:             t.BitsPerGroup,
+		BitsPerGroupWidth:        t.BitsUsedForGroupWidths,
+		BitsPerScaledGroupLength: t.BitsUsedForScaledGroupLengths,
+		GroupWidthReference:      t.GroupWidthReference,
+		GroupLengthReference:     t.GroupLengthReference,
+		GroupLengthIncrement:     t.LengthIncrementForGroupLengths,
+		LastGroupLength:          t.LastGroupLength,
+		Ref:                      t.ReferenceValue,
+		BinaryScale:              t.BinaryScaleFactor,
+		DecimalScale:             t.DecimalScaleFactor,
+		MissingValueManagement:   t.MissingValueManagement,
+		Bitmap:                   bitmap,
+	}
+	result, err := params.UnpackComplex(rec.Data.Data)
+	if err != nil {
+		return nil, fmt.Errorf("error getting values: %w", err)
+	}
+	return result, nil
 }

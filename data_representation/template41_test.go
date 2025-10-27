@@ -46,15 +46,15 @@ func TestTemplate41(t *testing.T) {
 
 type Template41Tests struct {
 	TestFile  test_files.TestFile
-	Sentinels []float32
-	Min       float32
-	Max       float32
+	Sentinels []float64
+	Min       float64
+	Max       float64
 }
 
 func TestGetValuesTemplate41_8Bits(t *testing.T) {
 	testTemplate41Values(t, Template41Tests{
 		TestFile:  test_files.MrmsAzShear,
-		Sentinels: []float32{-999, -99},
+		Sentinels: []float64{-999, -99},
 		Min:       -22,
 		Max:       47,
 	})
@@ -63,7 +63,7 @@ func TestGetValuesTemplate41_8Bits(t *testing.T) {
 func TestGetValuesTemplate41_16Bits(t *testing.T) {
 	testTemplate41Values(t, Template41Tests{
 		TestFile:  test_files.MrmsCompositeRefl,
-		Sentinels: []float32{-999, -99},
+		Sentinels: []float64{-999, -99},
 		Min:       -22,
 		Max:       61.5,
 	})
@@ -72,7 +72,7 @@ func TestGetValuesTemplate41_16Bits(t *testing.T) {
 func TestGetValuesTemplate41_24Bits(t *testing.T) {
 	testTemplate41Values(t, Template41Tests{
 		TestFile:  test_files.MrmsLghtngProb,
-		Sentinels: []float32{},
+		Sentinels: []float64{},
 		Min:       -99900,
 		Max:       86,
 	})
@@ -99,7 +99,7 @@ func testTemplate41Values(t *testing.T, test Template41Tests) {
 	}
 
 	pmin, pmax := slices.Min(values), slices.Max(values)
-	pminNoSentinel := float32(999999.9)
+	pminNoSentinel := 999999.9
 	for _, v := range values {
 		if !slices.Contains(test.Sentinels, v) && v < pminNoSentinel {
 			pminNoSentinel = v

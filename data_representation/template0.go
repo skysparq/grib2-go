@@ -11,7 +11,7 @@ import (
 )
 
 type Template0 struct {
-	ReferenceValue     float32
+	ReferenceValue     float64
 	BinaryScaleFactor  int
 	DecimalScaleFactor int
 	BitsPerValue       int
@@ -25,7 +25,7 @@ func (t Template0) Parse(section record.Section5) (record.DataRepresentationDefi
 	}
 
 	data := section.DataRepresentationTemplateData
-	t.ReferenceValue = u.Float32(data[0:4])
+	t.ReferenceValue = float64(u.Float32(data[0:4]))
 	t.BinaryScaleFactor = u.SignAndMagnitudeInt16(data[4:6])
 	t.DecimalScaleFactor = u.SignAndMagnitudeInt16(data[6:8])
 	t.BitsPerValue = int(data[8])
@@ -34,39 +34,37 @@ func (t Template0) Parse(section record.Section5) (record.DataRepresentationDefi
 }
 
 // GetValues in this template uses simple unpacking to retrieve values from the record
-func (t Template0) GetValues(rec record.Record) ([]float32, error) {
+func (t Template0) GetValues(rec record.Record) ([]float64, error) {
 	getValues := t.getValueReader()
 	return getValues(rec, rec.Grid.TotalPoints)
 }
 
-func (t Template0) getValueReader() func(rec record.Record, totalPoints int) ([]float32, error) {
+func (t Template0) getValueReader() func(rec record.Record, totalPoints int) ([]float64, error) {
 	if t.BitsPerValue == 0 {
 		return t.unpackConst
 	}
 	return t.unpackSimple
 }
 
-func (t Template0) unpackConst(rec record.Record, totalPoints int) ([]float32, error) {
-	ref := u.GetDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
-	values := make([]float32, totalPoints)
+func (t Template0) unpackConst(rec record.Record, totalPoints int) ([]float64, error) {
+	ref := u.UnpackFloat(t.ReferenceValue, 0, t.BinaryScaleFactor, t.DecimalScaleFactor)
+	values := make([]float64, totalPoints)
 	bmpR, err := NewBitmapReader(rec)
 	if err != nil {
 		return nil, fmt.Errorf("error unpacking const values: %w", err)
 	}
 	for i := range values {
 		if bmpR.IsSet(i) {
-			values[i] = float32(math.NaN())
+			values[i] = math.NaN()
 		} else {
-			values[i] = float32(ref)
+			values[i] = ref
 		}
 	}
 	return values, nil
 }
 
-func (t Template0) unpackSimple(rec record.Record, totalPoints int) ([]float32, error) {
-	values := make([]float32, totalPoints)
-	ref := u.GetDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
-	scale := u.GetScale(t.DecimalScaleFactor, t.BinaryScaleFactor)
+func (t Template0) unpackSimple(rec record.Record, totalPoints int) ([]float64, error) {
+	values := make([]float64, totalPoints)
 	reader := bitio.NewReader(bytes.NewBuffer(rec.Data.Data))
 	bmpR, err := NewBitmapReader(rec)
 	if err != nil {
@@ -80,13 +78,12 @@ func (t Template0) unpackSimple(rec record.Record, totalPoints int) ([]float32, 
 		}
 
 		if bmpR.IsSet(i) {
-			values[i] = float32(math.NaN())
+			values[i] = math.NaN()
 			continue
 		}
 		value := float64(math.Float32frombits(uint32(packed)))
-		value = value * scale
-		value += ref
-		values[i] = float32(value)
+		value = u.UnpackFloat(t.ReferenceValue, value, t.BinaryScaleFactor, t.DecimalScaleFactor)
+		values[i] = value
 	}
 	return values, nil
 }

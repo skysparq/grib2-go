@@ -35,7 +35,7 @@ func TestUnpackConst(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if expected := []float32{1, 1, 1, 1, 1}; !slices.Equal(result, expected) {
+	if expected := []float64{1, 1, 1, 1, 1}; !slices.Equal(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
 }
@@ -74,7 +74,7 @@ func TestUnpackSimple(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if expected := []float32{11, 12, 13, 14, 15}; !slices.Equal(result, expected) {
+	if expected := []float64{11, 12, 13, 14, 15}; !slices.Equal(result, expected) {
 		t.Fatalf("expected %v, got %v", expected, result)
 	}
 }

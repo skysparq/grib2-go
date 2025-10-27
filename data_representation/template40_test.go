@@ -45,5 +45,8 @@ func TestTemplate40(t *testing.T) {
 	}
 	t.Logf(`%s`, encoded)
 
-	_ = os.WriteFile(`../.test_files/single-grib2-record-data-def-40.jp2`, rec.Data.Data, os.ModePerm)
+	err = os.WriteFile(`../.test_files/single-grib2-record-data-def-40.jp2`, rec.Data.Data, os.ModePerm)
+	if err != nil {
+		t.Fatal(err)
+	}
 }

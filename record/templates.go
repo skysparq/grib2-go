@@ -14,7 +14,7 @@ type DataRepresentationDefinition interface {
 }
 
 type DataReader interface {
-	GetValues(rec Record) ([]float32, error)
+	GetValues(rec Record) ([]float64, error)
 }
 
 type ProductDefinition interface {
@@ -34,7 +34,7 @@ type GridPoints struct {
 
 type GriddedValues struct {
 	GridPoints
-	Values []float32
+	Values []float64
 }
 
 type ProductDefinitionHeader struct {

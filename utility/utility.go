@@ -17,7 +17,7 @@ func SignAndMagnitudeInt32(data []byte) int {
 	dataCopy[0] &= 0x7F
 	value := int(binary.BigEndian.Uint32(dataCopy))
 	if negative {
-		value *= -1
+		return -value
 	}
 	return value
 }
@@ -30,7 +30,17 @@ func SignAndMagnitudeInt16(data []byte) int {
 	dataCopy[0] &= 0x7F
 	value := int(binary.BigEndian.Uint16(dataCopy))
 	if negative {
-		value *= -1
+		return -value
+	}
+	return value
+}
+
+func SignAndMagnitudeInt8(data byte) int {
+	negative := (data & 0x80) == 0x80
+	data &= 0x7F
+	value := int(data)
+	if negative {
+		return -value
 	}
 	return value
 }
@@ -51,18 +61,6 @@ func Float32(data []byte) float32 {
 	return math.Float32frombits(binary.BigEndian.Uint32(data))
 }
 
-func GetDecimalScaledRef(decimalScaleFactor int, ref float32) float64 {
-	return math.Pow(10, -float64(decimalScaleFactor)) * float64(ref)
-}
-
-func GetScale(decimalScaleFactor int, binaryScaleFactor int) float64 {
-	return math.Pow(10, -float64(decimalScaleFactor)) * math.Pow(2, float64(binaryScaleFactor))
-}
-
-func GetDecimalScaledValue(decimalScaleFactor int, value float64) float64 {
-	return math.Pow(10, -float64(decimalScaleFactor)) * value
-}
-
 func StdLatLngToFloat(value int) float64 {
 	return float64(value) * 1e-6
 }
@@ -72,4 +70,12 @@ func ShiftLongitude(value int) int {
 		value -= 360000000
 	}
 	return value
+}
+
+func Unpack(ref float64, value int, binaryScale int, decimalScale int) float64 {
+	return (ref + (float64(value) * math.Pow(2, float64(binaryScale)))) / math.Pow(10, float64(decimalScale))
+}
+
+func UnpackFloat(ref float64, value float64, binaryScale int, decimalScale int) float64 {
+	return (ref + (value * math.Pow(2, float64(binaryScale)))) / math.Pow(10, float64(decimalScale))
 }
