@@ -1,6 +1,7 @@
 package file_test
 
 import (
+	"os"
 	"runtime"
 	"testing"
 	"time"
@@ -56,4 +57,20 @@ func TestLoadGribFile(t *testing.T) {
 	close(done)
 	t.Logf("Peak memory usage (Alloc): %d bytes (%.2f MB)", peak, float64(peak)/1024/1024)
 	t.Logf(`grid definition templates: %v, product definition templates: %v, data representation templates: %v`, gridDefs, prodDefs, dataRepDefs)
+}
+
+func TestExtractRecordFromFile(t *testing.T) {
+	t.Skip(`only run when you need to isolate a record from an existing grib file for testing purposes`)
+	_, r, err := test_files.Load(`.test_files/hrrr.t00z.wrfnatf01.grib2`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	recBytes, err := file.ExtractRecordBytes(r, 1082)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = os.WriteFile(`../.test_files/hrrr-1082.grb2`, recBytes, os.ModePerm)
+	if err != nil {
+		t.Fatal(err)
+	}
 }

@@ -34,5 +34,5 @@ func (r *BitmapReader) alwaysFalse(_ int) bool {
 }
 
 func (r *BitmapReader) isMissing(index int) bool {
-	return r.bitmap[index/8]&(1<<(index%8)) == 0
+	return (r.bitmap[index/8]>>(7-(index%8)))&1 == 0
 }

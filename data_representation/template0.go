@@ -1,11 +1,9 @@
 package data_representation
 
 import (
-	"bytes"
 	"fmt"
 	"math"
 
-	"github.com/icza/bitio"
 	"github.com/skysparq/grib2-go/record"
 	u "github.com/skysparq/grib2-go/utility"
 )
@@ -65,25 +63,22 @@ func (t Template0) unpackConst(rec record.Record, totalPoints int) ([]float64, e
 
 func (t Template0) unpackSimple(rec record.Record, totalPoints int) ([]float64, error) {
 	values := make([]float64, totalPoints)
-	reader := bitio.NewReader(bytes.NewBuffer(rec.Data.Data))
+	stream := NewBitStream(rec.Data.Data)
 	bmpR, err := NewBitmapReader(rec)
 	if err != nil {
 		return nil, fmt.Errorf("error unpacking simple values: %w", err)
 	}
 
 	for i := range values {
-		packed, err := reader.ReadBits(uint8(t.BitsPerValue))
-		if err != nil {
-			return nil, fmt.Errorf(`error performing simple unpack with bitmap for value %d: %w`, i, err)
-		}
-
 		if bmpR.IsMissing(i) {
 			values[i] = math.NaN()
 			continue
 		}
-		value := float64(math.Float32frombits(uint32(packed)))
-		value = u.UnpackFloat(t.ReferenceValue, value, t.BinaryScaleFactor, t.DecimalScaleFactor)
+
+		packed := int(stream.ReadBits(t.BitsPerValue))
+		value := u.Unpack(t.ReferenceValue, packed, t.BinaryScaleFactor, t.DecimalScaleFactor)
 		values[i] = value
 	}
+	stream.Pos()
 	return values, nil
 }

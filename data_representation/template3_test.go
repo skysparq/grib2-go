@@ -121,8 +121,8 @@ func TestUnpackTemplate3WithBitmap(t *testing.T) {
 	if expected := 3.0; data[148235] != expected {
 		t.Fatalf(`expected %v but got %v`, expected, data[148235])
 	}
-	if !math.IsNaN(data[277043]) {
-		t.Fatalf(`expected NaN but got %v`, data[277043])
+	if !math.IsNaN(data[277044]) {
+		t.Fatalf(`expected NaN but got %v`, data[277044])
 	}
 	if !math.IsNaN(data[len(data)-1]) {
 		t.Fatalf(`expected NaN but got %v`, data[len(data)-1])
@@ -183,5 +183,41 @@ func TestUnpackTemplate3WithPrimaryMissingValueMngmnt(t *testing.T) {
 	}
 	if expected := 0.0016; math.Abs(expected-data[len(data)-1]) > 0.00001 {
 		t.Fatalf(`expected %v but got %v`, expected, data[len(data)-1])
+	}
+}
+
+func TestUnpackComplexWithBitmapFromHRRR(t *testing.T) {
+	_, r, err := test_files.Load(`.test_files/hrrr-1082.grb2`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = r.Close() }()
+
+	rec, err := record.ParseRecord(r, templates.Version33())
+	if err != nil {
+		t.Fatal(err)
+	}
+	template, err := data_representation.Template3{}.Parse(rec.DataRepresentation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err := template.GetValues(rec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if expected := 1_905_141; len(data) != expected {
+		t.Fatalf(`expected %v values but got %v`, expected, len(data))
+	}
+	if expected := 91300.0; data[0] != expected {
+		t.Fatalf(`expected %v but got %v`, expected, data[0])
+	}
+	if expected := 71900.0; data[89530] != expected {
+		t.Fatalf(`expected %v but got %v`, expected, data[89530])
+	}
+	if !math.IsNaN(data[1070738]) {
+		t.Fatalf(`expected NaN but got %v`, data[1070738])
+	}
+	if expected := 26300.0; data[len(data)-1] != expected {
+		t.Fatalf(`expected NaN but got %v`, data[len(data)-1])
 	}
 }
