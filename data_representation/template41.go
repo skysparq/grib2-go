@@ -67,7 +67,7 @@ func (t Template41) getValues(bmpR *BitmapReader, p image.Image, getValue func(x
 	index := 0
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			if bmpR.IsSet(index) {
+			if bmpR.IsMissing(index) {
 				pixels = append(pixels, math.NaN())
 				index++
 				continue

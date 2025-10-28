@@ -19,6 +19,7 @@ import (
 
 type ComplexParams struct {
 	TotalPoints              int
+	DataPoints               int
 	Order                    int
 	SpatialOctets            int
 	NG                       int
@@ -33,199 +34,240 @@ type ComplexParams struct {
 	BinaryScale              int
 	DecimalScale             int
 	MissingValueManagement   int
+	PrimaryMissingValue      int
+	SecondaryMissingValue    int
 	Bitmap                   *BitmapReader
-
-	initials       []int
-	overallMin     int
-	groupRefValues []int
-	groupWidths    []int
-	groupLengths   []int
 }
 
-func (p ComplexParams) UnpackComplex(packedData []byte) ([]float64, error) {
-	if p.Order > 2 {
-		return nil, fmt.Errorf("error unpacking complex: order %d is not supported", p.Order)
-	}
-
-	currentPos := 0
-	endPos := (p.Order + 1) * p.SpatialOctets
-	p.initials, p.overallMin = p.processSpatialOctets(packedData[currentPos:endPos])
-
-	currentPos = endPos
-	endPos = currentPos + p.bytesRequired(p.BitsPerGroup)
-	p.groupRefValues = p.readUints(p.BitsPerGroup, packedData[currentPos:endPos], 0)
-
-	currentPos = endPos
-	endPos = currentPos + p.bytesRequired(p.BitsPerGroupWidth)
-	p.groupWidths = p.readUints(p.BitsPerGroupWidth, packedData[currentPos:endPos], p.GroupWidthReference)
-
-	currentPos = endPos
-	endPos = currentPos + p.bytesRequired(p.BitsPerScaledGroupLength)
-	p.groupLengths = p.readGroupLengths(packedData[currentPos:endPos])
-	if err := p.checkTotalGroupPoints(p.groupLengths); err != nil {
+func (p *ComplexParams) UnpackComplex(packedData []byte) ([]float64, error) {
+	g, err := newGroupTracker(p, packedData)
+	if err != nil {
 		return nil, err
 	}
 
-	dataStream := NewBitStream(packedData[endPos:])
-
-	pointIdx := 0
-	var last1, last2 int
-	if p.Order == 1 {
-		last1 = p.initials[0]
-	} else if p.Order == 2 {
-		last2 = p.initials[0]
-		last1 = p.initials[1]
-	}
 	result := make([]float64, 0, p.TotalPoints)
-	firstFound, secondFound := false, false
 
-	for g := 0; g < p.NG; g++ {
-		nb := p.groupWidths[g]
-		nl := p.groupLengths[g]
-		gref := p.groupRefValues[g]
-
-		for i := 0; i < nl; i++ {
-			val := gref
-
-			if p.MissingValueManagement == 0 {
-				if nb > 0 {
-					val += int(dataStream.ReadBits(nb))
-				}
-			}
-			if p.MissingValueManagement == 1 {
-				if nb == 0 {
-					m1 := (1 << p.BitsPerGroup) - 1
-					if m1 == gref {
-						val = math.MaxInt64
-					}
-				} else {
-					m1 := (1 << (nb - 1)) - 1
-					dataVal := int(dataStream.ReadBits(nb))
-					if dataVal == m1 {
-						val = math.MaxInt64
-					} else {
-						val += dataVal
-					}
-				}
-			}
-			if p.MissingValueManagement == 2 {
-				if nb == 0 {
-					m1 := (1 << p.BitsPerGroup) - 1
-					m2 := m1 - 1
-					if m1 == gref || m2 == gref {
-						val = math.MaxInt64
-					}
-				} else {
-					m1 := (1 << (nb - 1)) - 1
-					m2 := m1 - 1
-					dataVal := int(dataStream.ReadBits(nb))
-					if dataVal == m1 || dataVal == m2 {
-						val = math.MaxInt64
-					} else {
-						val += dataVal
-					}
-				}
-			}
-
-			if p.Order == 0 {
-				if p.Bitmap.IsSet(pointIdx) || val == math.MaxInt64 {
-					result = append(result, math.NaN())
-				} else {
-					result = append(result, u.Unpack(p.Ref, val, p.BinaryScale, p.DecimalScale))
-				}
-			} else if p.Order == 1 {
-				if !firstFound && val != math.MaxInt64 {
-					val = last1
-					firstFound = true
-				} else if firstFound && val != math.MaxInt64 {
-					val += last1 + p.overallMin
-					last1 = val
-				}
-				if p.Bitmap.IsSet(pointIdx) || val == math.MaxInt64 {
-					result = append(result, math.NaN())
-				} else {
-					result = append(result, u.Unpack(p.Ref, val, p.BinaryScale, p.DecimalScale))
-				}
-			} else if p.Order == 2 {
-				if !firstFound && val != math.MaxInt64 {
-					val = last2
-					firstFound = true
-				} else if !secondFound && val != math.MaxInt64 {
-					val = last1
-					secondFound = true
-				} else if firstFound && secondFound && val != math.MaxInt64 {
-					val += p.overallMin + last1 + (last1 - last2)
-					last2 = last1
-					last1 = val
-				}
-				if p.Bitmap.IsSet(pointIdx) || val == math.MaxInt64 {
-					result = append(result, math.NaN())
-				} else {
-					result = append(result, u.Unpack(p.Ref, val, p.BinaryScale, p.DecimalScale))
-				}
-			}
-			pointIdx++
+	var pointIdx int
+	for ; pointIdx < p.TotalPoints; pointIdx++ {
+		if p.Bitmap.IsMissing(pointIdx) {
+			result = append(result, math.NaN())
+			continue
 		}
+		result = append(result, g.nextValue())
 	}
-
-	if pointIdx != len(result) {
-		return result, fmt.Errorf("error unpacking complex: decoded %d points, expected %d", pointIdx, len(result))
+	if pointIdx != p.TotalPoints {
+		return result, fmt.Errorf("error unpacking complex: expected %d points, got %d", p.TotalPoints, pointIdx)
 	}
-
 	return result, nil
 }
 
-func (p ComplexParams) processSpatialOctets(data []byte) ([]int, int) {
+type groupTracker struct {
+	params         *ComplexParams
+	currentGroup   int
+	pointsInGroup  int
+	groupWidth     int
+	groupLength    int
+	groupRef       int
+	currentPoint   int
+	currentValue   int
+	last1          int
+	last2          int
+	overallMin     int
+	firstFound     bool
+	secondFound    bool
+	groupRefValues []int
+	groupWidths    []int
+	groupLengths   []int
+	dataStream     *BitStream
+}
+
+func newGroupTracker(params *ComplexParams, packedData []byte) (*groupTracker, error) {
+	tracker := &groupTracker{
+		params: params,
+	}
+	if params.Order > 2 {
+		return nil, fmt.Errorf("error unpacking complex: order %d is not supported", params.Order)
+	}
+
+	currentPos := 0
+	endPos := (params.Order + 1) * params.SpatialOctets
+	tracker.processSpatialOctets(packedData[currentPos:endPos])
+
+	currentPos = endPos
+	endPos = currentPos + tracker.bytesRequired(params.BitsPerGroup)
+	tracker.groupRefValues = tracker.readUints(params.BitsPerGroup, packedData[currentPos:endPos], 0)
+
+	currentPos = endPos
+	endPos = currentPos + tracker.bytesRequired(params.BitsPerGroupWidth)
+	tracker.groupWidths = tracker.readUints(params.BitsPerGroupWidth, packedData[currentPos:endPos], params.GroupWidthReference)
+
+	currentPos = endPos
+	endPos = currentPos + tracker.bytesRequired(params.BitsPerScaledGroupLength)
+	tracker.groupLengths = tracker.readGroupLengths(packedData[currentPos:endPos])
+	if err := tracker.checkTotalGroupPoints(); err != nil {
+		return nil, err
+	}
+
+	tracker.dataStream = NewBitStream(packedData[endPos:])
+	tracker.pointsInGroup = tracker.groupLengths[0]
+	tracker.groupWidth = tracker.groupWidths[0]
+	tracker.groupLength = tracker.groupLengths[0]
+	tracker.groupRef = tracker.groupRefValues[0]
+	return tracker, nil
+}
+
+func (g *groupTracker) nextValue() float64 {
+	if g.currentPoint >= g.pointsInGroup {
+		g.currentGroup++
+		g.pointsInGroup = g.groupLengths[g.currentGroup]
+		g.groupWidth = g.groupWidths[g.currentGroup]
+		g.groupLength = g.groupLengths[g.currentGroup]
+		g.groupRef = g.groupRefValues[g.currentGroup]
+		g.currentPoint = 0
+	}
+
+	nb := g.groupWidth
+	gref := g.groupRef
+	val := gref
+
+	if g.params.MissingValueManagement == 0 {
+		if nb > 0 {
+			val += int(g.dataStream.ReadBits(nb))
+		}
+	} else if g.params.MissingValueManagement == 1 {
+		if nb == 0 {
+			m1 := (1 << g.params.BitsPerGroup) - 1
+			if m1 == gref {
+				val = math.MaxInt64
+			}
+		} else {
+			m1 := (1 << (nb - 1)) - 1
+			dataVal := int(g.dataStream.ReadBits(nb))
+			if dataVal == m1 {
+				val = math.MaxInt64
+			} else {
+				val += dataVal
+			}
+		}
+	}
+	if g.params.MissingValueManagement == 2 {
+		if nb == 0 {
+			m1 := (1 << g.params.BitsPerGroup) - 1
+			m2 := m1 - 1
+			if m1 == gref || m2 == gref {
+				val = math.MaxInt64
+			}
+		} else {
+			m1 := (1 << (nb - 1)) - 1
+			m2 := m1 - 1
+			dataVal := int(g.dataStream.ReadBits(nb))
+			if dataVal == m1 || dataVal == m2 {
+				val = math.MaxInt64
+			} else {
+				val += dataVal
+			}
+		}
+	}
+
+	var result float64
+	if g.params.Order == 0 {
+		if val == math.MaxInt64 {
+			result = math.NaN()
+		} else {
+			result = u.Unpack(g.params.Ref, val, g.params.BinaryScale, g.params.DecimalScale)
+		}
+	} else if g.params.Order == 1 {
+		if !g.firstFound && val != math.MaxInt64 {
+			val = g.last1
+			g.firstFound = true
+		} else if g.firstFound && val != math.MaxInt64 {
+			val += g.last1 + g.overallMin
+			g.last1 = val
+		}
+		if val == math.MaxInt64 {
+			result = math.NaN()
+		} else {
+			result = u.Unpack(g.params.Ref, val, g.params.BinaryScale, g.params.DecimalScale)
+		}
+	} else if g.params.Order == 2 {
+		if !g.firstFound && val != math.MaxInt64 {
+			val = g.last2
+			g.firstFound = true
+		} else if !g.secondFound && val != math.MaxInt64 {
+			val = g.last1
+			g.secondFound = true
+		} else if g.firstFound && g.secondFound && val != math.MaxInt64 {
+			val += g.overallMin + g.last1 + (g.last1 - g.last2)
+			g.last2 = g.last1
+			g.last1 = val
+		}
+	}
+	if val == math.MaxInt64 {
+		result = math.NaN()
+	} else {
+		result = u.Unpack(g.params.Ref, val, g.params.BinaryScale, g.params.DecimalScale)
+	}
+	g.currentPoint++
+	return result
+}
+
+func (g *groupTracker) processSpatialOctets(data []byte) {
 	var diffMin int
-	initials := make([]int, 0, p.Order)
-	if p.Order > 0 {
+	var initials1, initials2 int
+	if g.params.Order > 0 {
 		start := 0
-		end := p.SpatialOctets
-		initials = append(initials, UintFromBytes(data[start:end]))
-		if p.Order == 2 {
+		end := g.params.SpatialOctets
+		initials1 = UintFromBytes(data[start:end])
+		if g.params.Order == 2 {
 			start = end
-			end = start + p.SpatialOctets
-			initials = append(initials, UintFromBytes(data[start:end]))
+			end = start + g.params.SpatialOctets
+			initials2 = UintFromBytes(data[start:end])
 		}
 		start = end
-		end = start + p.SpatialOctets
+		end = start + g.params.SpatialOctets
 		diffMin = IntFromBytes(data[start:end])
 	}
-	return initials, diffMin
+	if g.params.Order == 1 {
+		g.last1 = initials1
+	} else if g.params.Order == 2 {
+		g.last2 = initials1
+		g.last1 = initials2
+	}
+	g.overallMin = diffMin
 }
 
-func (p ComplexParams) bytesRequired(bitsRequired int) int {
-	return (bitsRequired*p.NG + 7) / 8
+func (g *groupTracker) bytesRequired(bitsRequired int) int {
+	return (bitsRequired*g.params.NG + 7) / 8
 }
 
-func (p ComplexParams) readUints(bitsRequired int, data []byte, ref int) []int {
+func (g *groupTracker) readUints(bitsRequired int, data []byte, ref int) []int {
 	stream := NewBitStream(data)
-	values := make([]int, 0, p.NG)
-	for i := 0; i < p.NG; i++ {
+	values := make([]int, 0, g.params.NG)
+	for i := 0; i < g.params.NG; i++ {
 		values = append(values, int(stream.ReadBits(bitsRequired))+ref)
 	}
 	return values
 }
 
-func (p ComplexParams) readGroupLengths(data []byte) []int {
+func (g *groupTracker) readGroupLengths(data []byte) []int {
 	stream := NewBitStream(data)
-	values := make([]int, 0, p.NG)
-	for i := 0; i < p.NG; i++ {
-		value := int(stream.ReadBits(p.BitsPerScaledGroupLength))
-		value = p.GroupLengthReference + value*p.GroupLengthIncrement
+	values := make([]int, 0, g.params.NG)
+	for i := 0; i < g.params.NG; i++ {
+		value := int(stream.ReadBits(g.params.BitsPerScaledGroupLength))
+		value = g.params.GroupLengthReference + value*g.params.GroupLengthIncrement
 		values = append(values, value)
 	}
-	values[p.NG-1] = p.LastGroupLength
+	values[g.params.NG-1] = g.params.LastGroupLength
 	return values
 }
 
-func (p ComplexParams) checkTotalGroupPoints(groupLengths []int) error {
+func (g *groupTracker) checkTotalGroupPoints() error {
 	sum := 0
-	for _, l := range groupLengths {
+	for _, l := range g.groupLengths {
 		sum += l
 	}
-	if sum != p.TotalPoints {
-		return fmt.Errorf("error unpacking values: total group lengths %d != grid size %d", sum, p.TotalPoints)
+	if sum != g.params.DataPoints {
+		return fmt.Errorf("error unpacking values: total group lengths %d != grid size %d", sum, g.params.DataPoints)
 	}
 	return nil
 }

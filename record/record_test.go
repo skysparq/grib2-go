@@ -229,7 +229,7 @@ func TestSamplePointsFromFullGrib(t *testing.T) {
 				lng := vals.Lngs[index]
 				lat := vals.Lats[index]
 				val := vals.Values[index]
-				_, err = w.WriteString(fmt.Sprintf("%v,%f,%f,%f\n", recNum, lng, lat, val))
+				_, err = w.WriteString(fmt.Sprintf("%v, %v, %f, %f, %f\n", recNum, index, lng, lat, val))
 				if err != nil {
 					t.Fatal(err)
 				}

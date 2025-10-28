@@ -54,7 +54,7 @@ func (t Template0) unpackConst(rec record.Record, totalPoints int) ([]float64, e
 		return nil, fmt.Errorf("error unpacking const values: %w", err)
 	}
 	for i := range values {
-		if bmpR.IsSet(i) {
+		if bmpR.IsMissing(i) {
 			values[i] = math.NaN()
 		} else {
 			values[i] = ref
@@ -77,7 +77,7 @@ func (t Template0) unpackSimple(rec record.Record, totalPoints int) ([]float64, 
 			return nil, fmt.Errorf(`error performing simple unpack with bitmap for value %d: %w`, i, err)
 		}
 
-		if bmpR.IsSet(i) {
+		if bmpR.IsMissing(i) {
 			values[i] = math.NaN()
 			continue
 		}
