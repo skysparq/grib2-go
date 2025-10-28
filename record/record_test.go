@@ -2,10 +2,12 @@ package record_test
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/skysparq/grib2-go/file"
 	"github.com/skysparq/grib2-go/record"
 	"github.com/skysparq/grib2-go/templates"
 	"github.com/skysparq/grib2-go/test_files"
@@ -185,15 +187,54 @@ func checkSection7(section record.Section7) error {
 }
 
 func TestParseGfsRecordAccumulatedOverTime(t *testing.T) {
-	template := templates.Version33()
+	v33 := templates.Version33()
 	_, r, err := test_files.Load(test_files.SingleRecordProdDef0)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer func() { _ = r.Close() }()
 
-	_, err = record.ParseRecord(r, template)
+	_, err = record.ParseRecord(r, v33)
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestSamplePointsFromFullGrib(t *testing.T) {
+	v33 := templates.Version33()
+	_, r, err := test_files.Load(test_files.FullGfsFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	w, err := os.Create(`../.test_files/full_gfs_sample.txt`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = w.Close() }()
+
+	f := file.NewGribFile(r, v33)
+	recNum := 0
+	for rec, err := range f.Records {
+		recNum++
+		if err != nil {
+			t.Fatal(err)
+		}
+		vals, err := rec.GetGriddedValues()
+		if err != nil {
+			t.Fatalf("error on rec %v: %v", recNum, err.Error())
+		}
+		for y := 0; y < vals.YVals; y += 200 {
+			for x := 0; x < vals.XVals; x += 200 {
+				index := y*vals.XVals + x
+				lng := vals.Lngs[index]
+				lat := vals.Lats[index]
+				val := vals.Values[index]
+				_, err = w.WriteString(fmt.Sprintf("%v,%f,%f,%f\n", recNum, lng, lat, val))
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+		}
+	}
+
 }

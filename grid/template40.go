@@ -60,3 +60,11 @@ func (t Template40) Parse(section record.Section3) (record.GridDefinition, error
 	t.ScanningMode = data[57]
 	return t, nil
 }
+
+func (t Template40) XVals() int {
+	return t.PointsAlongParallel
+}
+
+func (t Template40) YVals() int {
+	return t.PointsAlongMeridian
+}

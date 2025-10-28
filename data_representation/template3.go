@@ -62,7 +62,7 @@ func (t Template3) GetValues(rec record.Record) ([]float64, error) {
 		return nil, fmt.Errorf("error getting values: %w", err)
 	}
 	params := ComplexParams{
-		TotalPoints:              rec.DataRepresentation.TotalDataPoints,
+		TotalPoints:              rec.Grid.TotalPoints,
 		Order:                    t.SpatialDifferenceOrder,
 		SpatialOctets:            t.TotalSpatialDifferencingOctets,
 		NG:                       t.TotalGroups,

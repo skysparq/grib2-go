@@ -25,6 +25,8 @@ type ProductDefinition interface {
 type GridDefinition interface {
 	Parse(section Section3) (GridDefinition, error)
 	Points() (GridPoints, error)
+	XVals() int
+	YVals() int
 }
 
 type GridPoints struct {
@@ -33,6 +35,8 @@ type GridPoints struct {
 }
 
 type GriddedValues struct {
+	XVals int
+	YVals int
 	GridPoints
 	Values []float64
 }

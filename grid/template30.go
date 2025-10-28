@@ -98,3 +98,11 @@ func (t Template30) Parse(section record.Section3) (record.GridDefinition, error
 	t.SouthernPoleLongitude = u.Int32(data[63:67])
 	return t, nil
 }
+
+func (t Template30) XVals() int {
+	return t.Nx
+}
+
+func (t Template30) YVals() int {
+	return t.Ny
+}

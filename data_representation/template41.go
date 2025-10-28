@@ -61,7 +61,7 @@ func (t Template41) GetValues(rec record.Record) ([]float64, error) {
 	return t.getValues(bmpR, p, getValue), nil
 }
 
-func (t Template41) getValues(bmpR BitmapReader, p image.Image, getValue func(x, y int) int) []float64 {
+func (t Template41) getValues(bmpR *BitmapReader, p image.Image, getValue func(x, y int) int) []float64 {
 	width, height := p.Bounds().Dx(), p.Bounds().Dy()
 	pixels := make([]float64, 0, width*height)
 	index := 0

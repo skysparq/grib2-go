@@ -33,7 +33,7 @@ type ComplexParams struct {
 	BinaryScale              int
 	DecimalScale             int
 	MissingValueManagement   int
-	Bitmap                   BitmapReader
+	Bitmap                   *BitmapReader
 
 	initials       []int
 	overallMin     int
