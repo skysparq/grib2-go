@@ -40,7 +40,6 @@ type ComplexParams struct {
 	groupRefValues []int
 	groupWidths    []int
 	groupLengths   []int
-	packedValues   []byte
 }
 
 func (p ComplexParams) UnpackComplex(packedData []byte) ([]float64, error) {
@@ -54,11 +53,11 @@ func (p ComplexParams) UnpackComplex(packedData []byte) ([]float64, error) {
 
 	currentPos = endPos
 	endPos = currentPos + p.bytesRequired(p.BitsPerGroup)
-	p.groupRefValues = p.readInts(p.BitsPerGroup, packedData[currentPos:endPos], 0)
+	p.groupRefValues = p.readUints(p.BitsPerGroup, packedData[currentPos:endPos], 0)
 
 	currentPos = endPos
 	endPos = currentPos + p.bytesRequired(p.BitsPerGroupWidth)
-	p.groupWidths = p.readUInts(p.BitsPerGroupWidth, packedData[currentPos:endPos], p.GroupWidthReference)
+	p.groupWidths = p.readUints(p.BitsPerGroupWidth, packedData[currentPos:endPos], p.GroupWidthReference)
 
 	currentPos = endPos
 	endPos = currentPos + p.bytesRequired(p.BitsPerScaledGroupLength)
@@ -67,8 +66,7 @@ func (p ComplexParams) UnpackComplex(packedData []byte) ([]float64, error) {
 		return nil, err
 	}
 
-	p.packedValues = packedData[endPos:]
-	dataStream := NewBitStream(p.packedValues)
+	dataStream := NewBitStream(packedData[endPos:])
 
 	pointIdx := 0
 	var last1, last2 int
@@ -129,35 +127,42 @@ func (p ComplexParams) UnpackComplex(packedData []byte) ([]float64, error) {
 				}
 			}
 
-			if p.Order == 1 {
-				if !firstFound && val != math.MaxInt64 {
-					val = p.initials[0]
-					firstFound = true
+			if p.Order == 0 {
+				if p.Bitmap.IsSet(pointIdx) || val == math.MaxInt64 {
+					result = append(result, math.NaN())
+				} else {
+					result = append(result, u.Unpack(p.Ref, val, p.BinaryScale, p.DecimalScale))
 				}
-				if val != math.MaxInt64 {
+			} else if p.Order == 1 {
+				if !firstFound && val != math.MaxInt64 {
+					val = last1
+					firstFound = true
+				} else if firstFound && val != math.MaxInt64 {
 					val += last1 + p.overallMin
 					last1 = val
 				}
-			}
-			if p.Order == 2 {
+				if p.Bitmap.IsSet(pointIdx) || val == math.MaxInt64 {
+					result = append(result, math.NaN())
+				} else {
+					result = append(result, u.Unpack(p.Ref, val, p.BinaryScale, p.DecimalScale))
+				}
+			} else if p.Order == 2 {
 				if !firstFound && val != math.MaxInt64 {
-					val = p.initials[0]
+					val = last2
 					firstFound = true
 				} else if !secondFound && val != math.MaxInt64 {
-					val = p.initials[1]
+					val = last1
 					secondFound = true
-				}
-				if val != math.MaxInt64 {
+				} else if firstFound && secondFound && val != math.MaxInt64 {
 					val += p.overallMin + last1 + (last1 - last2)
 					last2 = last1
 					last1 = val
 				}
-			}
-
-			if p.Bitmap.IsSet(pointIdx) || val == math.MaxInt64 {
-				result = append(result, math.NaN())
-			} else {
-				result = append(result, u.Unpack(p.Ref, val, p.BinaryScale, p.DecimalScale))
+				if p.Bitmap.IsSet(pointIdx) || val == math.MaxInt64 {
+					result = append(result, math.NaN())
+				} else {
+					result = append(result, u.Unpack(p.Ref, val, p.BinaryScale, p.DecimalScale))
+				}
 			}
 			pointIdx++
 		}
@@ -171,15 +176,20 @@ func (p ComplexParams) UnpackComplex(packedData []byte) ([]float64, error) {
 }
 
 func (p ComplexParams) processSpatialOctets(data []byte) ([]int, int) {
-	stream := NewBitStream(data)
 	var diffMin int
 	initials := make([]int, 0, p.Order)
 	if p.Order > 0 {
-		initials = append(initials, int(stream.ReadSignedBits(p.SpatialOctets*8)))
+		start := 0
+		end := p.SpatialOctets
+		initials = append(initials, UintFromBytes(data[start:end]))
 		if p.Order == 2 {
-			initials = append(initials, int(stream.ReadSignedBits(p.SpatialOctets*8)))
+			start = end
+			end = start + p.SpatialOctets
+			initials = append(initials, UintFromBytes(data[start:end]))
 		}
-		diffMin = int(stream.ReadSignedBits(p.SpatialOctets * 8))
+		start = end
+		end = start + p.SpatialOctets
+		diffMin = IntFromBytes(data[start:end])
 	}
 	return initials, diffMin
 }
@@ -188,16 +198,7 @@ func (p ComplexParams) bytesRequired(bitsRequired int) int {
 	return (bitsRequired*p.NG + 7) / 8
 }
 
-func (p ComplexParams) readInts(bitsRequired int, data []byte, ref int) []int {
-	stream := NewBitStream(data)
-	values := make([]int, 0, p.NG)
-	for i := 0; i < p.NG; i++ {
-		values = append(values, int(stream.ReadSignedBits(bitsRequired))+ref)
-	}
-	return values
-}
-
-func (p ComplexParams) readUInts(bitsRequired int, data []byte, ref int) []int {
+func (p ComplexParams) readUints(bitsRequired int, data []byte, ref int) []int {
 	stream := NewBitStream(data)
 	values := make([]int, 0, p.NG)
 	for i := 0; i < p.NG; i++ {
