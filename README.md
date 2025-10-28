@@ -48,9 +48,10 @@ The short-term focus of this library is to process GFS GRIB2 files. Currently, t
 
 ### Data Representation Templates
 
-NOTE: Currently, none of the implemented data representation templates can decode the data section of a GRIB2 record. Implementing decoding logic is a high-priority short-term goal.
+NOTE: Currently, all data representations listed below, except for JPEG 2000, are implemented. The implementations are still under testing. If you find they do not accurately unpack your GRIB2 data, open a PR and share the file so it can be fixed.
 
 - Template 5.0 (Grid Point Data - Simple Packing)
+- Template 5.2 (Grid Point Data - Complex Packing)
 - Template 5.3 (Grid Point Data - Complex Packing and Spatial Differencing)
 - Template 5.40 (Grid point data - JPEG 2000 code stream format)
 - Template 5.41 (Grid point data - PNG)
@@ -59,7 +60,7 @@ NOTE: Currently, none of the implemented data representation templates can decod
 
 - [x] Read metadata of GFS GRIB2 records
 - [x] Implement iterator to parse multi-record GRIB2 files
-- [ ] Read values and lat/lon points from GFS GRIB2 records
+- [x] Read values and lat/lon points from GFS GRIB2 records
 - [ ] Read metadata for all templates compatible with the version 33 standard
 - [ ] Read values for all templates compatible with the version 33 standard
 - [ ] Implement current versions of the GRIB2 standard

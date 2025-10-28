@@ -2,28 +2,29 @@ package data_representation
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/skysparq/grib2-go/record"
 	u "github.com/skysparq/grib2-go/utility"
 )
 
 type Template2 struct {
-	ReferenceValue                float64
-	BinaryScaleFactor             int
-	DecimalScaleFactor            int
-	BitsPerGroup                  int
-	OriginalFieldType             int
-	GroupSplittingMethod          int
-	MissingValueManagement        int
-	PrimaryMissingValue           int
-	SecondaryMissingValue         int
-	TotalGroups                   int
-	GroupWidthReference           int
-	BitsUsedForGroupWidths        int
-	GroupLengthReference          int
-	BitsUsedForGroupLengths       int
-	LastGroupLength               int
-	BitsUsedForScaledGroupLengths int
+	ReferenceValue                 float64
+	BinaryScaleFactor              int
+	DecimalScaleFactor             int
+	BitsPerGroup                   int
+	OriginalFieldType              int
+	GroupSplittingMethod           int
+	MissingValueManagement         int
+	PrimaryMissingValue            int
+	SecondaryMissingValue          int
+	TotalGroups                    int
+	GroupWidthReference            int
+	BitsUsedForGroupWidths         int
+	GroupLengthReference           int
+	LengthIncrementForGroupLengths int
+	LastGroupLength                int
+	BitsUsedForScaledGroupLengths  int
 }
 
 func (t Template2) Parse(section record.Section5) (record.DataRepresentationDefinition, error) {
@@ -46,19 +47,38 @@ func (t Template2) Parse(section record.Section5) (record.DataRepresentationDefi
 	t.GroupWidthReference = int(data[24])
 	t.BitsUsedForGroupWidths = int(data[25])
 	t.GroupLengthReference = u.Int32(data[26:30])
-	t.BitsUsedForGroupLengths = int(data[30])
+	t.LengthIncrementForGroupLengths = int(data[30])
 	t.LastGroupLength = u.Int32(data[31:35])
 	t.BitsUsedForScaledGroupLengths = int(data[35])
 	return t, nil
 }
 
 func (t Template2) GetValues(rec record.Record) ([]float64, error) {
-	//ref := u.GetDecimalScaledRef(t.DecimalScaleFactor, t.ReferenceValue)
-	//bitmapReader, err := NewBitmapReader(rec)
-	//if err != nil {
-	//	return nil, fmt.Errorf("error getting values: %w", err)
-	//}
-	params := ComplexParams{}
+	bitmap, err := NewBitmapReader(rec)
+	if err != nil {
+		return nil, fmt.Errorf("error getting values: %w", err)
+	}
+	params := &ComplexParams{
+		TotalPoints:              rec.Grid.TotalPoints,
+		DataPoints:               rec.DataRepresentation.TotalDataPoints,
+		Order:                    0,
+		SpatialOctets:            0,
+		NG:                       t.TotalGroups,
+		BitsPerGroup:             t.BitsPerGroup,
+		BitsPerGroupWidth:        t.BitsUsedForGroupWidths,
+		BitsPerScaledGroupLength: t.BitsUsedForScaledGroupLengths,
+		GroupWidthReference:      t.GroupWidthReference,
+		GroupLengthReference:     t.GroupLengthReference,
+		GroupLengthIncrement:     t.LengthIncrementForGroupLengths,
+		LastGroupLength:          t.LastGroupLength,
+		Ref:                      t.ReferenceValue,
+		BinaryScale:              t.BinaryScaleFactor,
+		DecimalScale:             t.DecimalScaleFactor,
+		MissingValueManagement:   t.MissingValueManagement,
+		PrimaryMissingValue:      float64(math.Float32frombits(uint32(t.PrimaryMissingValue))),
+		SecondaryMissingValue:    float64(math.Float32frombits(uint32(t.SecondaryMissingValue))),
+		Bitmap:                   bitmap,
+	}
 	result, err := params.UnpackComplex(rec.Data.Data)
 	if err != nil {
 		return nil, fmt.Errorf("error getting values: %w", err)

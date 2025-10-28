@@ -92,6 +92,7 @@ func Version33() record.Templates {
 		},
 		dataRepresentationTemplates: map[int]record.DataRepresentationDefinition{
 			0:  data_representation.Template0{},
+			2:  data_representation.Template2{},
 			3:  data_representation.Template3{},
 			40: data_representation.Template40{},
 			41: data_representation.Template41{},
