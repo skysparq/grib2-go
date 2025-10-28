@@ -2,6 +2,7 @@ package data_representation
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/skysparq/grib2-go/record"
 	u "github.com/skysparq/grib2-go/utility"
@@ -78,8 +79,8 @@ func (t Template3) GetValues(rec record.Record) ([]float64, error) {
 		BinaryScale:              t.BinaryScaleFactor,
 		DecimalScale:             t.DecimalScaleFactor,
 		MissingValueManagement:   t.MissingValueManagement,
-		PrimaryMissingValue:      t.PrimaryMissingValue,
-		SecondaryMissingValue:    t.SecondaryMissingValue,
+		PrimaryMissingValue:      float64(math.Float32frombits(uint32(t.PrimaryMissingValue))),
+		SecondaryMissingValue:    float64(math.Float32frombits(uint32(t.SecondaryMissingValue))),
 		Bitmap:                   bitmap,
 	}
 	result, err := params.UnpackComplex(rec.Data.Data)

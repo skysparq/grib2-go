@@ -34,8 +34,8 @@ type ComplexParams struct {
 	BinaryScale              int
 	DecimalScale             int
 	MissingValueManagement   int
-	PrimaryMissingValue      int
-	SecondaryMissingValue    int
+	PrimaryMissingValue      float64
+	SecondaryMissingValue    float64
 	Bitmap                   *BitmapReader
 }
 
@@ -141,7 +141,7 @@ func (g *groupTracker) nextValue() float64 {
 				val = math.MaxInt64
 			}
 		} else {
-			m1 := (1 << (nb - 1)) - 1
+			m1 := (1 << nb) - 1
 			dataVal := int(g.dataStream.ReadBits(nb))
 			if dataVal == m1 {
 				val = math.MaxInt64
@@ -158,7 +158,7 @@ func (g *groupTracker) nextValue() float64 {
 				val = math.MaxInt64
 			}
 		} else {
-			m1 := (1 << (nb - 1)) - 1
+			m1 := (1 << nb) - 1
 			m2 := m1 - 1
 			dataVal := int(g.dataStream.ReadBits(nb))
 			if dataVal == m1 || dataVal == m2 {
@@ -206,6 +206,11 @@ func (g *groupTracker) nextValue() float64 {
 		result = math.NaN()
 	} else {
 		result = u.Unpack(g.params.Ref, val, g.params.BinaryScale, g.params.DecimalScale)
+		if g.params.MissingValueManagement == 1 && math.Abs(result-g.params.PrimaryMissingValue) < 1e-10 {
+			result = math.NaN()
+		} else if g.params.MissingValueManagement == 2 && (math.Abs(result-g.params.PrimaryMissingValue) < 1e-10 || math.Abs(result-g.params.SecondaryMissingValue) < 1e-10) {
+			result = math.NaN()
+		}
 	}
 	g.currentPoint++
 	return result
