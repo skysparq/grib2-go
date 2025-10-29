@@ -53,6 +53,10 @@ func (t Template2) Parse(section record.Section5) (record.DataRepresentationDefi
 	return t, nil
 }
 
+func (t Template2) DecimalScale() int {
+	return t.DecimalScaleFactor
+}
+
 func (t Template2) GetValues(rec record.Record) ([]float64, error) {
 	bitmap, err := NewBitmapReader(rec)
 	if err != nil {

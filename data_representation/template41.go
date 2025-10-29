@@ -34,6 +34,10 @@ func (t Template41) Parse(section record.Section5) (record.DataRepresentationDef
 	return t, nil
 }
 
+func (t Template41) DecimalScale() int {
+	return t.DecimalScaleFactor
+}
+
 func (t Template41) GetValues(rec record.Record) ([]float64, error) {
 	p, err := png.Decode(bytes.NewReader(rec.Data.Data))
 	if err != nil {

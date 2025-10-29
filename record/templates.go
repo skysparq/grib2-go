@@ -10,6 +10,7 @@ type Templates interface {
 
 type DataRepresentationDefinition interface {
 	Parse(section Section5) (DataRepresentationDefinition, error)
+	DecimalScale() int
 	DataReader
 }
 

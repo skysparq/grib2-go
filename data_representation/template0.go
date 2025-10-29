@@ -31,6 +31,10 @@ func (t Template0) Parse(section record.Section5) (record.DataRepresentationDefi
 	return t, nil
 }
 
+func (t Template0) DecimalScale() int {
+	return t.DecimalScaleFactor
+}
+
 // GetValues in this template uses simple unpacking to retrieve values from the record
 func (t Template0) GetValues(rec record.Record) ([]float64, error) {
 	getValues := t.getValueReader()

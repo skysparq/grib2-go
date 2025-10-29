@@ -1,7 +1,11 @@
 package record_test
 
 import (
+	"encoding/binary"
 	"fmt"
+	"io"
+	"math"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -244,4 +248,65 @@ func testFile(f file.GribFile) error {
 		}
 	}
 	return nil
+}
+
+type floatReader struct {
+	r      io.Reader
+	buffer [4]byte
+}
+
+func (f *floatReader) Next() (float32, error) {
+	_, err := io.ReadFull(f.r, f.buffer[:])
+	if err != nil {
+		return 0, err
+	}
+	return math.Float32frombits(binary.LittleEndian.Uint32(f.buffer[:])), nil
+}
+
+func TestGfsValuesToEccodes(t *testing.T) {
+	t.Skip(`This is a long-running validation against values generated from a full GFS grib file using eccodes. It will take several minutes to run. The expected values can be downloaded from https://drive.google.com/file/d/1MhQ1EVHNZsaLBZZYO1ziUDpOfy3t7viA/view?usp=share_link .  Decompress the zip file and place in the .test_files directory.`)
+	v33 := templates.Version33()
+	r, err := os.Open("../.test_files/full-gfs-file.grb2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = r.Close() }()
+	f := file.NewGribFile(r, v33)
+
+	ec, err := os.Open("../.test_files/full-gfs-file.grb2.floats")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = ec.Close() }()
+	source := &floatReader{r: ec}
+
+	recNum := 0
+	for rec, err := range f.Records {
+		recNum++
+		if err != nil {
+			t.Fatal(err)
+		}
+		def, err := rec.DataRepresentation.Definition()
+		if err != nil {
+			t.Fatal(err)
+		}
+		values, err := def.GetValues(rec)
+		if err != nil {
+			t.Fatal(err)
+		}
+		scale := def.DecimalScale()
+		expectedPrecision := math.Pow(10, -float64(scale-1))
+		for i, value := range values {
+			expected, err := source.Next()
+			if err != nil {
+				t.Fatal(err)
+			}
+			expected64 := float64(expected)
+			// we want the values to match to the desired precision. NaN values should match either NaN or eccode's placeholder value of 9999.0
+			if math.Abs(value-expected64) > expectedPrecision || !(math.IsNaN(value) == math.IsNaN(expected64) || (math.IsNaN(value) && expected64 == 9999.0)) {
+				t.Fatalf(`error in message %v, index %v: expected %.10f but got %.10f with expected precision %v`, recNum, i, expected, value, expectedPrecision)
+			}
+		}
+		println(fmt.Sprintf(`finished message %v`, recNum))
+	}
 }

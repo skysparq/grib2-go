@@ -32,6 +32,10 @@ func (t Template40) Parse(section record.Section5) (record.DataRepresentationDef
 	return t, nil
 }
 
+func (t Template40) DecimalScale() int {
+	return t.DecimalScaleFactor
+}
+
 func (t Template40) GetValues(_ record.Record) ([]float64, error) {
 	panic("not implemented")
 }
