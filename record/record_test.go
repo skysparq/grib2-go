@@ -265,17 +265,57 @@ func (f *floatReader) Next() (float32, error) {
 
 func TestGfsValuesToEccodes(t *testing.T) {
 	t.Skip(`This is a long-running validation against values generated from a full GFS grib file using eccodes. It will take several minutes to run. The expected values can be downloaded from https://drive.google.com/file/d/1MhQ1EVHNZsaLBZZYO1ziUDpOfy3t7viA/view?usp=share_link .  Decompress the zip file and place in the .test_files directory.`)
-	v33 := templates.Version33()
-	r, err := os.Open("../.test_files/full-gfs-file.grb2")
+	path := "../.test_files/full-gfs-file.grb2"
+	err := testFullFiles(path)
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestHrrrValuesToEccodes(t *testing.T) {
+	t.Skip(`This is a long-running validation against values generated from a full HRRR grib file using eccodes. It will take several minutes to run. The expected values can be downloaded from https://drive.google.com/file/d/1SoAts5M8CFJ3CgDlOWIa5f2AzEYHpdQn/view?usp=share_link .  Decompress the zip file and place in the .test_files directory.`)
+	path := "../.test_files/hrrr.t00z.wrfnatf01.grib2"
+	err := testFullFiles(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+/*
+// Python eccodes does not support png data representation, so until we find a compatible gold standard we cannot complete this test
+
+	func TestMrmsValuesToEccodes(t *testing.T) {
+		t.Skip(`This is a long-running validation against values generated from full MRMS grib files using eccodes. It will take several minutes to run. The expected values can be downloaded from _____ .  Decompress the zip file and place in the .test_files directory.`)
+		paths := []string{
+			"../.test_files/MRMS_EchoTop_18_00.50_20201029-001038.grb2",
+			"../.test_files/MRMS_LightningProbabilityNext30minGrid_scale_1_20251005-113039.grb2",
+			"../.test_files/MRMS_MergedAzShear_0-2kmAGL_00.50_20251005-112817.grb2",
+			"../.test_files/MRMS_MergedBaseReflectivityQC_00.50_20251005-145205.grb2",
+			"../.test_files/MRMS_MergedReflectivityQCComposite_00.50_20251005-081241.grb2",
+			"../.test_files/MRMS_MergedRhoHV_00.50_20251005-120040.grb2",
+			"../.test_files/MRMS_RadarOnly_QPE_01H_00.00_20251004-081000.grb2",
+		}
+		for _, path := range paths {
+			err := testFullFiles(path)
+			if err != nil {
+				t.Fatalf(`error in %v: %v`, path, err)
+			}
+		}
+	}
+*/
+func testFullFiles(path string) error {
+	maxPrecision := 1e-3
+	v33 := templates.Version33()
+	r, err := os.Open(path)
+	if err != nil {
+		return err
 	}
 	defer func() { _ = r.Close() }()
 	f := file.NewGribFile(r, v33)
 
-	ec, err := os.Open("../.test_files/full-gfs-file.grb2.floats")
+	ec, err := os.Open(path + ".floats")
 	if err != nil {
-		t.Fatal(err)
+		return err
 	}
 	defer func() { _ = ec.Close() }()
 	source := &floatReader{r: ec}
@@ -284,29 +324,37 @@ func TestGfsValuesToEccodes(t *testing.T) {
 	for rec, err := range f.Records {
 		recNum++
 		if err != nil {
-			t.Fatal(err)
+			return err
 		}
 		def, err := rec.DataRepresentation.Definition()
 		if err != nil {
-			t.Fatal(err)
+			return err
 		}
 		values, err := def.GetValues(rec)
 		if err != nil {
-			t.Fatal(err)
+			return err
 		}
-		scale := def.DecimalScale()
-		expectedPrecision := math.Pow(10, -float64(scale-1))
+		expectedPrecision := math.Pow(10, -float64(def.DecimalScale()))
+		if expectedPrecision < maxPrecision {
+			expectedPrecision = maxPrecision
+		}
+
 		for i, value := range values {
 			expected, err := source.Next()
 			if err != nil {
-				t.Fatal(err)
+				return err
 			}
 			expected64 := float64(expected)
-			// we want the values to match to the desired precision. NaN values should match either NaN or eccode's placeholder value of 9999.0
+			// We want the values to match to a maximum of 3 decimal places. I would prefer to match to the number of decimals specified by the decimal scaling factor,
+			// but eccodes seems to have inaccuracies in certain records past 3 decimal places. I believe eccodes in Python is the issue because when
+			// I compare the values to metview's GribExaminer, GribExaminer agrees with grib2-go's values.
+
+			// NaN values should match either NaN or eccode's placeholder value of 9999.0
 			if math.Abs(value-expected64) > expectedPrecision || !(math.IsNaN(value) == math.IsNaN(expected64) || (math.IsNaN(value) && expected64 == 9999.0)) {
-				t.Fatalf(`error in message %v, index %v: expected %.10f but got %.10f with expected precision %v`, recNum, i, expected, value, expectedPrecision)
+				return fmt.Errorf(`error in message %v, index %v: expected %.10f but got %.10f with expected precision %v`, recNum, i, expected, value, expectedPrecision)
 			}
 		}
 		println(fmt.Sprintf(`finished message %v`, recNum))
 	}
+	return nil
 }
