@@ -1,4 +1,4 @@
-package grib2_go
+package main
 
 import (
 	"encoding/json"
@@ -19,16 +19,21 @@ func main() {
 
 	grib := file.NewGribFile(r, templates.Version33())
 	var rec record.Record
+	i := 0
 	for rec, err = range grib.Records {
 		if err != nil {
 			panic(err.Error())
 		}
 
 		emitProduct(rec.Product)
-		emitGrid(rec.Grid)
-		emitDataRepresentation(rec.DataRepresentation, rec)
+		processAndEmitGrid(rec.Grid)
+		if i == 0 {
+			processGridPoints(rec.Grid)
+		}
+		processAndEmitDataRepresentation(rec.DataRepresentation, rec)
+		i++
 	}
-	println("\nNo errors")
+	println(fmt.Sprintf("\nNo errors parsing %v records\n", i))
 }
 
 func emitProduct(def record.Section4) {
@@ -39,7 +44,7 @@ func emitProduct(def record.Section4) {
 	emitJson(prodDef)
 }
 
-func emitGrid(def record.Section3) {
+func processAndEmitGrid(def record.Section3) {
 	gridDef, recErr := def.Definition()
 	if recErr != nil {
 		panic(recErr.Error())
@@ -47,7 +52,19 @@ func emitGrid(def record.Section3) {
 	emitJson(gridDef)
 }
 
-func emitDataRepresentation(def record.Section5, rec record.Record) {
+func processGridPoints(def record.Section3) {
+	gridDef, recErr := def.Definition()
+	if recErr != nil {
+		panic(recErr.Error())
+	}
+	points, err := gridDef.Points()
+	if err != nil {
+		panic(err.Error())
+	}
+	println(fmt.Sprintf(`points length=%d`, len(points.Lats)))
+}
+
+func processAndEmitDataRepresentation(def record.Section5, rec record.Record) {
 	drDef, err := def.Definition()
 	if err != nil {
 		panic(err.Error())
