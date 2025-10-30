@@ -2,9 +2,12 @@ package projections
 
 import "math"
 
-// derived from https://pubs.usgs.gov/pp/1395/report.pdf
-// initial draft of the algorithm was generated using Claude with Sonnet 4.5
+// The initial draft of the algorithm was generated using Claude with Sonnet 4.5 and integrated into this package using human intelligence.
 
+// LambertConformalConicalParams holds the parameters needed to instantiate the Lambert Conformal Conic projection.
+// This is a sophisticated projection which aims to provide a constant distance between points. It is best suited for
+// areas with large east-west extent but limited north-south extent. For example, it is used in HRRR forecasts for
+// the continental United States.
 type LambertConformalConicalParams struct {
 	ScanningMode           ScanningMode
 	Radius                 float64
@@ -21,6 +24,10 @@ type LambertConformalConicalParams struct {
 	StartLongitude         float64
 }
 
+// ExtractLambertConformalConicalGrid extracts the grid points from the Lambert Conformal Conic projection defined by the given LambertConformalConicalParams.
+// The formula for this projection was obtained from this [United States Geological Survey paper].
+//
+// [United States Geological Survey paper]: https://pubs.usgs.gov/pp/1395/report.pdf
 func ExtractLambertConformalConicalGrid(params LambertConformalConicalParams) (lats []float64, lngs []float64) {
 	totalPoints := params.Ni * params.Nj
 	lats, lngs = make([]float64, 0, totalPoints), make([]float64, 0, totalPoints)

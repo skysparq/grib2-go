@@ -6,6 +6,8 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// Section3 contains the fields from section 3 of a GRIB record.
+// The grid definition template is stored as raw bytes to defer processing until the user is ready.
 type Section3 struct {
 	Length                       int
 	GridSourceDefinition         int
@@ -18,6 +20,11 @@ type Section3 struct {
 	Templates                    Templates
 }
 
+// ParseSection3 parses section 3 of a GRIB record.
+// No attempt is made to parse the grid definition template during this process.
+// If the user needs to parse the grid definition, call Section3.Definition after parsing the section.
+// This allows the user to decide when to parse the grid definition, and also allows the user
+// to parse grib2 records that are not currently supported.
 func ParseSection3(data SectionData, templates Templates) (section Section3, err error) {
 	section.Length = data.Length
 	if data.SectionNumber != 3 {
@@ -42,6 +49,7 @@ func ParseSection3(data SectionData, templates Templates) (section Section3, err
 	return section, nil
 }
 
+// Definition parses the grid definition template and returns a GridDefinition from the provided templates.
 func (s Section3) Definition() (GridDefinition, error) {
 	return s.Templates.GridDefinition(s)
 }

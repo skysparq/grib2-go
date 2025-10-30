@@ -17,6 +17,7 @@ import (
 // X1 = Reference value (scaled integer) of the group the data value belongs to
 // X2 = Scaled value with the group reference value removed
 
+// ComplexParams contains the parameters needed for unpacking complex data, including spatially processed complex data.
 type ComplexParams struct {
 	TotalPoints              int
 	DataPoints               int
@@ -39,6 +40,10 @@ type ComplexParams struct {
 	Bitmap                   *BitmapReader
 }
 
+// UnpackComplex unpacks the provided byte slice into a slice of float64 values.
+//
+// Note: the wgrib2 C codebase on GitHub was especially useful in compiling the logic, in addition to the
+// GRIB2 reference documents hosted by NCEP and the regulations hosted by ECWMF.
 func (p *ComplexParams) UnpackComplex(packedData []byte) ([]float64, error) {
 	g, err := newGroupTracker(p, packedData)
 	if err != nil {

@@ -6,11 +6,14 @@ import (
 	"github.com/skysparq/grib2-go/record"
 )
 
+// BitmapReader is used to read the bitmap section of a GRIB record. The bitmap section is used to determine which
+// values are missing.
 type BitmapReader struct {
 	bitmap     []byte
 	checkIsSet func(int) bool
 }
 
+// NewBitmapReader instantiates a new BitmapReader from the given record.
 func NewBitmapReader(rec record.Record) (*BitmapReader, error) {
 	r := &BitmapReader{}
 	switch rec.BitMap.BitmapIndicator {
@@ -25,6 +28,7 @@ func NewBitmapReader(rec record.Record) (*BitmapReader, error) {
 	return r, nil
 }
 
+// IsMissing returns true if the value at the given index is missing.
 func (r *BitmapReader) IsMissing(index int) bool {
 	return r.checkIsSet(index)
 }

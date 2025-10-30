@@ -5,6 +5,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// Template7 contains the fields for analysis or forecast error at a horizontal level or in a horizontal layer at a point in time.
 type Template7 struct {
 	record.ProductDefinitionHeader
 	GeneratingProcessType       int
@@ -22,10 +23,12 @@ type Template7 struct {
 	SecondSurfaceScaleValue     int
 }
 
+// Header returns the standard header fields common to all products
 func (t Template7) Header() record.ProductDefinitionHeader {
 	return t.ProductDefinitionHeader
 }
 
+// Parse fills in the template from the provided section
 func (t Template7) Parse(section record.Section4) (record.ProductDefinition, error) {
 	err := checkSectionNum(section, 7)
 	if err != nil {

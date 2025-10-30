@@ -7,12 +7,14 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// Section0 contains the fields from section 0 of a GRIB record.
 type Section0 struct {
 	Discipline int
 	Edition    int
 	GribLength int
 }
 
+// ParseSection0 parses section 0 of a GRIB record.
 func ParseSection0(r io.Reader) (section0 Section0, err error) {
 	sectionBytes, err := readFixedLengthSection(r, 16)
 	if err != nil {

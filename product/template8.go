@@ -7,6 +7,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// TimeIncrement defines the time intervals used in Template8.
 type TimeIncrement struct {
 	StatisticalProcess         int
 	TimeIncrementType          int
@@ -16,6 +17,7 @@ type TimeIncrement struct {
 	SuccessiveLengthOfTime     int
 }
 
+// Template8 contains the fields for average, accumulation, extreme values or other statistically processed values at a horizontal level or in a horizontal layer in a continuous or non-continuous time interval.
 type Template8 struct {
 	record.ProductDefinitionHeader
 	GeneratingProcessType       int
@@ -42,10 +44,12 @@ type Template8 struct {
 	TimeRanges                  []TimeIncrement
 }
 
+// Header returns the standard header fields common to all products
 func (t Template8) Header() record.ProductDefinitionHeader {
 	return t.ProductDefinitionHeader
 }
 
+// Parse fills in the template from the provided section
 func (t Template8) Parse(section record.Section4) (record.ProductDefinition, error) {
 	err := checkSectionNum(section, 8)
 	if err != nil {

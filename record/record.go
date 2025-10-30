@@ -5,6 +5,8 @@ import (
 	"io"
 )
 
+// Record represents all 7 sections of a GRIB record, excluding section 8 which only contains '7777' as a marker for the end of the record.
+// Record is the main data structure for processing GRIB2 records. From here, the metadata, geospatial points, and data values can be retrieved.
 type Record struct {
 	Indicator          Section0
 	Identification     Section1
@@ -16,6 +18,8 @@ type Record struct {
 	Data               Section7
 }
 
+// ParseRecord parses a GRIB record from an io.Reader and the provided templates.
+// It parses all 8 sections of the record and returns a Record.
 func ParseRecord(r io.Reader, templates Templates) (record Record, err error) {
 	record.Indicator, err = ParseSection0(r)
 	if err != nil {
@@ -71,6 +75,12 @@ func ParseRecord(r io.Reader, templates Templates) (record Record, err error) {
 	return record, nil
 }
 
+// GetGriddedValues returns the longitude, latitude, and decoded data value of every data point in the record.
+// It is a convenience method to retrieve the entirety of the geospatial data in a single call.
+//
+// Note: When processing multiple records that use the same grid, this method adds CPU and memory overhead that can be
+// avoided by retrieving the data values directly from the DataRepresentationDefinition. The longitude and latitude
+// should be retrieved once from the GridDefinition and cached for the remaining records.
 func (r Record) GetGriddedValues() (GriddedValues, error) {
 	var values GriddedValues
 	grid, err := r.Grid.Definition()

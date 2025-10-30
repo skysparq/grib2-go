@@ -11,6 +11,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// Template41 contains the fields for Grid point data - Portable Network Graphics (PNG)
 type Template41 struct {
 	ReferenceValue     float64
 	BinaryScaleFactor  int
@@ -19,6 +20,7 @@ type Template41 struct {
 	OriginalFieldType  int
 }
 
+// Parse fills in the template from the provided section
 func (t Template41) Parse(section record.Section5) (record.DataRepresentationDefinition, error) {
 	err := checkSectionNum(section, 41)
 	if err != nil {
@@ -34,10 +36,13 @@ func (t Template41) Parse(section record.Section5) (record.DataRepresentationDef
 	return t, nil
 }
 
+// DecimalScale returns the decimal scale factor of the record. The decimal scale factor is used to shift the
+// decimal point of a decoded value to the correct position.
 func (t Template41) DecimalScale() int {
 	return t.DecimalScaleFactor
 }
 
+// GetValues unpacks the record's data into the original values
 func (t Template41) GetValues(rec record.Record) ([]float64, error) {
 	p, err := png.Decode(bytes.NewReader(rec.Data.Data))
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// Section1 contains the fields from section 1 of a GRIB record.
 type Section1 struct {
 	Length                    int
 	OriginatingCenter         int
@@ -25,6 +26,7 @@ type Section1 struct {
 	Reserved                  []byte
 }
 
+// ParseSection1 parses section 1 of a GRIB record.
 func ParseSection1(data SectionData) (section Section1, err error) {
 	section.Length = data.Length
 	if data.SectionNumber != 1 {
@@ -48,6 +50,9 @@ func ParseSection1(data SectionData) (section Section1, err error) {
 	return section, nil
 }
 
+// Time returns the cycle time of the GRIB record.
+// For observational data, this is typically the time the record was generated
+// For forecast data, this is typically the starting time of the forecast cycle.
 func (s Section1) Time() time.Time {
 	return time.Date(s.Year, time.Month(s.Month), s.Day, s.Hour, s.Minute, s.Second, 0, time.UTC)
 }

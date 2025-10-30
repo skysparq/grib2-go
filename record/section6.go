@@ -4,12 +4,14 @@ import (
 	"fmt"
 )
 
+// Section6 contains the bitmap information from section 6 of a GRIB record.
 type Section6 struct {
 	Length          int
 	BitmapIndicator int
 	BitmapData      []byte
 }
 
+// ParseSection6 parses section 6 of a GRIB record.
 func ParseSection6(data SectionData) (section Section6, err error) {
 	section.Length = data.Length
 	if data.SectionNumber != 6 {

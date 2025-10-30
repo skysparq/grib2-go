@@ -7,6 +7,7 @@ import (
 	"github.com/skysparq/grib2-go/record"
 )
 
+// Version33 returns templates that are compatible with version 33 of the GRIB2 specification.
 func Version33() record.Templates {
 	return &templates{
 		gridDefinitionEndingOctet: map[int]RetrieveEndOctet{

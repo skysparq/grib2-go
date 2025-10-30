@@ -9,10 +9,13 @@ import (
 	"github.com/skysparq/grib2-go/record"
 )
 
+// GribFile provides an iterator over the records in a GRIB file.
 type GribFile interface {
 	Records(yield func(record.Record, error) bool)
 }
 
+// NewGribFile instantiates a GribFile from an io.Reader and a record.Templates.
+// Standard templates can be accessed via the templates.Version33 function.
 func NewGribFile(r io.Reader, template record.Templates) GribFile {
 	return &gribFile{r: r, template: template}
 }
@@ -22,6 +25,7 @@ type gribFile struct {
 	r        io.Reader
 }
 
+// Records iterates over the records in a GRIB file.
 func (g *gribFile) Records(yield func(record.Record, error) bool) {
 	for {
 		rec, err := record.ParseRecord(g.r, g.template)
@@ -34,6 +38,8 @@ func (g *gribFile) Records(yield func(record.Record, error) bool) {
 	}
 }
 
+// ExtractRecordBytes extracts the full blob of a GRIB record from a GRIB file.
+// This is useful in isolating a single record from a GRIB file for additional testing and validation.
 func ExtractRecordBytes(r io.ReadSeeker, messageNumber int) ([]byte, error) {
 	for i := 0; i < messageNumber-1; i++ {
 		sec0, err := record.ParseSection0(r)

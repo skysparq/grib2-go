@@ -1,9 +1,29 @@
 package projections
 
+// Scanner is an interface for scanning through the points of a grid.
+// Scanner returns the x and y coordinates of each point, in the order specified by the grib2 record.
+// The grib2 standard allows for grids to be scanned in 8 different ways:
+//
+// 1. Right to left, top to bottom
+//
+// 2. Right to left, bottom to top
+//
+// 3. Left to right, top to bottom
+//
+// 4. Left to right, bottom to top
+//
+// 5. Top to bottom, right to left
+//
+// 6. Top to bottom, left to right
+//
+// 7. Bottom to top, right to left
+//
+// 8. Bottom to top, left to right
 type Scanner[T int | float64] interface {
 	Points(yield func(y T, x T) bool)
 }
 
+// ScannerParams contains the parameters for instantiating a Scanner.
 type ScannerParams[T int | float64] struct {
 	ScanningMode ScanningMode
 	Ni           int // total number of points in the x direction
@@ -24,6 +44,7 @@ type scanner[T int | float64] struct {
 	iDim      int // indicates which dimension is the X direction
 }
 
+// NewScanner instantiates a Scanner from the given ScannerParams.
 func NewScanner[T int | float64](params ScannerParams[T]) Scanner[T] {
 	g := &scanner[T]{}
 	if params.ScanningMode.RightToLeft && params.Di > 0 {
@@ -53,6 +74,7 @@ func NewScanner[T int | float64](params ScannerParams[T]) Scanner[T] {
 	return g
 }
 
+// Points is an iterator for looping through the points of a grid.
 func (s *scanner[T]) Points(yield func(y T, x T) bool) {
 	for dim1 := 0; dim1 < s.nDim1; dim1++ {
 		dim1Val := s.dim1Start + T(dim1)*s.dDim1
@@ -71,12 +93,16 @@ func (s *scanner[T]) Points(yield func(y T, x T) bool) {
 	}
 }
 
+// ScanningMode represents the scanning mode of a grid.
 type ScanningMode struct {
 	RightToLeft bool
 	TopToBottom bool
 	OverFirst   bool
 }
 
+// ScanningModeFromByte translates a ScanningMode from a byte encoded with scanning mode values.
+// The grib2 standard uses specific bit values in the scanning mode byte to indicate the various parameters of the scanning mode.
+// This helper function takes care of the bit-reading logic for the user.
 func ScanningModeFromByte(b byte) ScanningMode {
 	return ScanningMode{
 		RightToLeft: (b>>7)&1 == 1,

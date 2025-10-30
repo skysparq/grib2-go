@@ -5,6 +5,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// Template5 contains the fields for probability forecasts at a horizontal level or in a horizontal layer at a point in time.
 type Template5 struct {
 	record.ProductDefinitionHeader
 	GeneratingProcessType       int
@@ -29,10 +30,12 @@ type Template5 struct {
 	UpperLimitScaledValue       int
 }
 
+// Header returns the standard header fields common to all products
 func (t Template5) Header() record.ProductDefinitionHeader {
 	return t.ProductDefinitionHeader
 }
 
+// Parse fills in the template from the provided section
 func (t Template5) Parse(section record.Section4) (record.ProductDefinition, error) {
 	err := checkSectionNum(section, 5)
 	if err != nil {

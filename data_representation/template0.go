@@ -8,6 +8,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// Template0 contains the fields for Grid Point Data - Simple Packing
 type Template0 struct {
 	ReferenceValue     float64
 	BinaryScaleFactor  int
@@ -16,6 +17,7 @@ type Template0 struct {
 	OriginalFieldType  int
 }
 
+// Parse fills in the template from the provided section
 func (t Template0) Parse(section record.Section5) (record.DataRepresentationDefinition, error) {
 	err := checkSectionNum(section, 0)
 	if err != nil {
@@ -31,11 +33,13 @@ func (t Template0) Parse(section record.Section5) (record.DataRepresentationDefi
 	return t, nil
 }
 
+// DecimalScale returns the decimal scale factor of the record. The decimal scale factor is used to shift the
+// decimal point of a decoded value to the correct position.
 func (t Template0) DecimalScale() int {
 	return t.DecimalScaleFactor
 }
 
-// GetValues in this template uses simple unpacking to retrieve values from the record
+// GetValues unpacks the record's data into the original values
 func (t Template0) GetValues(rec record.Record) ([]float64, error) {
 	getValues := t.getValueReader()
 	return getValues(rec, rec.Grid.TotalPoints)

@@ -8,6 +8,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// Template30 contains the fields for Lambert Conformal
 type Template30 struct {
 	EarthShape                  int
 	RadiusScaleFactor           int
@@ -33,6 +34,7 @@ type Template30 struct {
 	SouthernPoleLongitude       int
 }
 
+// Points returns the latitude and longitude for each point in the grid.
 func (t Template30) Points() (record.GridPoints, error) {
 	var result record.GridPoints
 	if t.MajorAxisScaleValue != 0 {
@@ -67,6 +69,7 @@ func (t Template30) Points() (record.GridPoints, error) {
 	return result, nil
 }
 
+// Parse fills in the template from the provided section
 func (t Template30) Parse(section record.Section3) (record.GridDefinition, error) {
 	err := checkSectionNum(section, 30)
 	if err != nil {
@@ -99,10 +102,12 @@ func (t Template30) Parse(section record.Section3) (record.GridDefinition, error
 	return t, nil
 }
 
+// XVals returns the number of points along the X axis.
 func (t Template30) XVals() int {
 	return t.Nx
 }
 
+// YVals returns the number of points along the Y axis.
 func (t Template30) YVals() int {
 	return t.Ny
 }

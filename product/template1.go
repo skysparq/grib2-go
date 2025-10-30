@@ -5,6 +5,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// Template1 contains the fields for individual ensemble forecast, control and perturbed, at a horizontal level or in a horizontal layer at a point in time.
 type Template1 struct {
 	record.ProductDefinitionHeader
 	GeneratingProcessType       int
@@ -25,10 +26,12 @@ type Template1 struct {
 	TotalForecastsInEnsemble    int
 }
 
+// Header returns the standard header fields common to all products
 func (t Template1) Header() record.ProductDefinitionHeader {
 	return t.ProductDefinitionHeader
 }
 
+// Parse fills in the template from the provided section
 func (t Template1) Parse(section record.Section4) (record.ProductDefinition, error) {
 	err := checkSectionNum(section, 1)
 	if err != nil {

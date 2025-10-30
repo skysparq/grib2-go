@@ -1,5 +1,6 @@
 package data_representation
 
+// IntFromBytes converts an arbitrary length byte slice into an int using sign-and-magnitude encoding.
 func IntFromBytes(b []byte) int {
 	var i int
 	sign := 1
@@ -16,6 +17,7 @@ func IntFromBytes(b []byte) int {
 	return i * sign
 }
 
+// UintFromBytes converts an arbitrary length byte slice into an unsigned integer.
 func UintFromBytes(b []byte) int {
 	i := 0
 	shift := len(b) - 1

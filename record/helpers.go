@@ -6,6 +6,9 @@ import (
 	"io"
 )
 
+// SectionData contains the raw bytes from a section of a GRIB record.
+// Each section begins by specifying the length of the section and its section number.
+// This struct is used as an intermediary step to read each section.
 type SectionData struct {
 	Length        int
 	SectionNumber int

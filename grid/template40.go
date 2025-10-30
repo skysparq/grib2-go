@@ -5,6 +5,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// Template40 contains the fields for Gaussian Latitude/Longitude
 type Template40 struct {
 	EarthShape                     int
 	RadiusScaleFactor              int
@@ -27,11 +28,13 @@ type Template40 struct {
 	ScanningMode                   byte
 }
 
+// Points returns the latitude and longitude for each point in the grid.
 func (t Template40) Points() (record.GridPoints, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
+// Parse fills in the template from the provided section
 func (t Template40) Parse(section record.Section3) (record.GridDefinition, error) {
 	err := checkSectionNum(section, 40)
 	if err != nil {
@@ -61,10 +64,12 @@ func (t Template40) Parse(section record.Section3) (record.GridDefinition, error
 	return t, nil
 }
 
+// XVals returns the number of points along the X axis.
 func (t Template40) XVals() int {
 	return t.PointsAlongParallel
 }
 
+// YVals returns the number of points along the Y axis.
 func (t Template40) YVals() int {
 	return t.PointsAlongMeridian
 }

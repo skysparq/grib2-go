@@ -60,4 +60,6 @@ func (t *templates) ProductDefinition(section record.Section4) (record.ProductDe
 	return parser.Parse(section)
 }
 
+// RetrieveEndOctet is a function that returns the last byte position of the template in a section.
+// It is used to parse templates with variable-length sizes.
 type RetrieveEndOctet func([]byte) int

@@ -5,6 +5,7 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
+// Template6 contains the fields for percentile forecasts at a horizontal level or in a horizontal layer at a point in time.
 type Template6 struct {
 	record.ProductDefinitionHeader
 	GeneratingProcessType       int
@@ -23,10 +24,12 @@ type Template6 struct {
 	PercentileValue             int
 }
 
+// Header returns the standard header fields common to all products
 func (t Template6) Header() record.ProductDefinitionHeader {
 	return t.ProductDefinitionHeader
 }
 
+// Parse fills in the template from the provided section
 func (t Template6) Parse(section record.Section4) (record.ProductDefinition, error) {
 	err := checkSectionNum(section, 6)
 	if err != nil {
