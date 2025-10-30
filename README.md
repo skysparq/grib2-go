@@ -1,4 +1,8 @@
-## Overview
+# grib2-go
+
+<a href="https://github.com/skysparq/grib2-go/blob/main/LICENSE"><img src="https://img.shields.io/github/license/skysparq/grib2-go" height="auto" width="auto" /></a>
+<a href="https://goreportcard.com/report/github.com/skysparq/grib2-go"><img src="https://goreportcard.com/badge/github.com/skysparq/grib2-go" height="auto" width="auto" /></a>
+<a href="https://pkg.go.dev/github.com/skysparq/grib2-go"><img src="https://pkg.go.dev/badge/github.com/skysparq/grib2-go.svg" height="auto" width="auto" /></a>
 
 grib2-go is a pure Go library for parsing GRIB2 files. It is currently in development and is missing many features. The goal of this library is to provide a complete solution to read any file compatible with version 33 of the GRIB2 standard.
 
