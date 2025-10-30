@@ -1,4 +1,4 @@
-package main
+package grib2_go
 
 import (
 	"encoding/json"
