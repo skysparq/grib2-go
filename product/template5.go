@@ -7,7 +7,8 @@ import (
 
 // Template5 contains the fields for probability forecasts at a horizontal level or in a horizontal layer at a point in time.
 type Template5 struct {
-	record.ProductDefinitionHeader
+	ParameterCategory           int
+	ParameterNumber             int
 	GeneratingProcessType       int
 	BackgroundIdentifier        int
 	GeneratingProcessIdentifier int
@@ -32,7 +33,15 @@ type Template5 struct {
 
 // Header returns the standard header fields common to all products
 func (t Template5) Header() record.ProductDefinitionHeader {
-	return t.ProductDefinitionHeader
+	return record.ProductDefinitionHeader{
+		ParameterCategory:  t.ParameterCategory,
+		ParameterNumber:    t.ParameterNumber,
+		FirstSurfaceType:   t.FirstSurfaceType,
+		FirstSurfaceValue:  u.ScaleInt(t.FirstSurfaceScaleValue, t.FirstSurfaceScaleFactor),
+		SecondSurfaceType:  t.SecondSurfaceType,
+		SecondSurfaceValue: u.ScaleInt(t.SecondSurfaceScaleValue, t.SecondSurfaceScaleFactor),
+		TimeIncrements:     nil,
+	}
 }
 
 // Parse fills in the template from the provided section

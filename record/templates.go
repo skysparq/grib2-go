@@ -54,6 +54,21 @@ type GriddedValues struct {
 
 // ProductDefinitionHeader contains standard fields present in every product definition section.
 type ProductDefinitionHeader struct {
-	ParameterCategory int
-	ParameterNumber   int
+	ParameterCategory  int
+	ParameterNumber    int
+	FirstSurfaceType   int
+	FirstSurfaceValue  float64
+	SecondSurfaceType  int
+	SecondSurfaceValue float64
+	TimeIncrements     []TimeIncrement
+}
+
+// TimeIncrement defines the time intervals used in certain product definition templates where statistical processing is performed..
+type TimeIncrement struct {
+	StatisticalProcess         int
+	TimeIncrementType          int
+	StatisticalUnitOfTimeRange int
+	StatisticalLengthOfTime    int
+	SuccessiveUnitOfTimeRange  int
+	SuccessiveLengthOfTime     int
 }

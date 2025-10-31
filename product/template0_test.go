@@ -27,10 +27,8 @@ func TestTemplate0(t *testing.T) {
 		t.Fatal(err)
 	}
 	expected := product.Template0{
-		ProductDefinitionHeader: record.ProductDefinitionHeader{
-			ParameterCategory: 3,
-			ParameterNumber:   1,
-		},
+		ParameterCategory:           3,
+		ParameterNumber:             1,
 		GeneratingProcessType:       2,
 		BackgroundIdentifier:        0,
 		GeneratingProcessIdentifier: 96,

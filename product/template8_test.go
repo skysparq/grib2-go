@@ -28,10 +28,8 @@ func TestTemplate8(t *testing.T) {
 		t.Fatal(err)
 	}
 	expected := product.Template8{
-		ProductDefinitionHeader: record.ProductDefinitionHeader{
-			ParameterCategory: 19,
-			ParameterNumber:   1,
-		},
+		ParameterCategory:           19,
+		ParameterNumber:             1,
 		GeneratingProcessType:       2,
 		BackgroundIdentifier:        0,
 		GeneratingProcessIdentifier: 96,
@@ -53,7 +51,7 @@ func TestTemplate8(t *testing.T) {
 		EndSecond:                   0,
 		TotalTimeRanges:             1,
 		MissingDataValues:           0,
-		TimeRanges: []product.TimeIncrement{
+		TimeRanges: []record.TimeIncrement{
 			{
 				StatisticalProcess:         0,
 				TimeIncrementType:          2,

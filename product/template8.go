@@ -7,19 +7,10 @@ import (
 	u "github.com/skysparq/grib2-go/utility"
 )
 
-// TimeIncrement defines the time intervals used in Template8.
-type TimeIncrement struct {
-	StatisticalProcess         int
-	TimeIncrementType          int
-	StatisticalUnitOfTimeRange int
-	StatisticalLengthOfTime    int
-	SuccessiveUnitOfTimeRange  int
-	SuccessiveLengthOfTime     int
-}
-
 // Template8 contains the fields for average, accumulation, extreme values or other statistically processed values at a horizontal level or in a horizontal layer in a continuous or non-continuous time interval.
 type Template8 struct {
-	record.ProductDefinitionHeader
+	ParameterCategory           int
+	ParameterNumber             int
 	GeneratingProcessType       int
 	BackgroundIdentifier        int
 	GeneratingProcessIdentifier int
@@ -41,12 +32,20 @@ type Template8 struct {
 	EndSecond                   int
 	TotalTimeRanges             int
 	MissingDataValues           int
-	TimeRanges                  []TimeIncrement
+	TimeRanges                  []record.TimeIncrement
 }
 
 // Header returns the standard header fields common to all products
 func (t Template8) Header() record.ProductDefinitionHeader {
-	return t.ProductDefinitionHeader
+	return record.ProductDefinitionHeader{
+		ParameterCategory:  t.ParameterCategory,
+		ParameterNumber:    t.ParameterNumber,
+		FirstSurfaceType:   t.FirstSurfaceType,
+		FirstSurfaceValue:  u.ScaleInt(t.FirstSurfaceScaleValue, t.FirstSurfaceScaleFactor),
+		SecondSurfaceType:  t.SecondSurfaceType,
+		SecondSurfaceValue: u.ScaleInt(t.SecondSurfaceScaleValue, t.SecondSurfaceScaleFactor),
+		TimeIncrements:     t.TimeRanges,
+	}
 }
 
 // Parse fills in the template from the provided section
@@ -81,9 +80,9 @@ func (t Template8) Parse(section record.Section4) (record.ProductDefinition, err
 	t.TotalTimeRanges = int(data[32])
 	t.MissingDataValues = u.Uint32(data[33:37])
 
-	t.TimeRanges = make([]TimeIncrement, 0, t.TotalTimeRanges)
+	t.TimeRanges = make([]record.TimeIncrement, 0, t.TotalTimeRanges)
 	for startOctet := 37; startOctet < len(data); startOctet += 12 {
-		t.TimeRanges = append(t.TimeRanges, TimeIncrement{
+		t.TimeRanges = append(t.TimeRanges, record.TimeIncrement{
 			StatisticalProcess:         int(data[startOctet]),
 			TimeIncrementType:          int(data[startOctet+1]),
 			StatisticalUnitOfTimeRange: int(data[startOctet+2]),

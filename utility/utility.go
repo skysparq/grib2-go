@@ -123,3 +123,10 @@ func Unpack(ref float64, value int, binaryScale int, decimalScale int) float64 {
 func UnpackFloat(ref float64, value float64, binaryScale int, decimalScale int) float64 {
 	return (ref + (value * math.Pow(2, float64(binaryScale)))) / math.Pow(10, float64(decimalScale))
 }
+
+func ScaleInt(value int, scale int) float64 {
+	return float64(value) / math.Pow(10, float64(scale))
+}
+
+// Missing is the value used in code tables to indicate a missing value.
+const Missing = 255
