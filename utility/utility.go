@@ -3,6 +3,7 @@ package utility
 import (
 	"encoding/binary"
 	"math"
+	"time"
 )
 
 // Int32 returns an int from a big endian 4-byte slice
@@ -112,6 +113,21 @@ func UnpackFloat(ref float64, value float64, binaryScale int, decimalScale int) 
 	return (ref + (value * math.Pow(2, float64(binaryScale)))) / math.Pow(10, float64(decimalScale))
 }
 
+// ScaleInt scales an integer by a given decimal scale factor.
 func ScaleInt(value int, scale int) float64 {
 	return float64(value) / math.Pow(10, float64(scale))
+}
+
+// TimestampFromReference calculates the timestamp from a reference time and a given time interval.
+func TimestampFromReference(refTime time.Time, interval int, intervalType int) time.Time {
+	switch intervalType {
+	case 0:
+		return refTime.Add(time.Minute * time.Duration(interval))
+	case 1:
+		return refTime.Add(time.Hour * time.Duration(interval))
+	case 2:
+		return refTime.Add(time.Hour * 24 * time.Duration(interval))
+	default:
+		return time.UnixMilli(0)
+	}
 }

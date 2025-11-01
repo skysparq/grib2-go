@@ -28,7 +28,8 @@ type Template1 struct {
 }
 
 // Header returns the standard header fields common to all products
-func (t Template1) Header() record.ProductDefinitionHeader {
+func (t Template1) Header(info record.Section1) record.ProductDefinitionHeader {
+	at := u.TimestampFromReference(info.Time(), t.ForecastTimeInUnits, t.UnitOfTimeRange)
 	return record.ProductDefinitionHeader{
 		ParameterCategory:  t.ParameterCategory,
 		ParameterNumber:    t.ParameterNumber,
@@ -36,6 +37,8 @@ func (t Template1) Header() record.ProductDefinitionHeader {
 		FirstSurfaceValue:  u.ScaleInt(t.FirstSurfaceScaleValue, t.FirstSurfaceScaleFactor),
 		SecondSurfaceType:  t.SecondSurfaceType,
 		SecondSurfaceValue: u.ScaleInt(t.SecondSurfaceScaleValue, t.SecondSurfaceScaleFactor),
+		Start:              at,
+		End:                at,
 		TimeIncrements:     nil,
 	}
 }

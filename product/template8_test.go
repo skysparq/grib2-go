@@ -69,6 +69,23 @@ func TestTemplate8(t *testing.T) {
 	if date := time.Date(2025, 3, 7, 6, 0, 0, 0, time.UTC); date != typed.EndTime() {
 		t.Fatalf(`expected end time %v, got %v`, date, typed.EndTime())
 	}
+
+	hdr := template.Header(rec.Identification)
+	expectedHdr := record.ProductDefinitionHeader{
+		ParameterCategory:  19,
+		ParameterNumber:    1,
+		FirstSurfaceType:   1,
+		FirstSurfaceValue:  0,
+		SecondSurfaceType:  255,
+		SecondSurfaceValue: 0,
+		Start:              time.Date(2025, time.March, 5, 6, 0, 0, 0, time.UTC).Add(time.Hour * 42),
+		End:                time.Date(2025, time.March, 7, 6, 0, 0, 0, time.UTC),
+		TimeIncrements:     expected.TimeRanges,
+	}
+	if !reflect.DeepEqual(expectedHdr, hdr) {
+		t.Fatalf("expected\n%+v\nbut got\n%+v", expectedHdr, hdr)
+	}
+
 	encoded, err := json.Marshal(template)
 	if err != nil {
 		t.Fatal(err)

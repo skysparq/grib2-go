@@ -1,5 +1,7 @@
 package record
 
+import "time"
+
 // Templates provides an interface for passing GRIB2 section templates to the parser.
 type Templates interface {
 	GridDefinitionEnd(template int, section3Bytes []byte) (int, bool)    // Table 3.1
@@ -25,7 +27,7 @@ type DataReader interface {
 // ProductDefinition provides an interface for parsing GRIB2 section 4.
 // It includes methods for retrieving certain standardized information from the section.
 type ProductDefinition interface {
-	Header() ProductDefinitionHeader
+	Header(info Section1) ProductDefinitionHeader
 	Parse(section Section4) (ProductDefinition, error)
 }
 
@@ -60,6 +62,8 @@ type ProductDefinitionHeader struct {
 	FirstSurfaceValue  float64
 	SecondSurfaceType  int
 	SecondSurfaceValue float64
+	Start              time.Time
+	End                time.Time
 	TimeIncrements     []TimeIncrement
 }
 

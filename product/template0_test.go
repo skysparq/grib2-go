@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/skysparq/grib2-go/product"
 	"github.com/skysparq/grib2-go/record"
@@ -46,6 +47,24 @@ func TestTemplate0(t *testing.T) {
 	if typed := template.(product.Template0); !reflect.DeepEqual(expected, typed) {
 		t.Fatalf("expected\n%+v\nbut got\n%+v", expected, typed)
 	}
+
+	hdr := template.Header(rec.Identification)
+	expectedTime := time.Date(2025, time.March, 5, 6, 0, 0, 0, time.UTC).Add(time.Hour * 22)
+	expectedHdr := record.ProductDefinitionHeader{
+		ParameterCategory:  3,
+		ParameterNumber:    1,
+		FirstSurfaceType:   101,
+		FirstSurfaceValue:  0,
+		SecondSurfaceType:  255,
+		SecondSurfaceValue: 0,
+		Start:              expectedTime,
+		End:                expectedTime,
+		TimeIncrements:     nil,
+	}
+	if !reflect.DeepEqual(expectedHdr, hdr) {
+		t.Fatalf("expected\n%+v\nbut got\n%+v", expectedHdr, hdr)
+	}
+
 	encoded, err := json.Marshal(template)
 	if err != nil {
 		t.Fatal(err)
