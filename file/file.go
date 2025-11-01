@@ -9,9 +9,14 @@ import (
 	"github.com/skysparq/grib2-go/record"
 )
 
+type IndexedRecord struct {
+	MessageNumber int
+	Record        record.Record
+}
+
 // GribFile provides an iterator over the records in a GRIB file.
 type GribFile interface {
-	Records(yield func(record.Record, error) bool)
+	Records(yield func(IndexedRecord, error) bool)
 }
 
 // NewGribFile instantiates a GribFile from an io.Reader and a record.Templates.
@@ -26,15 +31,17 @@ type gribFile struct {
 }
 
 // Records iterates over the records in a GRIB file.
-func (g *gribFile) Records(yield func(record.Record, error) bool) {
+func (g *gribFile) Records(yield func(IndexedRecord, error) bool) {
+	i := 1
 	for {
 		rec, err := record.ParseRecord(g.r, g.template)
 		if errors.Is(err, io.EOF) {
 			return
 		}
-		if !yield(rec, err) {
+		if !yield(IndexedRecord{i, rec}, err) {
 			return
 		}
+		i++
 	}
 }
 

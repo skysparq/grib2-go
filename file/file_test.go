@@ -41,14 +41,20 @@ func TestLoadGribFile(t *testing.T) {
 	prodDefs := make(map[int]int)
 	dataRepDefs := make(map[int]int)
 	totalLength := 0
-	for rec, recErr := range grib.Records {
+	i := 1 // message number starts at 1
+	for indexed, recErr := range grib.Records {
 		if recErr != nil {
 			t.Fatal(recErr)
 		}
+		if indexed.MessageNumber != indexed.MessageNumber {
+			t.Fatalf(`expected message number %d but got %d`, i, indexed.MessageNumber)
+		}
+		rec := indexed.Record
 		gridDefs[rec.Grid.GridDefinitionTemplateNumber]++
 		prodDefs[rec.Product.ProductDefinitionTemplateNumber]++
 		dataRepDefs[rec.DataRepresentation.DataRepresentationTemplateNumber]++
 		totalLength += rec.Indicator.GribLength
+		i++
 	}
 
 	if totalLength != size {

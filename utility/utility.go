@@ -40,18 +40,6 @@ func SignAndMagnitudeInt16(data []byte) int {
 	return value
 }
 
-// SignAndMagnitudeInt8 returns an int from a big endian single byte encoded as a sign-and-magnitude integer.
-// Unlike two's complement, sign-and-magnitude integers use the first bit to indicate the sign.
-func SignAndMagnitudeInt8(data byte) int {
-	negative := (data & 0x80) == 0x80
-	data &= 0x7F
-	value := int(data)
-	if negative {
-		return -value
-	}
-	return value
-}
-
 // Int64 returns an int from a big endian 8-byte slice
 func Int64(data []byte) int {
 	return int(binary.BigEndian.Uint64(data))
@@ -127,6 +115,3 @@ func UnpackFloat(ref float64, value float64, binaryScale int, decimalScale int) 
 func ScaleInt(value int, scale int) float64 {
 	return float64(value) / math.Pow(10, float64(scale))
 }
-
-// Missing is the value used in code tables to indicate a missing value.
-const Missing = 255

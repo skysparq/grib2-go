@@ -18,12 +18,13 @@ func main() {
 	defer func() { _ = r.Close() }()
 
 	grib := file.NewGribFile(r, templates.Version33())
-	var rec record.Record
+	var indexed file.IndexedRecord
 	i := 0
-	for rec, err = range grib.Records {
+	for indexed, err = range grib.Records {
 		if err != nil {
 			panic(err.Error())
 		}
+		rec := indexed.Record
 
 		emitProduct(rec.Product)
 		processAndEmitGrid(rec.Grid)

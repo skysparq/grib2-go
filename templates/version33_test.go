@@ -26,12 +26,13 @@ func TestAllFiles(t *testing.T) {
 			t.Fatalf(`error reading %v: %v`, path, err)
 		}
 		grib := file.NewGribFile(f, template)
-		var index int
-		for rec, err := range grib.Records {
+		for indexed, err := range grib.Records {
+			index := indexed.MessageNumber
 			if err != nil {
 				_ = f.Close()
 				t.Fatalf(`error on message %v reading %v: %v`, index, path, err)
 			}
+			rec := indexed.Record
 			_, err = rec.Grid.Definition()
 			if err != nil {
 				_ = f.Close()

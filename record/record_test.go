@@ -232,19 +232,18 @@ func TestHrrrNoErrors(t *testing.T) {
 }
 
 func testFile(f file.GribFile) error {
-	recNum := 0
-	for rec, err := range f.Records {
-		recNum++
+	for indexed, err := range f.Records {
+		rec := indexed.Record
 		if err != nil {
-			return fmt.Errorf(`error retrieving record for record %v: %w`, recNum, err)
+			return fmt.Errorf(`error retrieving record for record %v: %w`, indexed.MessageNumber, err)
 		}
 		def, err := rec.DataRepresentation.Definition()
 		if err != nil {
-			return fmt.Errorf(`error retrieving data representation definition for record %v: %w`, recNum, err)
+			return fmt.Errorf(`error retrieving data representation definition for record %v: %w`, indexed.MessageNumber, err)
 		}
 		_, err = def.GetValues(rec)
 		if err != nil {
-			return fmt.Errorf(`error getting values for record %v: %w`, recNum, err)
+			return fmt.Errorf(`error getting values for record %v: %w`, indexed.MessageNumber, err)
 		}
 	}
 	return nil
@@ -320,12 +319,11 @@ func testFullFiles(path string) error {
 	defer func() { _ = ec.Close() }()
 	source := &floatReader{r: ec}
 
-	recNum := 0
-	for rec, err := range f.Records {
-		recNum++
+	for indexed, err := range f.Records {
 		if err != nil {
 			return err
 		}
+		rec := indexed.Record
 		def, err := rec.DataRepresentation.Definition()
 		if err != nil {
 			return err
@@ -351,10 +349,10 @@ func testFullFiles(path string) error {
 
 			// NaN values should match either NaN or eccode's placeholder value of 9999.0
 			if math.Abs(value-expected64) > expectedPrecision || !(math.IsNaN(value) == math.IsNaN(expected64) || (math.IsNaN(value) && expected64 == 9999.0)) {
-				return fmt.Errorf(`error in message %v, index %v: expected %.10f but got %.10f with expected precision %v`, recNum, i, expected, value, expectedPrecision)
+				return fmt.Errorf(`error in message %v, index %v: expected %.10f but got %.10f with expected precision %v`, indexed.MessageNumber, i, expected, value, expectedPrecision)
 			}
 		}
-		println(fmt.Sprintf(`finished message %v`, recNum))
+		println(fmt.Sprintf(`finished message %v`, indexed.MessageNumber))
 	}
 	return nil
 }
