@@ -71,7 +71,7 @@ func StdLatLngToFloat(value int) float64 {
 // ShiftLongitude shifts a longitude value to the range [-180, 180].
 // By default, they are stored in the range [0, 360]
 func ShiftLongitude(value int) int {
-	if value > 180000000 {
+	if value >= 180000000 {
 		value -= 360000000
 	}
 	return value
