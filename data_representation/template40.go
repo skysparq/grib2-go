@@ -47,6 +47,6 @@ func (t Template40) GetValues(_ record.Record) ([]float64, error) {
 	panic("not implemented")
 }
 
-func (t Template40) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], error) {
+func (t Template40) ValuesIterator(_ record.Record) (iter.Seq2[int, float64], error) {
 	panic(`not implemented`)
 }
