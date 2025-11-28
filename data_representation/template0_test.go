@@ -99,7 +99,7 @@ func TestIterateConst(t *testing.T) {
 		},
 	}
 	expected := []float64{1, 1, 1, 1, 1}
-	iterator, err := template.Values(rec)
+	iterator, err := template.ValuesIterator(rec)
 	if err != nil {
 		t.Fatal(err)
 	}

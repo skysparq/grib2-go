@@ -2,6 +2,7 @@ package data_representation
 
 import (
 	"fmt"
+	"iter"
 	"math"
 
 	u "github.com/skysparq/grib2-go/utility"
@@ -64,6 +65,33 @@ func (p *ComplexParams) UnpackComplex(packedData []byte) ([]float64, error) {
 		return result, fmt.Errorf("error unpacking complex: expected %d points, got %d", p.TotalPoints, pointIdx)
 	}
 	return result, nil
+}
+
+func (p *ComplexParams) UnpackComplexIterator(packedData []byte) (iter.Seq2[int, float64], error) {
+	g, err := newGroupTracker(p, packedData)
+	if err != nil {
+		return nil, fmt.Errorf(`error getting complex unpacking iterator: %w`, err)
+	}
+	return func(yield func(int, float64) bool) {
+		i := 0
+		for {
+			if i >= p.TotalPoints {
+				return
+			}
+
+			var value float64
+			if p.Bitmap.IsMissing(i) {
+				value = math.NaN()
+				continue
+			} else {
+				value = g.nextValue()
+			}
+			if !yield(i, value) {
+				return
+			}
+			i++
+		}
+	}, nil
 }
 
 type groupTracker struct {

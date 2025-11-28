@@ -52,30 +52,36 @@ type Template41Tests struct {
 }
 
 func TestGetValuesTemplate41_8Bits(t *testing.T) {
-	testTemplate41Values(t, Template41Tests{
+	tests := Template41Tests{
 		TestFile:  test_files.MrmsAzShear,
 		Sentinels: []float64{-999, -99},
 		Min:       -22,
 		Max:       47,
-	})
+	}
+	testTemplate41Values(t, tests)
+	testTemplate41ValuesIterator(t, tests)
 }
 
 func TestGetValuesTemplate41_16Bits(t *testing.T) {
-	testTemplate41Values(t, Template41Tests{
+	tests := Template41Tests{
 		TestFile:  test_files.MrmsCompositeRefl,
 		Sentinels: []float64{-999, -99},
 		Min:       -22,
 		Max:       61.5,
-	})
+	}
+	testTemplate41Values(t, tests)
+	testTemplate41ValuesIterator(t, tests)
 }
 
 func TestGetValuesTemplate41_24Bits(t *testing.T) {
-	testTemplate41Values(t, Template41Tests{
+	tests := Template41Tests{
 		TestFile:  test_files.MrmsLghtngProb,
 		Sentinels: []float64{},
 		Min:       -99900,
 		Max:       86,
-	})
+	}
+	testTemplate41Values(t, tests)
+	testTemplate41ValuesIterator(t, tests)
 }
 
 func testTemplate41Values(t *testing.T, test Template41Tests) {
@@ -96,6 +102,46 @@ func testTemplate41Values(t *testing.T, test Template41Tests) {
 	values, err := def.GetValues(rec)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	pmin, pmax := slices.Min(values), slices.Max(values)
+	pminNoSentinel := 999999.9
+	for _, v := range values {
+		if !slices.Contains(test.Sentinels, v) && v < pminNoSentinel {
+			pminNoSentinel = v
+		}
+	}
+	if expected := test.Min; pminNoSentinel != expected {
+		t.Fatalf(`expected %v but got %v`, expected, pminNoSentinel)
+	}
+	if expected := test.Max; pmax != expected {
+		t.Fatalf(`expected %v but got %v`, expected, pmax)
+	}
+	t.Logf(`min: %v, min (no sentinels) %v, max: %v`, pmin, pminNoSentinel, pmax)
+}
+
+func testTemplate41ValuesIterator(t *testing.T, test Template41Tests) {
+	_, r, err := test_files.Load(test.TestFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = r.Close() }()
+
+	rec, err := record.ParseRecord(r, templates.Version33())
+	if err != nil {
+		t.Fatal(err)
+	}
+	def, err := rec.DataRepresentation.Definition()
+	if err != nil {
+		t.Fatal(err)
+	}
+	iterator, err := def.ValuesIterator(rec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	values := make([]float64, 0)
+	for _, v := range iterator {
+		values = append(values, v)
 	}
 
 	pmin, pmax := slices.Min(values), slices.Max(values)

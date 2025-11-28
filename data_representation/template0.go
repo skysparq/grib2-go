@@ -45,11 +45,11 @@ func (t Template0) GetValues(rec record.Record) ([]float64, error) {
 	return getValues(rec, rec.Grid.TotalPoints), nil
 }
 
-func (t Template0) Values(rec record.Record) (iter.Seq2[int, float64], error) {
+func (t Template0) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], error) {
 	if t.BitsPerValue == 0 {
-		return t.iteratorConst(rec, rec.Grid.TotalPoints), nil
+		return t.constIterator(rec, rec.Grid.TotalPoints), nil
 	}
-	return t.iteratorSimple(rec, rec.Grid.TotalPoints), nil
+	return t.simpleIterator(rec, rec.Grid.TotalPoints), nil
 }
 
 func (t Template0) getValueReader() func(rec record.Record, totalPoints int) []float64 {
@@ -91,7 +91,7 @@ func (t Template0) unpackSimple(rec record.Record, totalPoints int) []float64 {
 	return values
 }
 
-func (t Template0) iteratorSimple(rec record.Record, totalPoints int) iter.Seq2[int, float64] {
+func (t Template0) simpleIterator(rec record.Record, totalPoints int) iter.Seq2[int, float64] {
 	return func(yield func(int, float64) bool) {
 		i := 0
 		stream := NewBitStream(rec.Data.Data)
@@ -115,7 +115,7 @@ func (t Template0) iteratorSimple(rec record.Record, totalPoints int) iter.Seq2[
 	}
 }
 
-func (t Template0) iteratorConst(rec record.Record, totalPoints int) iter.Seq2[int, float64] {
+func (t Template0) constIterator(rec record.Record, totalPoints int) iter.Seq2[int, float64] {
 	ref := u.UnpackFloat(t.ReferenceValue, 0, t.BinaryScaleFactor, t.DecimalScaleFactor)
 
 	return func(yield func(int, float64) bool) {

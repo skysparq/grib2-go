@@ -25,7 +25,7 @@ type DataRepresentationDefinition interface {
 // DataReader provides an interface for retrieving values from a GRIB2 record.
 type DataReader interface {
 	GetValues(rec Record) ([]float64, error)
-	Values(rec Record) (iter.Seq2[int, float64], error)
+	ValuesIterator(rec Record) (iter.Seq2[int, float64], error)
 }
 
 // ProductDefinition provides an interface for parsing GRIB2 section 4.

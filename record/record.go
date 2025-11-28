@@ -102,7 +102,7 @@ func (r Record) GetGriddedValues() (GriddedValues, error) {
 	values.XVals = grid.XVals()
 	values.YVals = grid.YVals()
 	if len(values.Values) != len(values.Lngs) || len(values.Values) != len(values.Lats) {
-		return values, fmt.Errorf("error getting gridded values: the length of Values, Lngs, and Lats do not match")
+		return values, fmt.Errorf("error getting gridded values: the length of ValuesIterator, Lngs, and Lats do not match")
 	}
 	return values, nil
 }
