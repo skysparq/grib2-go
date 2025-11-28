@@ -241,9 +241,19 @@ func testFile(f file.GribFile) error {
 		if err != nil {
 			return fmt.Errorf(`error retrieving data representation definition for record %v: %w`, indexed.MessageNumber, err)
 		}
-		_, err = def.GetValues(rec)
+		values, err := def.GetValues(rec)
 		if err != nil {
 			return fmt.Errorf(`error getting values for record %v: %w`, indexed.MessageNumber, err)
+		}
+		iterator, err := def.ValuesIterator(rec)
+		if err != nil {
+			return fmt.Errorf(`error getting values iterator for record %v: %w`, indexed.MessageNumber, err)
+		}
+		var i int
+		for i, _ = range iterator {
+		}
+		if len(values) != i+1 {
+			return fmt.Errorf(`expected %d values, got %d`, len(values), i)
 		}
 	}
 	return nil

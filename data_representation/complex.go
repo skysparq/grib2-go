@@ -82,7 +82,6 @@ func (p *ComplexParams) UnpackComplexIterator(packedData []byte) (iter.Seq2[int,
 			var value float64
 			if p.Bitmap.IsMissing(i) {
 				value = math.NaN()
-				continue
 			} else {
 				value = g.nextValue()
 			}
