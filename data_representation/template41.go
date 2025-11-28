@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image"
 	"image/png"
+	"iter"
 	"math"
 
 	"github.com/skysparq/grib2-go/record"
@@ -63,11 +64,15 @@ func (t Template41) GetValues(rec record.Record) ([]float64, error) {
 	default:
 		return nil, fmt.Errorf("error getting values: unsupported image type: %T", img)
 	}
-	bmpR, err := NewBitmapReader(rec)
+	bmpR := NewBitmapReader(rec)
 	if err != nil {
 		return nil, fmt.Errorf("error getting values: %w", err)
 	}
 	return t.getValues(bmpR, p, getValue), nil
+}
+
+func (t Template41) Values(rec record.Record) (iter.Seq2[int, float64], error) {
+	return nil, nil
 }
 
 func (t Template41) getValues(bmpR *BitmapReader, p image.Image, getValue func(x, y int) int) []float64 {

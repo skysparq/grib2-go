@@ -1,6 +1,9 @@
 package record
 
-import "time"
+import (
+	"iter"
+	"time"
+)
 
 // Templates provides an interface for passing GRIB2 section templates to the parser.
 type Templates interface {
@@ -22,6 +25,7 @@ type DataRepresentationDefinition interface {
 // DataReader provides an interface for retrieving values from a GRIB2 record.
 type DataReader interface {
 	GetValues(rec Record) ([]float64, error)
+	Values(rec Record) (iter.Seq2[int, float64], error)
 }
 
 // ProductDefinition provides an interface for parsing GRIB2 section 4.

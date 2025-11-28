@@ -3,6 +3,7 @@ package data_representation
 import (
 	"encoding/binary"
 	"fmt"
+	"iter"
 	"math"
 
 	"github.com/skysparq/grib2-go/record"
@@ -46,10 +47,7 @@ func (t Template4) GetValues(rec record.Record) ([]float64, error) {
 		return nil, fmt.Errorf(`error parsing template: unsupported precision: %d`, t.Precision)
 	}
 
-	bitmap, err := NewBitmapReader(rec)
-	if err != nil {
-		return nil, fmt.Errorf("error getting values: %w", err)
-	}
+	bitmap := NewBitmapReader(rec)
 
 	totalPoints := rec.Grid.TotalPoints
 	result := make([]float64, totalPoints)
@@ -63,6 +61,10 @@ func (t Template4) GetValues(rec record.Record) ([]float64, error) {
 		result[i] = value
 	}
 	return result, nil
+}
+
+func (t Template4) Values(rec record.Record) (iter.Seq2[int, float64], error) {
+	return nil, nil
 }
 
 func (t Template4) readFloat32(data []byte, index, increment int) float64 {

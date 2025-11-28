@@ -1,8 +1,6 @@
 package data_representation
 
 import (
-	"fmt"
-
 	"github.com/skysparq/grib2-go/record"
 )
 
@@ -14,18 +12,16 @@ type BitmapReader struct {
 }
 
 // NewBitmapReader instantiates a new BitmapReader from the given record.
-func NewBitmapReader(rec record.Record) (*BitmapReader, error) {
+func NewBitmapReader(rec record.Record) *BitmapReader {
 	r := &BitmapReader{}
 	switch rec.BitMap.BitmapIndicator {
 	case 0:
 		r.checkIsSet = r.isMissing
 		r.bitmap = rec.BitMap.BitmapData
-	case 255:
-		r.checkIsSet = r.alwaysFalse
 	default:
-		return r, fmt.Errorf(`error creating BitmapReader: bitmap indicator must be 0 or 255`)
+		r.checkIsSet = r.alwaysFalse
 	}
-	return r, nil
+	return r
 }
 
 // IsMissing returns true if the value at the given index is missing.

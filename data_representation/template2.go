@@ -2,6 +2,7 @@ package data_representation
 
 import (
 	"fmt"
+	"iter"
 	"math"
 
 	"github.com/skysparq/grib2-go/record"
@@ -63,10 +64,7 @@ func (t Template2) DecimalScale() int {
 
 // GetValues unpacks the record's data into the original values
 func (t Template2) GetValues(rec record.Record) ([]float64, error) {
-	bitmap, err := NewBitmapReader(rec)
-	if err != nil {
-		return nil, fmt.Errorf("error getting values: %w", err)
-	}
+	bitmap := NewBitmapReader(rec)
 	params := &ComplexParams{
 		TotalPoints:              rec.Grid.TotalPoints,
 		DataPoints:               rec.DataRepresentation.TotalDataPoints,
@@ -93,4 +91,8 @@ func (t Template2) GetValues(rec record.Record) ([]float64, error) {
 		return nil, fmt.Errorf("error getting values: %w", err)
 	}
 	return result, nil
+}
+
+func (t Template2) Values(rec record.Record) (iter.Seq2[int, float64], error) {
+	return nil, nil
 }

@@ -1,7 +1,7 @@
 package data_representation
 
 import (
-	"fmt"
+	"iter"
 	"math"
 
 	"github.com/skysparq/grib2-go/record"
@@ -42,23 +42,27 @@ func (t Template0) DecimalScale() int {
 // GetValues unpacks the record's data into the original values
 func (t Template0) GetValues(rec record.Record) ([]float64, error) {
 	getValues := t.getValueReader()
-	return getValues(rec, rec.Grid.TotalPoints)
+	return getValues(rec, rec.Grid.TotalPoints), nil
 }
 
-func (t Template0) getValueReader() func(rec record.Record, totalPoints int) ([]float64, error) {
+func (t Template0) Values(rec record.Record) (iter.Seq2[int, float64], error) {
+	if t.BitsPerValue == 0 {
+		return t.iteratorConst(rec, rec.Grid.TotalPoints), nil
+	}
+	return t.iteratorSimple(rec, rec.Grid.TotalPoints), nil
+}
+
+func (t Template0) getValueReader() func(rec record.Record, totalPoints int) []float64 {
 	if t.BitsPerValue == 0 {
 		return t.unpackConst
 	}
 	return t.unpackSimple
 }
 
-func (t Template0) unpackConst(rec record.Record, totalPoints int) ([]float64, error) {
+func (t Template0) unpackConst(rec record.Record, totalPoints int) []float64 {
 	ref := u.UnpackFloat(t.ReferenceValue, 0, t.BinaryScaleFactor, t.DecimalScaleFactor)
 	values := make([]float64, totalPoints)
-	bmpR, err := NewBitmapReader(rec)
-	if err != nil {
-		return nil, fmt.Errorf("error unpacking const values: %w", err)
-	}
+	bmpR := NewBitmapReader(rec)
 	for i := range values {
 		if bmpR.IsMissing(i) {
 			values[i] = math.NaN()
@@ -66,16 +70,13 @@ func (t Template0) unpackConst(rec record.Record, totalPoints int) ([]float64, e
 			values[i] = ref
 		}
 	}
-	return values, nil
+	return values
 }
 
-func (t Template0) unpackSimple(rec record.Record, totalPoints int) ([]float64, error) {
+func (t Template0) unpackSimple(rec record.Record, totalPoints int) []float64 {
 	values := make([]float64, totalPoints)
 	stream := NewBitStream(rec.Data.Data)
-	bmpR, err := NewBitmapReader(rec)
-	if err != nil {
-		return nil, fmt.Errorf("error unpacking simple values: %w", err)
-	}
+	bmpR := NewBitmapReader(rec)
 
 	for i := range values {
 		if bmpR.IsMissing(i) {
@@ -87,6 +88,55 @@ func (t Template0) unpackSimple(rec record.Record, totalPoints int) ([]float64, 
 		value := u.Unpack(t.ReferenceValue, packed, t.BinaryScaleFactor, t.DecimalScaleFactor)
 		values[i] = value
 	}
-	stream.Pos()
-	return values, nil
+	return values
+}
+
+func (t Template0) iteratorSimple(rec record.Record, totalPoints int) iter.Seq2[int, float64] {
+	return func(yield func(int, float64) bool) {
+		i := 0
+		stream := NewBitStream(rec.Data.Data)
+		bmpR := NewBitmapReader(rec)
+		for {
+			if i >= totalPoints {
+				return
+			}
+			var value float64
+			if bmpR.IsMissing(i) {
+				value = math.NaN()
+			} else {
+				packed := int(stream.ReadBits(t.BitsPerValue))
+				value = u.Unpack(t.ReferenceValue, packed, t.BinaryScaleFactor, t.DecimalScaleFactor)
+			}
+			if !yield(i, value) {
+				return
+			}
+			i++
+		}
+	}
+}
+
+func (t Template0) iteratorConst(rec record.Record, totalPoints int) iter.Seq2[int, float64] {
+	ref := u.UnpackFloat(t.ReferenceValue, 0, t.BinaryScaleFactor, t.DecimalScaleFactor)
+
+	return func(yield func(int, float64) bool) {
+		i := 0
+		bmpR := NewBitmapReader(rec)
+
+		for {
+			if i >= totalPoints {
+				return
+			}
+			var value float64
+			if bmpR.IsMissing(i) {
+				value = math.NaN()
+
+			} else {
+				value = ref
+			}
+			if !yield(i, value) {
+				return
+			}
+			i++
+		}
+	}
 }
