@@ -35,32 +35,15 @@ func (t Template4) DecimalScale() int {
 
 // GetValues unpacks the record's data into the original values
 func (t Template4) GetValues(rec record.Record) ([]float64, error) {
-	var get func([]byte, int, int) float64
-	var increment int
-	if t.Precision == 1 {
-		get = t.readFloat32
-		increment = 4
-	} else if t.Precision == 2 {
-		get = t.readFloat64
-		increment = 8
-	} else {
-		return nil, fmt.Errorf(`error parsing template: unsupported precision: %d`, t.Precision)
+	iterator, err := t.ValuesIterator(rec)
+	if err != nil {
+		return nil, fmt.Errorf("error getting values: %w", err)
 	}
-
-	bitmap := NewBitmapReader(rec)
-
-	totalPoints := rec.Grid.TotalPoints
-	result := make([]float64, totalPoints)
-	blob := rec.Data.Data
-	for i := 0; i < totalPoints; i++ {
-		if bitmap.IsMissing(i) {
-			result[i] = math.NaN()
-			continue
-		}
-		value := get(blob, i, increment)
-		result[i] = value
+	values := make([]float64, rec.Grid.TotalPoints)
+	for i, v := range iterator {
+		values[i] = v
 	}
-	return result, nil
+	return values, nil
 }
 
 func (t Template4) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], error) {

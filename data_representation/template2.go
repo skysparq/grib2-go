@@ -64,33 +64,15 @@ func (t Template2) DecimalScale() int {
 
 // GetValues unpacks the record's data into the original values
 func (t Template2) GetValues(rec record.Record) ([]float64, error) {
-	bitmap := NewBitmapReader(rec)
-	params := &ComplexParams{
-		TotalPoints:              rec.Grid.TotalPoints,
-		DataPoints:               rec.DataRepresentation.TotalDataPoints,
-		Order:                    0,
-		SpatialOctets:            0,
-		NG:                       t.TotalGroups,
-		BitsPerGroup:             t.BitsPerGroup,
-		BitsPerGroupWidth:        t.BitsUsedForGroupWidths,
-		BitsPerScaledGroupLength: t.BitsUsedForScaledGroupLengths,
-		GroupWidthReference:      t.GroupWidthReference,
-		GroupLengthReference:     t.GroupLengthReference,
-		GroupLengthIncrement:     t.LengthIncrementForGroupLengths,
-		LastGroupLength:          t.LastGroupLength,
-		Ref:                      t.ReferenceValue,
-		BinaryScale:              t.BinaryScaleFactor,
-		DecimalScale:             t.DecimalScaleFactor,
-		MissingValueManagement:   t.MissingValueManagement,
-		PrimaryMissingValue:      float64(math.Float32frombits(uint32(t.PrimaryMissingValue))),
-		SecondaryMissingValue:    float64(math.Float32frombits(uint32(t.SecondaryMissingValue))),
-		Bitmap:                   bitmap,
-	}
-	result, err := params.UnpackComplex(rec.Data.Data)
+	iterator, err := t.ValuesIterator(rec)
 	if err != nil {
 		return nil, fmt.Errorf("error getting values: %w", err)
 	}
-	return result, nil
+	values := make([]float64, rec.Grid.TotalPoints)
+	for i, v := range iterator {
+		values[i] = v
+	}
+	return values, nil
 }
 
 func (t Template2) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], error) {

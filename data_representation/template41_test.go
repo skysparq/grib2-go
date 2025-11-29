@@ -59,7 +59,6 @@ func TestGetValuesTemplate41_8Bits(t *testing.T) {
 		Max:       47,
 	}
 	testTemplate41Values(t, tests)
-	testTemplate41ValuesIterator(t, tests)
 }
 
 func TestGetValuesTemplate41_16Bits(t *testing.T) {
@@ -70,7 +69,6 @@ func TestGetValuesTemplate41_16Bits(t *testing.T) {
 		Max:       61.5,
 	}
 	testTemplate41Values(t, tests)
-	testTemplate41ValuesIterator(t, tests)
 }
 
 func TestGetValuesTemplate41_24Bits(t *testing.T) {
@@ -81,7 +79,6 @@ func TestGetValuesTemplate41_24Bits(t *testing.T) {
 		Max:       86,
 	}
 	testTemplate41Values(t, tests)
-	testTemplate41ValuesIterator(t, tests)
 }
 
 func testTemplate41Values(t *testing.T, test Template41Tests) {
@@ -102,46 +99,6 @@ func testTemplate41Values(t *testing.T, test Template41Tests) {
 	values, err := def.GetValues(rec)
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	pmin, pmax := slices.Min(values), slices.Max(values)
-	pminNoSentinel := 999999.9
-	for _, v := range values {
-		if !slices.Contains(test.Sentinels, v) && v < pminNoSentinel {
-			pminNoSentinel = v
-		}
-	}
-	if expected := test.Min; pminNoSentinel != expected {
-		t.Fatalf(`expected %v but got %v`, expected, pminNoSentinel)
-	}
-	if expected := test.Max; pmax != expected {
-		t.Fatalf(`expected %v but got %v`, expected, pmax)
-	}
-	t.Logf(`min: %v, min (no sentinels) %v, max: %v`, pmin, pminNoSentinel, pmax)
-}
-
-func testTemplate41ValuesIterator(t *testing.T, test Template41Tests) {
-	_, r, err := test_files.Load(test.TestFile)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() { _ = r.Close() }()
-
-	rec, err := record.ParseRecord(r, templates.Version33())
-	if err != nil {
-		t.Fatal(err)
-	}
-	def, err := rec.DataRepresentation.Definition()
-	if err != nil {
-		t.Fatal(err)
-	}
-	iterator, err := def.ValuesIterator(rec)
-	if err != nil {
-		t.Fatal(err)
-	}
-	values := make([]float64, 0)
-	for _, v := range iterator {
-		values = append(values, v)
 	}
 
 	pmin, pmax := slices.Min(values), slices.Max(values)

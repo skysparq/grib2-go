@@ -48,44 +48,6 @@ func TestUnpackTemplate4with32bits(t *testing.T) {
 	}
 }
 
-func TestUnpackIteratorTemplate4with32bits(t *testing.T) {
-	dataDef, err := data_representation.Template4{}.Parse(
-		record.Section5{
-			DataRepresentationTemplateNumber: 4,
-			DataRepresentationTemplateData:   []byte{1},
-			Templates:                        templates.Version33(),
-		})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	blob := make([]byte, 0, 12)
-	blob = binary.BigEndian.AppendUint32(blob, math.Float32bits(1.0))
-	blob = binary.BigEndian.AppendUint32(blob, math.Float32bits(2.0))
-	blob = binary.BigEndian.AppendUint32(blob, math.Float32bits(3.0))
-
-	iterator, err := dataDef.ValuesIterator(record.Record{
-		Grid:   record.Section3{TotalPoints: 3},
-		BitMap: record.Section6{BitmapIndicator: 255},
-		Data:   record.Section7{Data: blob},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	for i, v := range iterator {
-		if i == 0 && v != 1.0 {
-			t.Fatalf(`expected 1.0 at index %v, got %v`, i, v)
-		}
-		if i == 1 && v != 2.0 {
-			t.Fatalf(`expected 2.0 at index %v, got %v`, i, v)
-		}
-		if i == 2 && v != 3.0 {
-			t.Fatalf(`expected 3.0 at index %v, got %v`, i, v)
-		}
-	}
-}
-
 func TestUnpackTemplate4with64bits(t *testing.T) {
 	dataDef, err := data_representation.Template4{}.Parse(
 		record.Section5{

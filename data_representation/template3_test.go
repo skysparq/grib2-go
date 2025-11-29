@@ -93,41 +93,6 @@ func TestUnpackTemplate3(t *testing.T) {
 	}
 }
 
-func TestUnpackTemplate3Iterator(t *testing.T) {
-	_, r, err := test_files.Load(test_files.SingleRecordProdDef0)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() { _ = r.Close() }()
-
-	rec, err := record.ParseRecord(r, templates.Version33())
-	if err != nil {
-		t.Fatal(err)
-	}
-	template, err := data_representation.Template3{}.Parse(rec.DataRepresentation)
-	if err != nil {
-		t.Fatal(err)
-	}
-	iterator, err := template.ValuesIterator(rec)
-	if err != nil {
-		t.Fatal(err)
-	}
-	for i, v := range iterator {
-		if i == 0 && v != 102744.8 {
-			t.Fatalf(`expected 102744.8 at index 0, got %v`, v)
-		}
-		if i == 2444 && v != 102751.4 {
-			t.Fatalf(`expected 102751.4 at index 2444, got %v`, v)
-		}
-		if i == 928935 && v != 98455.0 {
-			t.Fatalf(`expected 98455.0 at index 928935, got %v`, v)
-		}
-		if i == 1039239 && math.Abs(v-102146.4) > 0.00001 {
-			t.Fatalf(`expected 102146.4 at index 1039239, got %v`, v)
-		}
-	}
-}
-
 func TestUnpackTemplate3WithBitmap(t *testing.T) {
 	_, r, err := test_files.Load(test_files.SingleRecordDataDef3Bitmap)
 	if err != nil {

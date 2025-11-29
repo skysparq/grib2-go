@@ -245,15 +245,8 @@ func testFile(f file.GribFile) error {
 		if err != nil {
 			return fmt.Errorf(`error getting values for record %v: %w`, indexed.MessageNumber, err)
 		}
-		iterator, err := def.ValuesIterator(rec)
-		if err != nil {
-			return fmt.Errorf(`error getting values iterator for record %v: %w`, indexed.MessageNumber, err)
-		}
-		var i int
-		for i, _ = range iterator {
-		}
-		if len(values) != i+1 {
-			return fmt.Errorf(`expected %d values, got %d`, len(values), i)
+		if len(values) != indexed.Record.Grid.TotalPoints {
+			return fmt.Errorf(`expected %v values for record %v, got %v`, indexed.Record.Grid.TotalPoints, indexed.MessageNumber, len(values))
 		}
 	}
 	return nil
@@ -273,7 +266,7 @@ func (f *floatReader) Next() (float32, error) {
 }
 
 func TestGfsValuesToEccodes(t *testing.T) {
-	t.Skip(`This is a long-running validation against values generated from a full GFS grib file using eccodes. It will take several minutes to run. The expected values can be downloaded from https://drive.google.com/file/d/1MhQ1EVHNZsaLBZZYO1ziUDpOfy3t7viA/view?usp=share_link .  Decompress the zip file and place in the .test_files directory.`)
+	t.Skip(`This is a long-running validation against values generated from a full GFS grib file using eccodes. It will take several minutes to run. The expected values can be downloaded from https://drive.google.com/file/d/1MhQ1EVHNZsaLBZZYO1ziUDpOfy3t7viA/view?usp=share_link . Decompress the zip file and place in the .test_files directory.`)
 	path := "../.test_files/full-gfs-file.grb2"
 	err := testFullFiles(path)
 	if err != nil {
@@ -282,7 +275,7 @@ func TestGfsValuesToEccodes(t *testing.T) {
 }
 
 func TestHrrrValuesToEccodes(t *testing.T) {
-	t.Skip(`This is a long-running validation against values generated from a full HRRR grib file using eccodes. It will take several minutes to run. The expected values can be downloaded from https://drive.google.com/file/d/1SoAts5M8CFJ3CgDlOWIa5f2AzEYHpdQn/view?usp=share_link .  Decompress the zip file and place in the .test_files directory.`)
+	t.Skip(`This is a long-running validation against values generated from a full HRRR grib file using eccodes. It will take several minutes to run. The expected values can be downloaded from https://drive.google.com/file/d/1SoAts5M8CFJ3CgDlOWIa5f2AzEYHpdQn/view?usp=share_link . Decompress the zip file and place in the .test_files directory.`)
 	path := "../.test_files/hrrr.t00z.wrfnatf01.grib2"
 	err := testFullFiles(path)
 	if err != nil {

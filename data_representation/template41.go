@@ -45,30 +45,15 @@ func (t Template41) DecimalScale() int {
 
 // GetValues unpacks the record's data into the original values
 func (t Template41) GetValues(rec record.Record) ([]float64, error) {
-	p, err := png.Decode(bytes.NewReader(rec.Data.Data))
+	iterator, err := t.ValuesIterator(rec)
 	if err != nil {
 		return nil, fmt.Errorf("error getting values: %w", err)
 	}
-	var getValue func(x, y int) int
-	switch img := p.(type) {
-	case *image.Gray:
-		getValue = t.gray8Getter(img)
-	case *image.Gray16:
-		getValue = t.gray16Getter(img)
-	case *image.RGBA:
-		if t.BitDepth == 24 {
-			getValue = t.rgba24BitGetter(img)
-		} else {
-			getValue = t.rgba32BitGetter(img)
-		}
-	default:
-		return nil, fmt.Errorf("error getting values: unsupported image type: %T", img)
+	values := make([]float64, rec.Grid.TotalPoints)
+	for i, v := range iterator {
+		values[i] = v
 	}
-	bmpR := NewBitmapReader(rec)
-	if err != nil {
-		return nil, fmt.Errorf("error getting values: %w", err)
-	}
-	return t.getValues(bmpR, p, getValue), nil
+	return values, nil
 }
 
 func (t Template41) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], error) {
@@ -118,25 +103,6 @@ func (t Template41) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], 
 			i++
 		}
 	}, nil
-}
-
-func (t Template41) getValues(bmpR *BitmapReader, p image.Image, getValue func(x, y int) int) []float64 {
-	width, height := p.Bounds().Dx(), p.Bounds().Dy()
-	pixels := make([]float64, 0, width*height)
-	index := 0
-	for y := 0; y < height; y++ {
-		for x := 0; x < width; x++ {
-			if bmpR.IsMissing(index) {
-				pixels = append(pixels, math.NaN())
-				index++
-				continue
-			}
-			value := u.Unpack(t.ReferenceValue, getValue(x, y), t.BinaryScaleFactor, t.DecimalScaleFactor)
-			pixels = append(pixels, value)
-			index++
-		}
-	}
-	return pixels
 }
 
 func (t Template41) rgba24BitGetter(img *image.RGBA) func(x, y int) int {

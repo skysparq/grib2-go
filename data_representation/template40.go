@@ -1,6 +1,7 @@
 package data_representation
 
 import (
+	"fmt"
 	"iter"
 
 	"github.com/skysparq/grib2-go/record"
@@ -43,8 +44,16 @@ func (t Template40) DecimalScale() int {
 }
 
 // GetValues unpacks the record's data into the original values
-func (t Template40) GetValues(_ record.Record) ([]float64, error) {
-	panic("not implemented")
+func (t Template40) GetValues(rec record.Record) ([]float64, error) {
+	iterator, err := t.ValuesIterator(rec)
+	if err != nil {
+		return nil, fmt.Errorf("error getting values: %w", err)
+	}
+	values := make([]float64, rec.Grid.TotalPoints)
+	for i, v := range iterator {
+		values[i] = v
+	}
+	return values, nil
 }
 
 func (t Template40) ValuesIterator(_ record.Record) (iter.Seq2[int, float64], error) {

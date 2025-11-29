@@ -1,6 +1,7 @@
 package data_representation
 
 import (
+	"fmt"
 	"iter"
 	"math"
 
@@ -41,8 +42,15 @@ func (t Template0) DecimalScale() int {
 
 // GetValues unpacks the record's data into the original values
 func (t Template0) GetValues(rec record.Record) ([]float64, error) {
-	getValues := t.getValueReader()
-	return getValues(rec, rec.Grid.TotalPoints), nil
+	iterator, err := t.ValuesIterator(rec)
+	if err != nil {
+		return nil, fmt.Errorf("error getting values: %w", err)
+	}
+	values := make([]float64, rec.Grid.TotalPoints)
+	for i, v := range iterator {
+		values[i] = v
+	}
+	return values, nil
 }
 
 func (t Template0) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], error) {
@@ -50,45 +58,6 @@ func (t Template0) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], e
 		return t.constIterator(rec, rec.Grid.TotalPoints), nil
 	}
 	return t.simpleIterator(rec, rec.Grid.TotalPoints), nil
-}
-
-func (t Template0) getValueReader() func(rec record.Record, totalPoints int) []float64 {
-	if t.BitsPerValue == 0 {
-		return t.unpackConst
-	}
-	return t.unpackSimple
-}
-
-func (t Template0) unpackConst(rec record.Record, totalPoints int) []float64 {
-	ref := u.UnpackFloat(t.ReferenceValue, 0, t.BinaryScaleFactor, t.DecimalScaleFactor)
-	values := make([]float64, totalPoints)
-	bmpR := NewBitmapReader(rec)
-	for i := range values {
-		if bmpR.IsMissing(i) {
-			values[i] = math.NaN()
-		} else {
-			values[i] = ref
-		}
-	}
-	return values
-}
-
-func (t Template0) unpackSimple(rec record.Record, totalPoints int) []float64 {
-	values := make([]float64, totalPoints)
-	stream := NewBitStream(rec.Data.Data)
-	bmpR := NewBitmapReader(rec)
-
-	for i := range values {
-		if bmpR.IsMissing(i) {
-			values[i] = math.NaN()
-			continue
-		}
-
-		packed := int(stream.ReadBits(t.BitsPerValue))
-		value := u.Unpack(t.ReferenceValue, packed, t.BinaryScaleFactor, t.DecimalScaleFactor)
-		values[i] = value
-	}
-	return values
 }
 
 func (t Template0) simpleIterator(rec record.Record, totalPoints int) iter.Seq2[int, float64] {
