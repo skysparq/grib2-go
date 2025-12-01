@@ -2,6 +2,7 @@ package data_representation
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"image"
 	"image/png"
@@ -61,17 +62,18 @@ func (t Template41) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], 
 	if err != nil {
 		return nil, fmt.Errorf("error getting values iterator: %w", err)
 	}
-	var getValue func(x, y int) int
+
+	var getValue func(i int) int
 	switch img := p.(type) {
 	case *image.Gray:
-		getValue = t.gray8Getter(img)
+		getValue = t.gray8Getter(img.Pix)
 	case *image.Gray16:
-		getValue = t.gray16Getter(img)
+		getValue = t.gray16Getter(img.Pix)
 	case *image.RGBA:
 		if t.BitDepth == 24 {
-			getValue = t.rgba24BitGetter(img)
+			getValue = t.rgba24BitGetter(img.Pix)
 		} else {
-			getValue = t.rgba32BitGetter(img)
+			getValue = t.rgba32BitGetter(img.Pix)
 		}
 	default:
 		return nil, fmt.Errorf("error getting values iterator: unsupported image type: %T", img)
@@ -82,20 +84,16 @@ func (t Template41) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], 
 	}
 	return func(yield func(int, float64) bool) {
 		i := 0
-		width, _ := p.Bounds().Dx(), p.Bounds().Dy()
-		index := 0
 		for {
 			if i >= rec.Grid.TotalPoints {
 				return
 			}
-			y := i / width
-			x := i % width
 
 			var value float64
-			if bmpR.IsMissing(index) {
+			if bmpR.IsMissing(i) {
 				value = math.NaN()
 			} else {
-				value = u.Unpack(t.ReferenceValue, getValue(x, y), t.BinaryScaleFactor, t.DecimalScaleFactor)
+				value = u.Unpack(t.ReferenceValue, getValue(i), t.BinaryScaleFactor, t.DecimalScaleFactor)
 			}
 			if !yield(i, value) {
 				return
@@ -105,30 +103,26 @@ func (t Template41) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], 
 	}, nil
 }
 
-func (t Template41) rgba24BitGetter(img *image.RGBA) func(x, y int) int {
-	return func(x, y int) int {
-		r, g, b, _ := img.At(x, y).RGBA()
-		r8, g8, b8 := uint8(r>>8), uint8(g>>8), uint8(b>>8)
-		return int(uint32(r8)<<16 | uint32(g8)<<8 | uint32(b8))
+func (t Template41) rgba24BitGetter(bytes []uint8) func(i int) int {
+	return func(i int) int {
+		return int(uint32(bytes[i*3])<<16 | uint32(bytes[i*3+1])<<8 | uint32(bytes[i*3+2]))
 	}
 }
 
-func (t Template41) rgba32BitGetter(img *image.RGBA) func(x, y int) int {
-	return func(x, y int) int {
-		r, g, b, a := img.At(x, y).RGBA()
-		r8, g8, b8, a8 := uint8(r>>8), uint8(g>>8), uint8(b>>8), uint8(a>>8)
-		return int(uint32(r8)<<24 | uint32(g8)<<16 | uint32(b8)<<8 | uint32(a8))
+func (t Template41) rgba32BitGetter(bytes []uint8) func(i int) int {
+	return func(i int) int {
+		return int(binary.LittleEndian.Uint32(bytes[i*4 : i*4+4]))
 	}
 }
 
-func (t Template41) gray8Getter(img *image.Gray) func(x, y int) int {
-	return func(x, y int) int {
-		return int(img.GrayAt(x, y).Y)
+func (t Template41) gray8Getter(bytes []uint8) func(i int) int {
+	return func(i int) int {
+		return int(bytes[i])
 	}
 }
 
-func (t Template41) gray16Getter(img *image.Gray16) func(x, y int) int {
-	return func(x, y int) int {
-		return int(img.Gray16At(x, y).Y)
+func (t Template41) gray16Getter(bytes []uint8) func(i int) int {
+	return func(i int) int {
+		return int(binary.LittleEndian.Uint16(bytes[i*2 : i*2+2]))
 	}
 }
