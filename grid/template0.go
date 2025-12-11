@@ -1,8 +1,6 @@
 package grid
 
 import (
-	"errors"
-
 	"github.com/skysparq/grib2-go/projections"
 	"github.com/skysparq/grib2-go/record"
 	u "github.com/skysparq/grib2-go/utility"
@@ -34,9 +32,6 @@ type Template0 struct {
 // Points returns the latitude and longitude for each point in the grid.
 func (t Template0) Points() (record.GridPoints, error) {
 	var result record.GridPoints
-	if t.MajorAxisScaleValue != 0 {
-		return result, errors.New("error getting points: non-standard lat/lon scaling not implemented")
-	}
 
 	params := projections.EquidistantCylindricalParams{
 		ScanningMode: projections.ScanningModeFromByte(t.ScanningMode),
