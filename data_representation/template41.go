@@ -105,13 +105,13 @@ func (t Template41) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], 
 
 func (t Template41) rgba24BitGetter(bytes []uint8) func(i int) int {
 	return func(i int) int {
-		return int(uint32(bytes[i*3])<<16 | uint32(bytes[i*3+1])<<8 | uint32(bytes[i*3+2]))
+		return int(uint32(bytes[i*4+2]) | uint32(bytes[i*4+1])<<8 | uint32(bytes[i*4])<<16) // Go's png still parses 24-bit png files into 4-byte sequences, we simply discard the last byte when reading values
 	}
 }
 
 func (t Template41) rgba32BitGetter(bytes []uint8) func(i int) int {
 	return func(i int) int {
-		return int(binary.LittleEndian.Uint32(bytes[i*4 : i*4+4]))
+		return int(binary.BigEndian.Uint32(bytes[i*4 : i*4+4]))
 	}
 }
 
@@ -123,6 +123,6 @@ func (t Template41) gray8Getter(bytes []uint8) func(i int) int {
 
 func (t Template41) gray16Getter(bytes []uint8) func(i int) int {
 	return func(i int) int {
-		return int(binary.LittleEndian.Uint16(bytes[i*2 : i*2+2]))
+		return int(binary.BigEndian.Uint16(bytes[i*2 : i*2+2]))
 	}
 }
