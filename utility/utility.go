@@ -65,7 +65,7 @@ func Float32(data []byte) float32 {
 // In grib2 files, latitude and longitudes are stored as 32-bit signed integers with the decimal shifted
 // 6 places to the right.
 func StdLatLngToFloat(value int) float64 {
-	return float64(value) * 1e-6
+	return float64(value) / 1e6
 }
 
 // ShiftLongitude shifts a longitude value to the range [-180, 180].
