@@ -92,7 +92,25 @@ func ShiftLongitude(value int) int {
 //
 // X = Packed value
 func Unpack(ref float64, value int, binaryScale int, decimalScale int) float64 {
-	return (ref + (float64(value) * math.Pow(2, float64(binaryScale)))) / math.Pow(10, float64(decimalScale))
+	return (ref + (float64(value) * PowInt(2, binaryScale))) / PowInt(10, decimalScale)
+}
+
+// PowInt computes x raised to the power of n using exponentiation by squaring, which is more efficient than math.Pow for integer exponents.
+func PowInt(x float64, n int) float64 {
+	if n < 0 {
+		x = 1 / x
+		n = -n
+	}
+
+	result := 1.0
+	for n > 0 {
+		if n&1 == 1 {
+			result *= x
+		}
+		x *= x
+		n >>= 1
+	}
+	return result
 }
 
 // UnpackFloat converts a packed floating point value to the original unpacked floating point value.
@@ -110,12 +128,12 @@ func Unpack(ref float64, value int, binaryScale int, decimalScale int) float64 {
 //
 // X = Packed value
 func UnpackFloat(ref float64, value float64, binaryScale int, decimalScale int) float64 {
-	return (ref + (value * math.Pow(2, float64(binaryScale)))) / math.Pow(10, float64(decimalScale))
+	return (ref + (value * PowInt(2, binaryScale))) / PowInt(10, decimalScale)
 }
 
 // ScaleInt scales an integer by a given decimal scale factor.
 func ScaleInt(value int, scale int) float64 {
-	return float64(value) / math.Pow(10, float64(scale))
+	return float64(value) / PowInt(10, scale)
 }
 
 // TimestampFromReference calculates the timestamp from a reference time and a given time interval.

@@ -1,6 +1,10 @@
 package projections
 
-import "math"
+import (
+	"math"
+
+	"github.com/skysparq/grib2-go/utility"
+)
 
 // The initial draft of the algorithm was generated using Claude with Sonnet 4.5 and integrated into this package using human intelligence.
 
@@ -90,7 +94,7 @@ func newLambertConformalConic(radius, eccentricity, lat0Deg, lon0Deg, lat1Deg, l
 	lcc := &lambertConformalConic{
 		a:  radius,
 		e:  eccentricity,
-		e2: math.Pow(eccentricity, 2),
+		e2: utility.PowInt(eccentricity, 2),
 
 		lat0: degToRad(lat0Deg),
 		lon0: degToRad(lon0Deg),

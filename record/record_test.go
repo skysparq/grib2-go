@@ -14,6 +14,7 @@ import (
 	"github.com/skysparq/grib2-go/record"
 	"github.com/skysparq/grib2-go/templates"
 	"github.com/skysparq/grib2-go/test_files"
+	"github.com/skysparq/grib2-go/utility"
 )
 
 var template = templates.Version33()
@@ -335,7 +336,7 @@ func testFullFiles(path string) error {
 		if err != nil {
 			return err
 		}
-		expectedPrecision := math.Pow(10, -float64(def.DecimalScale()))
+		expectedPrecision := utility.PowInt(10, -def.DecimalScale())
 		if expectedPrecision < maxPrecision {
 			expectedPrecision = maxPrecision
 		}
