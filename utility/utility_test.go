@@ -12,10 +12,10 @@ func TestPowInt(t *testing.T) {
 		n    int
 		want float64
 	}{
-		{2, 10, 1024},
-		{3, 5, 243},
-		{5, 0, 1},
-		{2, -2, 0.25},
+		{x: 2, n: 10, want: 1024},
+		{x: 3, n: 5, want: 243},
+		{x: 5, n: 0, want: 1},
+		{x: 2, n: -2, want: 0.25},
 	}
 	for _, tt := range tests {
 		t.Run("", func(t *testing.T) {
