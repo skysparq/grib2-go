@@ -17,6 +17,7 @@ type IndexedRecord struct {
 // GribFile provides an iterator over the records in a GRIB file.
 type GribFile interface {
 	Records(yield func(IndexedRecord, error) bool)
+	Close() error
 }
 
 // NewGribFile instantiates a GribFile from an io.Reader and a record.Templates.
