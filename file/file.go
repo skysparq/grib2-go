@@ -21,13 +21,13 @@ type GribFile interface {
 
 // NewGribFile instantiates a GribFile from an io.Reader and a record.Templates.
 // Standard templates can be accessed via the templates.Version33 function.
-func NewGribFile(r io.Reader, template record.Templates) GribFile {
+func NewGribFile(r io.ReadCloser, template record.Templates) GribFile {
 	return &gribFile{r: r, template: template}
 }
 
 type gribFile struct {
 	template record.Templates
-	r        io.Reader
+	r        io.ReadCloser
 }
 
 // Records iterates over the records in a GRIB file.
@@ -43,6 +43,11 @@ func (g *gribFile) Records(yield func(IndexedRecord, error) bool) {
 		}
 		i++
 	}
+}
+
+// Close closes the underlying io.ReadCloser
+func (g *gribFile) Close() error {
+	return g.r.Close()
 }
 
 // ExtractRecordBytes extracts the full blob of a GRIB record from a GRIB file.
