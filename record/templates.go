@@ -42,6 +42,7 @@ type GridDefinition interface {
 	Points() (GridPoints, error)
 	XVals() int
 	YVals() int
+	SrsWkt() (string, error)
 }
 
 // GridPoints is the standard struct containing latitude and longitude values from a projection.

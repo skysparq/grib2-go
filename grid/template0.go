@@ -86,3 +86,7 @@ func (t Template0) XVals() int {
 func (t Template0) YVals() int {
 	return t.PointsAlongMeridian
 }
+
+func (t Template0) SrsWkt() (string, error) {
+	return plateCarreeSrsWkt(t.EarthShape, t.FirstLatitude, t.FirstLongitude)
+}

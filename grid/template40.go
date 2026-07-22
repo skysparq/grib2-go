@@ -73,3 +73,8 @@ func (t Template40) XVals() int {
 func (t Template40) YVals() int {
 	return t.PointsAlongMeridian
 }
+
+// SrsWkt returns the WKT string describing this grid's coordinate reference system.
+func (t Template40) SrsWkt() (string, error) {
+	return plateCarreeSrsWkt(t.EarthShape, t.FirstLatitude, t.FirstLongitude)
+}

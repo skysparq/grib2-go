@@ -2,6 +2,7 @@ package grid
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/skysparq/grib2-go/projections"
 	"github.com/skysparq/grib2-go/record"
@@ -110,4 +111,21 @@ func (t Template30) XVals() int {
 // YVals returns the number of points along the Y axis.
 func (t Template30) YVals() int {
 	return t.Ny
+}
+
+// SrsWkt returns the WKT string describing the Lambert Conformal Conic projection.
+func (t Template30) SrsWkt() (string, error) {
+	radius, err := earthRadius(t.EarthShape)
+	if err != nil {
+		return "", fmt.Errorf(`error generating SRS WKT: %w`, err)
+	}
+
+	return fmt.Sprintf(
+		`PROJCS["unnamed", GEOGCS["unnamed", DATUM["unknown", SPHEROID["unnamed", %v, 0]], PRIMEM["Greenwich", 0], UNIT["degree", 0.0174532925199433]], PROJECTION["Lambert_Conformal_Conic_2SP"], PARAMETER["False_Easting", 0], PARAMETER["False_Northing", 0], PARAMETER["Central_Meridian", %v], PARAMETER["Standard_Parallel_1", %v], PARAMETER["Standard_Parallel_2", %v], PARAMETER["Latitude_Of_Origin", %v], UNIT["Metre", 1]]`,
+		radius,
+		u.StdLatLngToFloat(u.ShiftLongitude(t.LoV)),
+		u.StdLatLngToFloat(t.Latin1),
+		u.StdLatLngToFloat(t.Latin2),
+		u.StdLatLngToFloat(t.LaD),
+	), nil
 }
