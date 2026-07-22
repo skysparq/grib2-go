@@ -130,7 +130,7 @@ func (t Template30) SrsWkt() (string, error) {
 	}
 
 	return fmt.Sprintf(
-		`PROJCS["unnamed", GEOGCS["unnamed", DATUM["unknown", SPHEROID["unnamed", %v, 0]], PRIMEM["Greenwich", 0], UNIT["degree", 0.0174532925199433]], PROJECTION["Lambert_Conformal_Conic_2SP"], PARAMETER["False_Easting", 0], PARAMETER["False_Northing", 0], PARAMETER["Central_Meridian", %v], PARAMETER["Standard_Parallel_1", %v], PARAMETER["Standard_Parallel_2", %v], PARAMETER["Latitude_Of_Origin", %v], UNIT["Metre", 1]]`,
+		`PROJCS["unnamed", GEOGCS["unnamed", DATUM["unknown", SPHEROID["unnamed", %.1f, 0]], PRIMEM["Greenwich", 0], UNIT["degree", 0.0174532925199433]], PROJECTION["Lambert_Conformal_Conic_2SP"], PARAMETER["False_Easting", 0], PARAMETER["False_Northing", 0], PARAMETER["Central_Meridian", %v], PARAMETER["Standard_Parallel_1", %v], PARAMETER["Standard_Parallel_2", %v], PARAMETER["Latitude_Of_Origin", %v], UNIT["Metre", 1]]`,
 		radius,
 		u.StdLatLngToFloat(u.ShiftLongitude(t.LoV)),
 		u.StdLatLngToFloat(t.Latin1),

@@ -97,5 +97,5 @@ func (t Template0) YVals() int {
 }
 
 func (t Template0) SrsWkt() (string, error) {
-	return plateCarreeSrsWkt(t.EarthShape, t.FirstLatitude, t.FirstLongitude)
+	return plateCarreeSrsWkt(t.EarthShape, t.FirstLongitude)
 }

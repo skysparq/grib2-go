@@ -80,7 +80,7 @@ func (t Template40) YVals() int {
 
 // SrsWkt returns the WKT string describing this grid's coordinate reference system.
 func (t Template40) SrsWkt() (string, error) {
-	return plateCarreeSrsWkt(t.EarthShape, t.FirstLatitude, t.FirstLongitude)
+	return plateCarreeSrsWkt(t.EarthShape, t.FirstLongitude)
 }
 
 // ScanMode returns the scanning mode used to order this grid's points.

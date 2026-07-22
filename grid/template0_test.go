@@ -99,3 +99,56 @@ func TestTemplate0Points(t *testing.T) {
 		t.Fatalf("expected last longitude to be -0.25 but got %v", value)
 	}
 }
+
+// TestTemplate0SrsWktMatchesPoints verifies that SrsWkt() actually describes the same coordinate
+// system Points() used to generate the grid: it applies the Plate Carree forward formula, using
+// only the central meridian parsed out of the WKT string, to the (already normalized) generated
+// lat/lng points, and checks the result is an exactly regular Ni x Nj grid spaced by the grid's
+// declared increments - which is only possible if the WKT's central meridian matches the grid's.
+func TestTemplate0SrsWktMatchesPoints(t *testing.T) {
+	_, r, err := test_files.Load(test_files.SingleRecordProdDef0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = r.Close() }()
+
+	rec, err := record.ParseRecord(r, templates.Version33())
+	if err != nil {
+		t.Fatal(err)
+	}
+	definition, err := grid.Template0{}.Parse(rec.Grid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	template := definition.(grid.Template0)
+
+	points, err := template.Points()
+	if err != nil {
+		t.Fatal(err)
+	}
+	wkt, err := template.SrsWkt()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	centralMeridian := wktParam(t, wkt, "Central_Meridian")
+	forward := func(lat, lng float64) (x, y float64) {
+		return lng - centralMeridian, lat
+	}
+
+	// Points() is normalized to row-major order, so index 0 is the north-west corner, index 1 is
+	// one column east, and index Ni is one row south.
+	ni := template.XVals()
+	dx := float64(template.ParallelIncrement) * 1e-6
+	dy := float64(template.MeridianIncrement) * 1e-6
+
+	x00, y00 := forward(points.Lats[0], points.Lngs[0])
+	x01, y01 := forward(points.Lats[1], points.Lngs[1])
+	x10, y10 := forward(points.Lats[ni], points.Lngs[ni])
+
+	const tolerance = 1e-6 // degrees
+	assertMagnitude(t, "X change moving one column east", x01-x00, dx, tolerance)
+	assertMagnitude(t, "Y change moving one column east", y01-y00, 0, tolerance)
+	assertMagnitude(t, "X change moving one row south", x10-x00, 0, tolerance)
+	assertMagnitude(t, "Y change moving one row south", y10-y00, dy, tolerance)
+}

@@ -47,7 +47,7 @@ func TestLambertConcormalConical2(t *testing.T) {
 		FirstStandardParallel:  38.5,
 		SecondStandardParallel: 38.5,
 	}
-	l := newLambertConformalConic(params.Radius, params.Eccentricity, params.OriginLatitude, params.OriginLongitude, params.FirstStandardParallel, params.SecondStandardParallel, 0, 0)
+	l := NewLambertConformalConic(params.Radius, params.Eccentricity, params.OriginLatitude, params.OriginLongitude, params.FirstStandardParallel, params.SecondStandardParallel, 0, 0)
 	x, y := l.Forward(21.138123, 237.280472-360)
 	t.Logf("X: %f, Y: %f\n", x, y)
 
@@ -69,7 +69,7 @@ func TestLambertConcormalConical3(t *testing.T) {
 		FirstStandardParallel:  33.0,
 		SecondStandardParallel: 45.0,
 	}
-	l := newLambertConformalConic(params.Radius, params.Eccentricity, params.OriginLatitude, params.OriginLongitude, params.FirstStandardParallel, params.SecondStandardParallel, 0, 0)
+	l := NewLambertConformalConic(params.Radius, params.Eccentricity, params.OriginLatitude, params.OriginLongitude, params.FirstStandardParallel, params.SecondStandardParallel, 0, 0)
 	lat, lng := l.Inverse(1894410.9, 1564649.5)
 	t.Logf("Lat: %f, Lng: %f\n", lat, lng)
 	if math.Abs(lat-35.0) > 1e-5 {
