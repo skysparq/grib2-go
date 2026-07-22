@@ -22,6 +22,10 @@ func earthRadius(earthShape int) (float64, error) {
 	switch earthShape {
 	case 0:
 		return 6367470.0, nil
+	case 2:
+		// IAU 1965 oblate spheroid; treated as spherical using its major axis, consistent with the
+		// other cases here since this package doesn't model ellipsoid flattening.
+		return 6378160.0, nil
 	case 6:
 		return 6371229.0, nil
 	default:

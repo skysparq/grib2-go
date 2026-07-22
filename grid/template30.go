@@ -58,14 +58,11 @@ func (t Template30) Points() (record.GridPoints, error) {
 		StartLongitude:         u.StdLatLngToFloat(u.ShiftLongitude(t.Lo1)),
 	}
 
-	switch t.EarthShape {
-	case 0:
-		params.Radius = 6367470.0
-	case 6:
-		params.Radius = 6371229.0
-	default:
-		return result, errors.New("error getting points: unsupported earth shape")
+	radius, err := earthRadius(t.EarthShape)
+	if err != nil {
+		return result, fmt.Errorf("error getting points: %w", err)
 	}
+	params.Radius = radius
 
 	result.Lats, result.Lngs = projections.ExtractLambertConformalConicalGrid(params)
 	result.Lats = projections.NormalizeScanOrder(result.Lats, t.Nx, t.Ny, mode)
