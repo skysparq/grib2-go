@@ -22,6 +22,21 @@ func wktParam(t *testing.T, wkt, name string) float64 {
 	return value
 }
 
+// wktPrimeMeridian extracts the shift value (degrees from Greenwich) from a WKT string's PRIMEM entry.
+func wktPrimeMeridian(t *testing.T, wkt string) float64 {
+	t.Helper()
+	re := regexp.MustCompile(`PRIMEM\["[^"]*",\s*([-\d.]+)\]`)
+	match := re.FindStringSubmatch(wkt)
+	if match == nil {
+		t.Fatalf("expected WKT to contain a PRIMEM definition, got: %s", wkt)
+	}
+	value, err := strconv.ParseFloat(match[1], 64)
+	if err != nil {
+		t.Fatalf("error parsing prime meridian shift %q: %v", match[1], err)
+	}
+	return value
+}
+
 // wktSpheroidRadius extracts the semi-major axis value from a WKT string's SPHEROID entry.
 func wktSpheroidRadius(t *testing.T, wkt string) float64 {
 	t.Helper()

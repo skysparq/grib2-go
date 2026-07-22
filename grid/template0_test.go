@@ -1,6 +1,7 @@
 package grid_test
 
 import (
+	"math"
 	"reflect"
 	"testing"
 
@@ -101,10 +102,12 @@ func TestTemplate0Points(t *testing.T) {
 }
 
 // TestTemplate0SrsWktMatchesPoints verifies that SrsWkt() actually describes the same coordinate
-// system Points() used to generate the grid: it applies the Plate Carree forward formula, using
-// only the central meridian parsed out of the WKT string, to the (already normalized) generated
-// lat/lng points, and checks the result is an exactly regular Ni x Nj grid spaced by the grid's
-// declared increments - which is only possible if the WKT's central meridian matches the grid's.
+// system Points() used to generate the grid: it re-expresses the (already normalized) generated
+// lat/lng points relative to the WKT's PRIMEM shift - the same reprojection a GEOGCS-to-GEOGCS
+// transform through this WKT would perform - normalized into [0, 360) so the result stays
+// monotonic across the antimeridian, and checks the result is an exactly regular Ni x Nj grid
+// spaced by the grid's declared increments. That's only possible if the WKT's prime meridian
+// shift matches the grid's own starting longitude.
 func TestTemplate0SrsWktMatchesPoints(t *testing.T) {
 	_, r, err := test_files.Load(test_files.SingleRecordProdDef0)
 	if err != nil {
@@ -131,9 +134,13 @@ func TestTemplate0SrsWktMatchesPoints(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	centralMeridian := wktParam(t, wkt, "Central_Meridian")
+	shift := wktPrimeMeridian(t, wkt)
 	forward := func(lat, lng float64) (x, y float64) {
-		return lng - centralMeridian, lat
+		x = math.Mod(lng-shift, 360)
+		if x < 0 {
+			x += 360
+		}
+		return x, lat
 	}
 
 	// Points() is normalized to row-major order, so index 0 is the north-west corner, index 1 is

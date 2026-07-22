@@ -32,8 +32,16 @@ func earthRadius(earthShape int) (float64, error) {
 // plateCarreeSrsWkt builds the SRS WKT for an unprojected latitude/longitude grid (used by
 // Template0 and Template40, which differ only in how points are spaced along a parallel). These
 // grids have no standard parallel of their own - GRIB2 only gives us the corner the scan starts
-// at, which is not a projection parameter - so the standard parallel is always 0 (true Plate
-// Carree), not the grid's starting latitude.
+// at, which is not a projection parameter.
+//
+// This is a plain GEOGCS with a custom PRIMEM shifted to the grid's central meridian, not a
+// PROJCS/Plate_Carree wrapper: PROJCS/Plate_Carree (+proj=eqc) produces linear (meter) output by
+// construction, so declaring its unit as degree is self-contradictory and confuses GDAL/PROJ's
+// transform pipeline - it either errors ("inconsistent unit type between xy_in and xy_out") or
+// silently returns values in meters mislabeled as degrees. A shifted PRIMEM is the WKT construct
+// for "the same geographic coordinates, just measured from a different meridian": it stays
+// honestly in degrees, and produces a clean monotonic longitude axis across the antimeridian
+// instead of a wraparound discontinuity.
 func plateCarreeSrsWkt(earthShape, firstLongitude int) (string, error) {
 	radius, err := earthRadius(earthShape)
 	if err != nil {
@@ -41,11 +49,8 @@ func plateCarreeSrsWkt(earthShape, firstLongitude int) (string, error) {
 	}
 
 	centralMeridian := u.StdLatLngToFloat(u.ShiftLongitude(firstLongitude))
-	projection := fmt.Sprintf(
-		`PROJECTION["Plate_Carree"], PARAMETER["False_Easting", 0], PARAMETER["False_Northing", 0], PARAMETER["Central_Meridian", %v]`,
-		centralMeridian)
 
 	return fmt.Sprintf(
-		`PROJCS["unnamed", GEOGCS["unnamed", DATUM["unknown", SPHEROID["unnamed", %.1f, 0]], PRIMEM["Greenwich", 0], UNIT["degree", 0.0174532925199433]], %s, UNIT["degree", 0.0174532925199433]]`,
-		radius, projection), nil
+		`GEOGCS["unnamed", DATUM["unknown", SPHEROID["unnamed", %.1f, 0]], PRIMEM["shifted", %v], UNIT["degree", 0.0174532925199433]]`,
+		radius, centralMeridian), nil
 }
