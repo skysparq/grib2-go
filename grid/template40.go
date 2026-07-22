@@ -1,6 +1,7 @@
 package grid
 
 import (
+	"github.com/skysparq/grib2-go/projections"
 	"github.com/skysparq/grib2-go/record"
 	u "github.com/skysparq/grib2-go/utility"
 )
@@ -28,9 +29,12 @@ type Template40 struct {
 	ScanningMode                   byte
 }
 
-// Points returns the latitude and longitude for each point in the grid.
+// Points returns the latitude and longitude for each point in the grid, normalized to row-major
+// order with north at row 0 and west at column 0.
 func (t Template40) Points() (record.GridPoints, error) {
-	//TODO implement me
+	//TODO implement me - remember to run the result through projections.NormalizeScanOrder, as
+	// Template0 and Template30 do, so output order matches the rest of the package regardless of
+	// this grid's scanning mode.
 	panic("implement me")
 }
 
@@ -77,4 +81,9 @@ func (t Template40) YVals() int {
 // SrsWkt returns the WKT string describing this grid's coordinate reference system.
 func (t Template40) SrsWkt() (string, error) {
 	return plateCarreeSrsWkt(t.EarthShape, t.FirstLatitude, t.FirstLongitude)
+}
+
+// ScanMode returns the scanning mode used to order this grid's points.
+func (t Template40) ScanMode() projections.ScanningMode {
+	return projections.ScanningModeFromByte(t.ScanningMode)
 }

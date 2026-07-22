@@ -29,12 +29,14 @@ type Template0 struct {
 	ScanningMode                byte
 }
 
-// Points returns the latitude and longitude for each point in the grid.
+// Points returns the latitude and longitude for each point in the grid, normalized to row-major
+// order with north at row 0 and west at column 0.
 func (t Template0) Points() (record.GridPoints, error) {
 	var result record.GridPoints
 
+	mode := t.ScanMode()
 	params := projections.EquidistantCylindricalParams{
-		ScanningMode: projections.ScanningModeFromByte(t.ScanningMode),
+		ScanningMode: mode,
 		Ni:           t.PointsAlongParallel,
 		Nj:           t.PointsAlongMeridian,
 		Di:           t.ParallelIncrement,
@@ -43,8 +45,15 @@ func (t Template0) Points() (record.GridPoints, error) {
 		J0:           t.FirstLatitude,
 	}
 	result.Lats, result.Lngs = projections.ExtractEquidistantCylindricalGrid(params)
+	result.Lats = projections.NormalizeScanOrder(result.Lats, t.PointsAlongParallel, t.PointsAlongMeridian, mode)
+	result.Lngs = projections.NormalizeScanOrder(result.Lngs, t.PointsAlongParallel, t.PointsAlongMeridian, mode)
 
 	return result, nil
+}
+
+// ScanMode returns the scanning mode used to order this grid's points.
+func (t Template0) ScanMode() projections.ScanningMode {
+	return projections.ScanningModeFromByte(t.ScanningMode)
 }
 
 // Parse fills in the template from the provided section

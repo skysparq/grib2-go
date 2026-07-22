@@ -35,15 +35,17 @@ type Template30 struct {
 	SouthernPoleLongitude       int
 }
 
-// Points returns the latitude and longitude for each point in the grid.
+// Points returns the latitude and longitude for each point in the grid, normalized to row-major
+// order with north at row 0 and west at column 0.
 func (t Template30) Points() (record.GridPoints, error) {
 	var result record.GridPoints
 	if t.MajorAxisScaleValue != 0 {
 		return result, errors.New("error getting points: non-standard lat/lon scaling not implemented")
 	}
 
+	mode := t.ScanMode()
 	params := projections.LambertConformalConicalParams{
-		ScanningMode:           projections.ScanningModeFromByte(t.ScanningMode),
+		ScanningMode:           mode,
 		OriginLatitude:         u.StdLatLngToFloat(t.LaD),
 		OriginLongitude:        u.StdLatLngToFloat(u.ShiftLongitude(t.LoV)),
 		FirstStandardParallel:  u.StdLatLngToFloat(t.Latin1),
@@ -66,8 +68,15 @@ func (t Template30) Points() (record.GridPoints, error) {
 	}
 
 	result.Lats, result.Lngs = projections.ExtractLambertConformalConicalGrid(params)
+	result.Lats = projections.NormalizeScanOrder(result.Lats, t.Nx, t.Ny, mode)
+	result.Lngs = projections.NormalizeScanOrder(result.Lngs, t.Nx, t.Ny, mode)
 
 	return result, nil
+}
+
+// ScanMode returns the scanning mode used to order this grid's points.
+func (t Template30) ScanMode() projections.ScanningMode {
+	return projections.ScanningModeFromByte(t.ScanningMode)
 }
 
 // Parse fills in the template from the provided section

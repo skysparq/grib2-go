@@ -27,7 +27,7 @@ func TestUnpackTemplate4with32bits(t *testing.T) {
 	blob = binary.BigEndian.AppendUint32(blob, math.Float32bits(3.0))
 
 	values, err := dataDef.GetValues(record.Record{
-		Grid:   record.Section3{TotalPoints: 3},
+		Grid:   record.Section3{TotalPoints: 3, Templates: singleRowGridTemplates(3)},
 		BitMap: record.Section6{BitmapIndicator: 255},
 		Data:   record.Section7{Data: blob},
 	})
@@ -65,7 +65,7 @@ func TestUnpackTemplate4with64bits(t *testing.T) {
 	blob = binary.BigEndian.AppendUint64(blob, math.Float64bits(3.0))
 
 	values, err := dataDef.GetValues(record.Record{
-		Grid:   record.Section3{TotalPoints: 3},
+		Grid:   record.Section3{TotalPoints: 3, Templates: singleRowGridTemplates(3)},
 		BitMap: record.Section6{BitmapIndicator: 255},
 		Data:   record.Section7{Data: blob},
 	})

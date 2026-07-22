@@ -1,8 +1,9 @@
 package record
 
 import (
-	"iter"
 	"time"
+
+	"github.com/skysparq/grib2-go/projections"
 )
 
 // Templates provides an interface for passing GRIB2 section templates to the parser.
@@ -24,8 +25,11 @@ type DataRepresentationDefinition interface {
 
 // DataReader provides an interface for retrieving values from a GRIB2 record.
 type DataReader interface {
+	// GetValues returns the decoded data value of every point in the grid, normalized to row-major
+	// order with north at row 0 and west at column 0 - the same order GridDefinition.Points()
+	// returns, regardless of the scanning mode the source GRIB2 file actually used. Values[i]
+	// always corresponds to GridPoints.Lats[i]/Lngs[i] for the same grid.
 	GetValues(rec Record) ([]float64, error)
-	ValuesIterator(rec Record) (iter.Seq2[int, float64], error)
 }
 
 // ProductDefinition provides an interface for parsing GRIB2 section 4.
@@ -39,19 +43,31 @@ type ProductDefinition interface {
 // It includes methods for retrieving certain standardized information from the section.
 type GridDefinition interface {
 	Parse(section Section3) (GridDefinition, error)
+	// Points returns the latitude and longitude of every point in the grid, normalized to
+	// row-major order with north at row 0 and west at column 0, regardless of the scanning mode
+	// the source GRIB2 file actually used. See GridPoints.
 	Points() (GridPoints, error)
 	XVals() int
 	YVals() int
 	SrsWkt() (string, error)
+	// ScanMode returns the scanning mode the source GRIB2 file used to store this grid's points on
+	// disk. It describes the file's raw layout only - it does NOT describe the order Points() or
+	// DataReader.GetValues() return, since both of those are always normalized to north-up,
+	// west-first row-major order regardless of this value.
+	ScanMode() projections.ScanningMode
 }
 
 // GridPoints is the standard struct containing latitude and longitude values from a projection.
+// Points are in row-major order with north at row 0 and west at column 0, regardless of the
+// scanning mode the source GRIB2 file actually used.
 type GridPoints struct {
 	Lats []float64
 	Lngs []float64
 }
 
 // GriddedValues is the standard struct containing latitude, longitude, and data values from a GRIB2 record.
+// All three are aligned and normalized to row-major order with north at row 0 and west at column 0;
+// Values[i] corresponds to Lats[i]/Lngs[i].
 type GriddedValues struct {
 	XVals int
 	YVals int

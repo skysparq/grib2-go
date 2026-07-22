@@ -18,6 +18,8 @@ func main() {
 	defer func() { _ = r.Close() }()
 
 	grib := file.NewGribFile(r, templates.Version33())
+	defer func() { _ = grib.Close() }()
+
 	var indexed file.IndexedRecord
 	i := 0
 	for indexed, err = range grib.Records {

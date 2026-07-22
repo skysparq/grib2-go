@@ -77,10 +77,13 @@ func ParseRecord(r io.Reader, templates Templates) (record Record, err error) {
 
 // GetGriddedValues returns the longitude, latitude, and decoded data value of every data point in the record.
 // It is a convenience method to retrieve the entirety of the geospatial data in a single call.
+// The result is normalized to row-major order with north at row 0 and west at column 0, regardless
+// of the scanning mode the source GRIB2 file actually used - see GriddedValues.
 //
 // Note: When processing multiple records that use the same grid, this method adds CPU and memory overhead that can be
 // avoided by retrieving the data values directly from the DataRepresentationDefinition. The longitude and latitude
-// should be retrieved once from the GridDefinition and cached for the remaining records.
+// should be retrieved once from the GridDefinition and cached for the remaining records. Both GridDefinition.Points()
+// and DataReader.GetValues() apply the same normalization independently, so values fetched this way remain aligned.
 func (r Record) GetGriddedValues() (GriddedValues, error) {
 	var values GriddedValues
 	grid, err := r.Grid.Definition()
@@ -102,7 +105,7 @@ func (r Record) GetGriddedValues() (GriddedValues, error) {
 	values.XVals = grid.XVals()
 	values.YVals = grid.YVals()
 	if len(values.Values) != len(values.Lngs) || len(values.Values) != len(values.Lats) {
-		return values, fmt.Errorf("error getting gridded values: the length of ValuesIterator, Lngs, and Lats do not match")
+		return values, fmt.Errorf("error getting gridded values: the length of Values, Lngs, and Lats do not match")
 	}
 	return values, nil
 }

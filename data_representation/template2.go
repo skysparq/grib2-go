@@ -62,9 +62,10 @@ func (t Template2) DecimalScale() int {
 	return t.DecimalScaleFactor
 }
 
-// GetValues unpacks the record's data into the original values
+// GetValues unpacks the record's data into the original values, normalized to row-major order
+// with north at row 0 and west at column 0 to match GridDefinition.Points().
 func (t Template2) GetValues(rec record.Record) ([]float64, error) {
-	iterator, err := t.ValuesIterator(rec)
+	iterator, err := t.valuesIterator(rec)
 	if err != nil {
 		return nil, fmt.Errorf("error getting values: %w", err)
 	}
@@ -72,10 +73,10 @@ func (t Template2) GetValues(rec record.Record) ([]float64, error) {
 	for i, v := range iterator {
 		values[i] = v
 	}
-	return values, nil
+	return normalizeScanOrder(rec, values)
 }
 
-func (t Template2) ValuesIterator(rec record.Record) (iter.Seq2[int, float64], error) {
+func (t Template2) valuesIterator(rec record.Record) (iter.Seq2[int, float64], error) {
 	bitmap := NewBitmapReader(rec)
 	params := &ComplexParams{
 		TotalPoints:              rec.Grid.TotalPoints,

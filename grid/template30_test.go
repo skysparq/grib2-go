@@ -76,10 +76,12 @@ func TestTemplate30Points(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if expected := -122.71953; math.Abs(expected-points.Lngs[0]) > 0.001 {
+	// This grid's raw scan order starts at the south-west corner (La1/Lo1), but Points() normalizes
+	// to row-major order with north at row 0 and west at column 0, so index 0 is the north-west corner.
+	if expected := -134.095480; math.Abs(expected-points.Lngs[0]) > 0.001 {
 		t.Fatalf("expected first longitude to be %v but got %v", expected, points.Lngs[0])
 	}
-	if expected := 21.138123; math.Abs(expected-points.Lats[0]) > 0.001 {
+	if expected := 47.838623; math.Abs(expected-points.Lats[0]) > 0.001 {
 		t.Fatalf("expected first latitude to be %v but got %v", expected, points.Lats[0])
 	}
 

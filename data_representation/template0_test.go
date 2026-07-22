@@ -22,6 +22,7 @@ func TestUnpackConst(t *testing.T) {
 	rec := record.Record{
 		Grid: record.Section3{
 			TotalPoints: 5,
+			Templates:   singleRowGridTemplates(5),
 		},
 		BitMap: record.Section6{
 			Length:          6,
@@ -63,16 +64,19 @@ func TestUnpackSimpleWithBitmap(t *testing.T) {
 	if expected := 1_905_141; len(data) != expected {
 		t.Fatalf(`expected %v values but got %v`, expected, len(data))
 	}
-	if expected := 879.9208; math.Abs(expected-data[0]) > 1e-4 {
+	// GetValues() is normalized to row-major order with north at row 0 and west at column 0, so
+	// index 0 is the north-west corner and the last index is the south-east corner. These indices
+	// were chosen to match the same underlying grid points the pre-normalization test checked.
+	if expected := 342.1708; math.Abs(expected-data[0]) > 1e-4 {
 		t.Fatalf(`expected %v but got %v`, expected, data[0])
 	}
-	if expected := 4174.6708; math.Abs(expected-data[243518]) > 1e-4 {
-		t.Fatalf(`expected %v but got %v`, expected, data[243518])
+	if expected := 4174.6708; math.Abs(expected-data[1661130]) > 1e-4 {
+		t.Fatalf(`expected %v but got %v`, expected, data[1661130])
 	}
-	if !math.IsNaN(data[1131644]) {
-		t.Fatalf(`expected NaN but got %v`, data[1131644])
+	if !math.IsNaN(data[771844]) {
+		t.Fatalf(`expected NaN but got %v`, data[771844])
 	}
-	if expected := 2214.5458; math.Abs(expected-data[len(data)-1]) > 1e-4 {
-		t.Fatalf(`expected %v but got %v`, expected, data[len(data)-1])
+	if !math.IsNaN(data[len(data)-1]) {
+		t.Fatalf(`expected NaN but got %v`, data[len(data)-1])
 	}
 }

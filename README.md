@@ -24,6 +24,17 @@ The primary entrypoint for parsing GRIB2 files is a `file.GribFile`. You can ins
 
 In this way, the grib2-go package immediately provides a high-performance standard framework for parsing GRIB2 files, while allowing future expansion and user-specific implementations.
 
+### Grid point ordering
+
+GRIB2 files can store grid points in any of 8 physical scan orders (starting corner and row-major vs.
+column-major), described by the scanning mode octet in section 3. grib2-go hides this: `GridDefinition.Points()`,
+`DataRepresentationDefinition.GetValues()`, and the `Record.GetGriddedValues()` convenience method all
+normalize their output to row-major order with the first point at the north-west corner of the grid and
+points proceeding west-to-east, then north-to-south - regardless of the scanning mode the source file
+actually used. `Values[i]` always lines up with `Lats[i]`/`Lngs[i]`, so this output can be written directly
+into a north-up raster (e.g. a GeoTIFF) without any further reordering. If you need the file's original,
+un-normalized scanning mode for some other reason, it's available via `GridDefinition.ScanMode()`.
+
 ## Tests
 
 The tests in this package use actual GRIB2 data from various sources (initially, GFS forecast files). Due to the size of GRIB2 files, it is not feasible to keep them in the repo. To run unit tests in this package, download the files from [this link](https://drive.google.com/file/d/1qXFrMPeNCaR7bXzndTsRgKWYMCUL6rgO/view?usp=sharing) and place them in a directory called `.test_files` in the root package folder.

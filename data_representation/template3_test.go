@@ -208,16 +208,19 @@ func TestUnpackComplexWithBitmapFromHRRR(t *testing.T) {
 	if expected := 1_905_141; len(data) != expected {
 		t.Fatalf(`expected %v values but got %v`, expected, len(data))
 	}
-	if expected := 91300.0; data[0] != expected {
+	// GetValues() is normalized to row-major order with north at row 0 and west at column 0, so
+	// index 0 is the north-west corner and the last index is the south-east corner. These indices
+	// were chosen to match the same underlying grid points the pre-normalization test checked.
+	if expected := 98400.0; data[0] != expected {
 		t.Fatalf(`expected %v but got %v`, expected, data[0])
 	}
-	if expected := 71900.0; data[89530] != expected {
-		t.Fatalf(`expected %v but got %v`, expected, data[89530])
+	if expected := 71900.0; data[1816570] != expected {
+		t.Fatalf(`expected %v but got %v`, expected, data[1816570])
 	}
-	if !math.IsNaN(data[1070738]) {
-		t.Fatalf(`expected NaN but got %v`, data[1070738])
+	if !math.IsNaN(data[833270]) {
+		t.Fatalf(`expected NaN but got %v`, data[833270])
 	}
-	if expected := 26300.0; data[len(data)-1] != expected {
+	if !math.IsNaN(data[len(data)-1]) {
 		t.Fatalf(`expected NaN but got %v`, data[len(data)-1])
 	}
 }
