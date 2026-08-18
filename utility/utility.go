@@ -92,7 +92,7 @@ func ShiftLongitude(value int) int {
 //
 // X = Packed value
 func Unpack(ref float64, value int, binaryScale int, decimalScale int) float64 {
-	return (ref + (float64(value) * math.Pow(2, float64(binaryScale)))) / math.Pow(10, float64(decimalScale))
+	return ScaleFloat(ref+ScaleFloatBase2(float64(value), -binaryScale), decimalScale)
 }
 
 // UnpackFloat converts a packed floating point value to the original unpacked floating point value.
@@ -110,12 +110,44 @@ func Unpack(ref float64, value int, binaryScale int, decimalScale int) float64 {
 //
 // X = Packed value
 func UnpackFloat(ref float64, value float64, binaryScale int, decimalScale int) float64 {
-	return (ref + (value * math.Pow(2, float64(binaryScale)))) / math.Pow(10, float64(decimalScale))
+	return ScaleFloat(ref+ScaleFloatBase2(value, -binaryScale), decimalScale)
 }
 
 // ScaleInt scales an integer by a given decimal scale factor.
 func ScaleInt(value int, scale int) float64 {
-	return float64(value) / math.Pow(10, float64(scale))
+	return ScaleFloat(float64(value), scale)
+}
+
+// ScaleFloat scales a float by a given decimal scale factor.
+func ScaleFloat(value float64, scale int) float64 {
+	switch scale {
+	case 0:
+		return value
+	case -2:
+		return value * 100
+	case 3:
+		return value / 1000
+	case 6:
+		return value / 1000000
+	}
+	// fallback to using math.Pow, which is slower
+	return value / math.Pow(10, float64(scale))
+}
+
+// ScaleFloatBase2 scales a float by a given binary scale factor.
+func ScaleFloatBase2(value float64, scale int) float64 {
+	switch scale {
+	case 10:
+		return value / 1024
+	case 11:
+		return value / 2048
+	case 12:
+		return value / 4096
+	case 13:
+		return value / 8192
+	}
+	// fallback to using math.Pow, which is slower
+	return value / math.Pow(2, float64(scale))
 }
 
 // TimestampFromReference calculates the timestamp from a reference time and a given time interval.
