@@ -11,6 +11,17 @@ func Int32(data []byte) int {
 	return int(int32(binary.BigEndian.Uint32(data)))
 }
 
+// SignAndMagnitudeInt8 returns an int from a byte encoded as a sign-and-magnitude integer.
+// Unlike two's complement, sign-and-magnitude integers use the first bit to indicate the sign.
+func SignAndMagnitudeInt8(data byte) int {
+	negative := (data & 0x80) == 0x80
+	value := int(data & 0x7F)
+	if negative {
+		value = -value
+	}
+	return value
+}
+
 // SignAndMagnitudeInt32 returns an int from a big endian 4-byte slice encoded as a sign-and-magnitude integer.
 // Unlike two's complement, sign-and-magnitude integers use the first bit to indicate the sign.
 func SignAndMagnitudeInt32(data []byte) int {

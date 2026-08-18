@@ -27,13 +27,18 @@ type Template0 struct {
 // Header returns the standard header fields common to all products
 func (t Template0) Header(info record.Section1) record.ProductDefinitionHeader {
 	at := u.TimestampFromReference(info.Time(), t.ForecastTimeInUnits, t.UnitOfTimeRange)
+	// avoid scaling if SecondSurfaceType is missing (0xff)
+	var secondSurfaceValue float64
+	if t.SecondSurfaceType != 0xff {
+		secondSurfaceValue = u.ScaleInt(t.SecondSurfaceScaleValue, t.SecondSurfaceScaleFactor)
+	}
 	return record.ProductDefinitionHeader{
 		ParameterCategory:  t.ParameterCategory,
 		ParameterNumber:    t.ParameterNumber,
 		FirstSurfaceType:   t.FirstSurfaceType,
 		FirstSurfaceValue:  u.ScaleInt(t.FirstSurfaceScaleValue, t.FirstSurfaceScaleFactor),
 		SecondSurfaceType:  t.SecondSurfaceType,
-		SecondSurfaceValue: u.ScaleInt(t.SecondSurfaceScaleValue, t.SecondSurfaceScaleFactor),
+		SecondSurfaceValue: secondSurfaceValue,
 		Start:              at,
 		End:                at,
 		TimeIncrements:     nil,
@@ -58,10 +63,10 @@ func (t Template0) Parse(section record.Section4) (record.ProductDefinition, err
 	t.UnitOfTimeRange = int(data[8])
 	t.ForecastTimeInUnits = u.Uint32(data[9:13])
 	t.FirstSurfaceType = int(data[13])
-	t.FirstSurfaceScaleFactor = int(data[14])
+	t.FirstSurfaceScaleFactor = u.SignAndMagnitudeInt8(data[14])
 	t.FirstSurfaceScaleValue = u.Int32(data[15:19])
 	t.SecondSurfaceType = int(data[19])
-	t.SecondSurfaceScaleFactor = int(data[20])
+	t.SecondSurfaceScaleFactor = u.SignAndMagnitudeInt8(data[20])
 	t.SecondSurfaceScaleValue = u.Int32(data[21:25])
 	return t, nil
 }
